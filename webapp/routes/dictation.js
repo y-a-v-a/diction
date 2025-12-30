@@ -5,6 +5,7 @@ export function setupDictationRoutes(app, render) {
   app.get('/dictation/:id', (req, res) => {
     try {
       const { id } = req.params;
+      const { warning } = req.query;
 
       // Validate ID format (8 lowercase hex characters)
       if (!/^[0-9a-f]{8}$/.test(id)) {
@@ -26,6 +27,17 @@ export function setupDictationRoutes(app, render) {
         minute: '2-digit'
       });
 
+      // Build warning message if present
+      let warningHtml = '';
+      if (warning === 'audio-incomplete') {
+        warningHtml = `
+          <div style="background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+            <strong>Let op:</strong> Niet alle audio bestanden konden worden gegenereerd (bijv. door quotum limiet).
+            De zinnen zijn wel opgeslagen en audio bestanden die wel zijn gegenereerd kun je hieronder afspelen.
+          </div>
+        `;
+      }
+
       // Build audio players HTML
       let audioPlayersHtml = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
@@ -43,6 +55,7 @@ export function setupDictationRoutes(app, render) {
         id: id,
         topics: dictation.topics.join(', '),
         date: date,
+        warning: warningHtml,
         audioPlayers: audioPlayersHtml
       });
 

@@ -33,6 +33,28 @@ export async function generateSpeech(text, outputPath) {
 
     if (!response.ok) {
       const errorText = await response.text();
+
+      // Try to parse JSON error response
+      try {
+        const errorData = JSON.parse(errorText);
+
+        // Handle quota exceeded specifically
+        if (errorData.detail?.status === 'quota_exceeded') {
+          const message = errorData.detail.message || 'ElevenLabs quota exceeded';
+          throw new Error(`Je ElevenLabs quotum is op. ${message}`);
+        }
+
+        // Handle other structured errors
+        if (errorData.detail?.message) {
+          throw new Error(`ElevenLabs fout: ${errorData.detail.message}`);
+        }
+      } catch (parseError) {
+        // If JSON parsing fails, fall back to original error text
+        if (parseError.message.includes('ElevenLabs')) {
+          throw parseError; // Re-throw our custom error
+        }
+      }
+
       throw new Error(`ElevenLabs API error (${response.status}): ${errorText}`);
     }
 

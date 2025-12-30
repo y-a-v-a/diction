@@ -33,6 +33,7 @@ export function setupCreateRoutes(app, render) {
       // Generate unique ID
       const id = generateId();
       const dictationPath = getDictationPath(id);
+      let dictationCreated = false;
 
       try {
         // Step 1: Generate sentences using Claude
@@ -40,8 +41,10 @@ export function setupCreateRoutes(app, render) {
         const sentences = await generateSentences(topics[0], topics[1], topics[2]);
         console.log(`Generated ${sentences.length} sentences`);
 
-        // Step 2: Create dictation metadata
+        // Step 2: Create dictation metadata immediately (preserve Claude's work)
         createDictation(id, topics, sentences);
+        dictationCreated = true;
+        console.log(`Dictation ${id} metadata saved`);
 
         // Step 3: Generate audio for each sentence
         console.log(`Generating audio files for dictation ${id}...`);
@@ -57,23 +60,30 @@ export function setupCreateRoutes(app, render) {
           }
         }
 
-        console.log(`Dictation ${id} created successfully`);
+        console.log(`Dictation ${id} created successfully with all audio`);
 
         // Redirect to the dictation page
         res.redirect(`/dictation/${id}`);
 
       } catch (error) {
-        // If anything fails, clean up the partial dictation
         console.error('Error creating dictation:', error);
-        deleteDictation(id);
 
-        const errorHtml = `
-          <div class="error">
-            <strong>Fout bij het maken van het dictee:</strong><br>
-            ${error.message}
-          </div>
-        `;
-        res.status(500).send(render('create.html', {}) + errorHtml);
+        if (dictationCreated) {
+          // Dictation metadata exists with sentences - keep it even if audio generation failed
+          console.log(`Dictation ${id} kept with partial audio due to: ${error.message}`);
+          res.redirect(`/dictation/${id}?warning=audio-incomplete`);
+        } else {
+          // Claude generation failed - nothing useful to keep
+          deleteDictation(id);
+
+          const errorHtml = `
+            <div class="error">
+              <strong>Fout bij het maken van het dictee:</strong><br>
+              ${error.message}
+            </div>
+          `;
+          res.status(500).send(render('create.html', {}) + errorHtml);
+        }
       }
 
     } catch (error) {
