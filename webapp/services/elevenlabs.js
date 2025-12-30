@@ -23,7 +23,11 @@ export async function generateSpeech(text, outputPath) {
       },
       body: JSON.stringify({
         text: text,
-        model_id: 'eleven_multilingual_v2'
+        model_id: 'eleven_multilingual_v2',
+        language_code: 'nl',
+        voice_settings: {
+          speed: 0.8
+        }
       })
     });
 
