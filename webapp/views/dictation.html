@@ -1,0 +1,57 @@
+<h1>Dictee: {{id}}</h1>
+
+<p style="margin-bottom: 10px;"><strong>Onderwerpen:</strong> {{topics}}</p>
+<p style="margin-bottom: 20px; color: #666;">Gemaakt op: {{date}}</p>
+
+<div style="margin-bottom: 20px;">
+  <button id="showTextBtn" class="secondary">Toon Tekst</button>
+  <a href="/" style="margin-left: 10px;">Terug naar Home</a>
+</div>
+
+<div style="background: #f9f9f9; padding: 20px; border-radius: 4px;">
+  {{audioPlayers}}
+</div>
+
+<form method="POST" action="/dictation/{{id}}/delete" style="margin-top: 30px;" onsubmit="return confirm('Weet je zeker dat je dit dictee wilt verwijderen?');">
+  <button type="submit" class="delete">Dictee Verwijderen</button>
+</form>
+
+<script>
+  document.getElementById('showTextBtn').addEventListener('click', function() {
+    const textElements = document.querySelectorAll('.sentence-text');
+    textElements.forEach(el => {
+      el.style.display = 'block';
+    });
+    this.style.display = 'none';
+  });
+</script>
+
+<style>
+  .sentence-item {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+
+  .sentence-number {
+    font-weight: bold;
+    color: #3498db;
+    margin-bottom: 8px;
+  }
+
+  audio {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .sentence-text {
+    display: none;
+    padding: 10px;
+    background: #e8f4f8;
+    border-left: 3px solid #3498db;
+    margin-top: 10px;
+    color: #2c3e50;
+  }
+</style>

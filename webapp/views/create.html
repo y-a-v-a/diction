@@ -1,0 +1,37 @@
+<h1>Nieuw Dictee Maken</h1>
+
+<p style="margin-bottom: 20px; color: #666;">
+  Voer drie onderwerpen in voor het dictee. Er worden 8 zinnen gegenereerd over deze onderwerpen.
+</p>
+
+<form method="POST" action="/create" id="createForm">
+  <div>
+    <label for="topic1">Onderwerp 1:</label>
+    <input type="text" id="topic1" name="topic1" required maxlength="100" placeholder="Bijvoorbeeld: honden">
+  </div>
+
+  <div>
+    <label for="topic2">Onderwerp 2:</label>
+    <input type="text" id="topic2" name="topic2" required maxlength="100" placeholder="Bijvoorbeeld: het weer">
+  </div>
+
+  <div>
+    <label for="topic3">Onderwerp 3:</label>
+    <input type="text" id="topic3" name="topic3" required maxlength="100" placeholder="Bijvoorbeeld: voetbal">
+  </div>
+
+  <button type="submit">Dictee Genereren</button>
+  <a href="/" style="margin-left: 10px;">Annuleren</a>
+</form>
+
+<div id="loading" class="loading" style="display: none;">
+  <p><strong>Dictee wordt gegenereerd...</strong></p>
+  <p>Dit kan 30-60 seconden duren. Even geduld alstublieft.</p>
+</div>
+
+<script>
+  document.getElementById('createForm').addEventListener('submit', function() {
+    document.getElementById('loading').style.display = 'block';
+    this.style.display = 'none';
+  });
+</script>
