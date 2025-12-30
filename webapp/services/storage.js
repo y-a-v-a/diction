@@ -14,6 +14,13 @@ if (!fs.existsSync(DICTATIONS_DIR)) {
 }
 
 /**
+ * Validate ID format (defense-in-depth)
+ */
+function validateId(id) {
+  return typeof id === 'string' && /^[0-9a-f]{8}$/.test(id);
+}
+
+/**
  * Generate a unique 8-character ID
  */
 export function generateId() {
@@ -24,6 +31,10 @@ export function generateId() {
  * Create a new dictation
  */
 export function createDictation(id, topics, sentences) {
+  if (!validateId(id)) {
+    throw new Error('Invalid dictation ID format');
+  }
+
   const dictationDir = path.join(DICTATIONS_DIR, id);
 
   // Create dictation directory
@@ -50,6 +61,10 @@ export function createDictation(id, topics, sentences) {
  * Get a dictation by ID
  */
 export function getDictation(id) {
+  if (!validateId(id)) {
+    return null;
+  }
+
   const metadataPath = path.join(DICTATIONS_DIR, id, 'metadata.json');
 
   if (!fs.existsSync(metadataPath)) {
@@ -90,6 +105,10 @@ export function listDictations() {
  * Delete a dictation by ID
  */
 export function deleteDictation(id) {
+  if (!validateId(id)) {
+    return false;
+  }
+
   const dictationDir = path.join(DICTATIONS_DIR, id);
 
   if (fs.existsSync(dictationDir)) {
@@ -104,5 +123,9 @@ export function deleteDictation(id) {
  * Get the path to a dictation directory
  */
 export function getDictationPath(id) {
+  if (!validateId(id)) {
+    throw new Error('Invalid dictation ID format');
+  }
+
   return path.join(DICTATIONS_DIR, id);
 }

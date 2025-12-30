@@ -31,7 +31,7 @@ Regels:
 - Variërende moeilijkheidsgraad (makkelijk naar moeilijker)
 - Zinnen van 20-30 woorden
 - Gebruik verschillende leestekens
-- Focus op correcte Nederlandse grammatica en spelling
+- Besteed extra aandacht aan correcte Nederlandse grammatica en spelling
 - Gebruik bij voorkeur zij/haar of zij/hen boven hij/hem
 
 Geef ALLEEN de 8 zinnen terug, genummerd 1-8, zonder extra uitleg.`;

@@ -6,8 +6,8 @@ export function setupDictationRoutes(app, render) {
     try {
       const { id } = req.params;
 
-      // Validate ID format (8 hex characters)
-      if (!/^[0-9a-f]{8}$/i.test(id)) {
+      // Validate ID format (8 lowercase hex characters)
+      if (!/^[0-9a-f]{8}$/.test(id)) {
         return res.status(400).send('Ongeldige dictee ID');
       }
 
@@ -57,6 +57,11 @@ export function setupDictationRoutes(app, render) {
   app.post('/dictation/:id/delete', (req, res) => {
     try {
       const { id } = req.params;
+
+      // Validate ID format (8 lowercase hex characters)
+      if (!/^[0-9a-f]{8}$/.test(id)) {
+        return res.status(400).send('Ongeldige dictee ID');
+      }
 
       const success = deleteDictation(id);
 
