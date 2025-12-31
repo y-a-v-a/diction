@@ -5,10 +5,10 @@ const client = new Anthropic({
 });
 
 /**
- * Generate 8 Dutch sentences for a dictation based on 3 topics
+ * Generate Dutch sentences for a dictation based on 3 topics
  * @see https://dictees.nl/alle-dictees/groot-dictee-der-nederlandse-taal/
  */
-export async function generateSentences(topic1, topic2, topic3) {
+export async function generateSentences(topic1, topic2, topic3, count = 8) {
   const prompt = `Je bent een Neerlandicus of schrijver met het Nederlands als moedertaal die graag dictees schrijft.
 Je formuleert bij voorkeur lange zinnen met moeilijke Nederlands woorden: denk hierbij aan leenwoorden met onduidelijke verbuiging, lange samengestelde woordvormen, lastige spelling met trema's, gestapelde meervoudsvormen, leenwoorden, complexe zinsstructuur met bijzinnen of archaïsch taalgebruik.
 Bij het formuleren van je dictee probeer je het Nederlands als taal in brede zin te representeren: jongerentaal, academische taal, jargon en journalistiek Nederlands kunnen naast elkaar in zinnen voorkomen.
@@ -22,7 +22,7 @@ Hier volgen drie voorbeeldzinnen die als inspiratie kunnen dienen (Let op: deze 
 
 <nog-een-voorbeeldzin>De luiwammesende vrijberoepsbeoefenaar keek naar het tv-kanaal van de op reclame-inkomsten gedijende supercommerciële pulpzender; daar werd net het eerste tête-à-tête van een twee-eiige tweeling vastgelegd.</nog-een-voorbeeldzin>
 
-Maak precies 8 zinnen voor een dictee over de volgende onderwerpen:
+Maak precies ${count} zinnen voor een dictee over de volgende onderwerpen:
 - ${topic1}
 - ${topic2}
 - ${topic3}
@@ -36,7 +36,7 @@ Regels:
 
 Je schrijft zinnen die natuurlijk klinken alsof ze uit een krant, essay of boek komen; moeilijkheid komt voort uit het onderwerp en de taal zelf, niet uit geforceerde constructies.
 
-Geef ALLEEN de 8 zinnen terug, genummerd 1-8, zonder extra uitleg.`;
+Geef ALLEEN de ${count} zinnen terug, genummerd 1-${count}, zonder extra uitleg.`;
 
   try {
     const message = await client.messages.create({
@@ -56,9 +56,9 @@ Geef ALLEEN de 8 zinnen terug, genummerd 1-8, zonder extra uitleg.`;
       .map(line => line.replace(/^\d+\.\s*/, '').trim())
       .filter(sentence => sentence.length > 0);
 
-    // Validate we have exactly 8 sentences
-    if (sentences.length !== 8) {
-      throw new Error(`Expected 8 sentences, but got ${sentences.length}`);
+    // Validate we have the expected number of sentences
+    if (sentences.length !== count) {
+      throw new Error(`Expected ${count} sentences, but got ${sentences.length}`);
     }
 
     return sentences;

@@ -1,7 +1,7 @@
 <h1>Nieuw Dictee Maken</h1>
 
 <p class="description">
-  Voer drie onderwerpen in voor het dictee. Er worden 8 zinnen gegenereerd over deze onderwerpen.
+  Voer drie onderwerpen in voor het dictee. Kies hoeveel zinnen je wilt genereren (1-8).
 </p>
 
 <form method="POST" action="/create" id="createForm">
@@ -18,6 +18,11 @@
   <div>
     <label for="topic3">Onderwerp 3:</label>
     <input type="text" id="topic3" name="topic3" required maxlength="100" placeholder="Bijvoorbeeld: voetbal">
+  </div>
+
+  <div>
+    <label for="sentenceCount">Aantal zinnen (1-8):</label>
+    <input type="number" id="sentenceCount" name="sentenceCount" required min="1" max="8" value="8" placeholder="8">
   </div>
 
   <button type="submit">Dictee Genereren</button>

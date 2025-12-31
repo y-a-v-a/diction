@@ -13,7 +13,7 @@ export function setupCreateRoutes(app, render) {
   // POST /create - Generate new dictation
   app.post('/create', async (req, res) => {
     try {
-      const { topic1, topic2, topic3 } = req.body;
+      const { topic1, topic2, topic3, sentenceCount } = req.body;
 
       // Validate topics
       if (!topic1 || !topic2 || !topic3) {
@@ -22,6 +22,12 @@ export function setupCreateRoutes(app, render) {
 
       if (topic1.length > 100 || topic2.length > 100 || topic3.length > 100) {
         return res.status(400).send(render('create.html', {}) + '<div class="error">Onderwerpen mogen maximaal 100 tekens zijn.</div>');
+      }
+
+      // Validate sentence count
+      const count = parseInt(sentenceCount, 10);
+      if (isNaN(count) || count < 1 || count > 8) {
+        return res.status(400).send(render('create.html', {}) + '<div class="error">Aantal zinnen moet tussen 1 en 8 zijn.</div>');
       }
 
       const topics = [
@@ -37,8 +43,8 @@ export function setupCreateRoutes(app, render) {
 
       try {
         // Step 1: Generate sentences using Claude
-        console.log(`Generating sentences for dictation ${id}...`);
-        const sentences = await generateSentences(topics[0], topics[1], topics[2]);
+        console.log(`Generating ${count} sentences for dictation ${id}...`);
+        const sentences = await generateSentences(topics[0], topics[1], topics[2], count);
         console.log(`Generated ${sentences.length} sentences`);
 
         // Step 2: Create dictation metadata immediately (preserve Claude's work)
