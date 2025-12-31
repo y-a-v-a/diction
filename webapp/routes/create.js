@@ -1,6 +1,6 @@
 import path from 'path';
 import { generateSentences } from '../services/claude.js';
-import { generateSpeech, delay } from '../services/elevenlabs.js';
+import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
 
 export function setupCreateRoutes(app, render) {
@@ -47,7 +47,7 @@ export function setupCreateRoutes(app, render) {
         console.log(`Dictation ${id} metadata saved`);
 
         // Step 3: Generate audio for each sentence
-        console.log(`Generating audio files for dictation ${id}...`);
+        console.log(`Generating audio files for dictation ${id} using ${getCurrentService()}...`);
         for (let i = 0; i < sentences.length; i++) {
           const audioPath = path.join(dictationPath, `${i}.mp3`);
           console.log(`Generating audio ${i + 1}/${sentences.length}...`);

@@ -43,10 +43,22 @@ PORT=3000
 - Sign up at https://console.anthropic.com/
 - Create an API key in your account settings
 
-**ElevenLabs API Key:**
+**Text-to-Speech Service:**
+
+The app supports two TTS providers. Choose one by setting `TTS_SERVICE` in your `.env` file:
+
+**Option 1: ElevenLabs** (set `TTS_SERVICE=elevenlabs`)
 - Sign up at https://elevenlabs.io/
 - Find your API key in Settings
 - Browse the Voice Library to find a Dutch voice ID
+- Set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID`
+
+**Option 2: Resemble.ai** (set `TTS_SERVICE=resemble`)
+- Sign up at https://app.resemble.ai/
+- Create or select a project
+- Create a voice or use an existing one
+- Get your API key from the dashboard
+- Set `RESEMBLE_API_KEY` and `RESEMBLE_VOICE_UUID`
 
 ### 3. Run the Application
 
@@ -84,7 +96,9 @@ webapp/
 ├── services/              # Business logic
 │   ├── storage.js        # File system operations
 │   ├── claude.js         # Claude SDK integration
-│   └── elevenlabs.js     # ElevenLabs API integration
+│   ├── tts.js            # Text-to-speech abstraction layer
+│   ├── elevenlabs.js     # ElevenLabs API integration
+│   └── resemble.js       # Resemble.ai API integration
 ├── views/                 # HTML templates
 │   ├── layout.html       # Base layout
 │   ├── home.html         # Dictation list
@@ -103,6 +117,8 @@ webapp/
 - Audio files are served as static files
 - No database required - everything is file-based
 - You can modify the Claude prompt in `services/claude.js` to add example sentences or adjust the format
+- **Pluggable TTS system**: Switch between ElevenLabs and Resemble.ai by changing `TTS_SERVICE` in `.env`
+- Add more TTS providers by creating a new service in `services/` and registering it in `services/tts.js`
 
 ## Troubleshooting
 
@@ -111,9 +127,15 @@ webapp/
 - Ensure you have API credits in your Anthropic account
 
 **Error: "Failed to generate speech"**
-- Check that your ELEVENLABS_API_KEY is valid
-- Verify the ELEVENLABS_VOICE_ID is correct
-- Check if you've exceeded your ElevenLabs quota
+- Check that `TTS_SERVICE` is set to either `elevenlabs` or `resemble`
+- For ElevenLabs:
+  - Verify `ELEVENLABS_API_KEY` is valid
+  - Verify `ELEVENLABS_VOICE_ID` is correct
+  - Check if you've exceeded your ElevenLabs quota
+- For Resemble.ai:
+  - Verify `RESEMBLE_API_KEY` is valid
+  - Verify `RESEMBLE_VOICE_UUID` is correct
+  - Check your Resemble.ai account status
 
 **Audio files not playing**
 - Ensure the dictations directory exists and has proper permissions
