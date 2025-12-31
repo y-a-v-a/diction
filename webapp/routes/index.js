@@ -7,7 +7,7 @@ export function setupIndexRoutes(app, render) {
 
       let dictationsHtml = '';
       if (dictations.length === 0) {
-        dictationsHtml = '<p style="color: #999;">Nog geen dictees. Maak je eerste dictee!</p>';
+        dictationsHtml = '<p class="empty-state">Nog geen dictees. Maak je eerste dictee!</p>';
       } else {
         dictationsHtml = '<div>';
         for (const dictation of dictations) {
@@ -20,18 +20,18 @@ export function setupIndexRoutes(app, render) {
           });
 
           dictationsHtml += `
-            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 4px;">
-              <h3 style="margin-bottom: 10px; color: #2c3e50;">
-                <a href="/dictation/${dictation.id}" style="text-decoration: none; color: #3498db;">
+            <div class="dictation-card">
+              <h3 class="dictation-title">
+                <a href="/dictation/${dictation.id}" class="dictation-link">
                   Dictee ${dictation.id}
                 </a>
               </h3>
               <p style="margin-bottom: 8px;"><strong>Onderwerpen:</strong> ${dictation.topics.join(', ')}</p>
-              <p style="color: #666; font-size: 14px; margin-bottom: 10px;">${date}</p>
+              <p class="dictation-date">${date}</p>
               <div>
-                <a href="/dictation/${dictation.id}" class="btn" style="font-size: 13px; padding: 6px 12px;">Bekijken</a>
+                <a href="/dictation/${dictation.id}" class="btn btn-small">Bekijken</a>
                 <form method="POST" action="/dictation/${dictation.id}/delete" style="display: inline-block; margin-left: 10px;" onsubmit="return confirm('Weet je zeker dat je dit dictee wilt verwijderen?');">
-                  <button type="submit" class="delete" style="font-size: 13px; padding: 6px 12px;">Verwijderen</button>
+                  <button type="submit" class="delete btn-small">Verwijderen</button>
                 </form>
               </div>
             </div>

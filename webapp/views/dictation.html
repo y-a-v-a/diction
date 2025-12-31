@@ -1,20 +1,20 @@
 <h1>Dictee: {{id}}</h1>
 
-<p style="margin-bottom: 10px;"><strong>Onderwerpen:</strong> {{topics}}</p>
-<p style="margin-bottom: 20px; color: #666;">Gemaakt op: {{date}}</p>
+<p class="topics-line"><strong>Onderwerpen:</strong> {{topics}}</p>
+<p class="date-text actions-wrapper">Gemaakt op: {{date}}</p>
 
 {{warning}}
 
-<div style="margin-bottom: 20px;">
+<div class="actions-wrapper">
   <button id="showTextBtn" class="secondary">Toon Tekst</button>
-  <a href="/" style="margin-left: 10px;">Terug naar Home</a>
+  <a href="/" class="cancel-link">Terug naar Home</a>
 </div>
 
-<div style="background: #f9f9f9; padding: 20px; border-radius: 4px;">
+<div class="audio-container">
   {{audioPlayers}}
 </div>
 
-<form method="POST" action="/dictation/{{id}}/delete" style="margin-top: 30px;" onsubmit="return confirm('Weet je zeker dat je dit dictee wilt verwijderen?');">
+<form method="POST" action="/dictation/{{id}}/delete" class="delete-form" onsubmit="return confirm('Weet je zeker dat je dit dictee wilt verwijderen?');">
   <button type="submit" class="delete">Dictee Verwijderen</button>
 </form>
 
@@ -29,6 +29,16 @@
 </script>
 
 <style>
+  .date-text {
+    color: #666;
+  }
+
+  .audio-container {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 4px;
+  }
+
   .sentence-item {
     margin-bottom: 25px;
     padding: 15px;
@@ -55,5 +65,30 @@
     border-left: 3px solid #3498db;
     margin-top: 10px;
     color: #2c3e50;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .date-text {
+      color: #999;
+    }
+
+    .audio-container {
+      background: #252525;
+    }
+
+    .sentence-item {
+      background: #3a3a3a;
+      border-color: #555;
+    }
+
+    .sentence-number {
+      color: #4a9eff;
+    }
+
+    .sentence-text {
+      background: #1a3a4a;
+      border-left-color: #4a9eff;
+      color: #d0d0d0;
+    }
   }
 </style>
