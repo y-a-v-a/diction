@@ -5,34 +5,35 @@ const client = new Anthropic({
 });
 
 /**
- * Validate Dutch sentences to ensure no German words are present
+ * Validate Dutch sentences to ensure no foreign words are present
  * Uses Claude Haiku for fast, cost-effective validation
  */
 async function validateDutchSentences(sentences) {
   const sentencesText = sentences.map((s, i) => `${i + 1}. ${s}`).join('\n');
 
-  const prompt = `Je bent een taalexpert die Nederlands en Duits perfect onderscheidt.
+  const prompt = `Je bent een Nederlandse taalexpert die woorden uit andere talen kan identificeren.
 
-Analyseer de volgende zinnen en identificeer ALLE Duitse woorden (geen Nederlandse woorden).
-Duitse woorden zijn woorden die in het Duits thuishoren maar NIET gangbaar zijn in het Nederlands.
+Analyseer de volgende zinnen en identificeer ALLE woorden die NIET Nederlands zijn.
+Dit kunnen zijn: Duitse, Engelse, Franse, Spaanse of andere vreemde woorden die niet gangbaar zijn in het Nederlands.
 
-Let op: Sommige woorden komen in beide talen voor (zoals "de", "en", "in") - die zijn NIET Duits in deze context.
-Ook leenwoorden die gangbaar zijn in het Nederlands (zoals "kindergarten" als het echt gebruikt wordt) kunnen acceptabel zijn.
-
-Focus op woorden die duidelijk Duits zijn en niet passen in Nederlandse tekst.
+Let op:
+- Sommige woorden komen in meerdere talen voor - die zijn acceptabel als ze gangbaar zijn in het Nederlands
+- Leenwoorden die algemeen gebruikt worden in het Nederlands zijn acceptabel (bijv. "computer", "festival")
+- Focus op woorden die duidelijk uit een andere taal komen en niet passen in Nederlandse tekst
+- Let vooral op Duitse woorden die vaak per ongeluk gebruikt worden (bijv. Schlüssel in plaats van sleutel)
 
 Zinnen:
 ${sentencesText}
 
 Geef een JSON antwoord in EXACT dit formaat (geen extra tekst):
 {
-  "hasGermanWords": true/false,
+  "hasForeignWords": true/false,
   "issues": [
-    {"sentenceIndex": 1, "germanWord": "woord", "dutchAlternative": "alternatief"}
+    {"sentenceIndex": 1, "foreignWord": "woord", "language": "Duits/Engels/Frans/etc", "dutchAlternative": "alternatief"}
   ]
 }
 
-Als er GEEN Duitse woorden zijn, return: {"hasGermanWords": false, "issues": []}`;
+Als er GEEN vreemde woorden zijn, return: {"hasForeignWords": false, "issues": []}`;
 
   try {
     const message = await client.messages.create({
@@ -56,7 +57,7 @@ Als er GEEN Duitse woorden zijn, return: {"hasGermanWords": false, "issues": []}
   } catch (error) {
     console.error('Validation error:', error);
     // On validation error, assume sentences are OK (graceful degradation)
-    return { hasGermanWords: false, issues: [] };
+    return { hasForeignWords: false, issues: [] };
   }
 }
 
@@ -76,7 +77,7 @@ Bij het formuleren van je dictee probeer je het Nederlands als taal in brede zin
 Let erop dat je niet per se moeilijke woorden gebruikt, je kunt ook terugvallen op Nederlandse woorden die niet vaak gebruikt worden of die uit een andere taal afkomstig zijn maar redelijk gangbaar zijn in het Nederlands.
 Vermijd het kunstmatig creëren van werkwoorden of constructies die in het wild niet voorkomen. Als een woord moeilijk is, moet het ook daadwerkelijk gebruikt worden in geschreven Nederlands.
 
-BELANGRIJK: Je gebruikt UITSLUITEND Nederlandse woorden. Vermijd Duitse woorden volledig, zelfs als ze op Nederlandse woorden lijken. Bij twijfel tussen een Nederlands en Duits woord: kies altijd het Nederlandse woord. Voorbeelden van VERBODEN Duitse woorden: Schlüssel, Frühstück, Schmetterling, Gesundheit, Kindergarten (gebruik Nederlandse alternatieven).
+BELANGRIJK: Je gebruikt UITSLUITEND Nederlandse woorden. Vermijd woorden uit andere talen (Duits, Engels, Frans, Spaans, etc.) volledig. Bij twijfel: kies altijd het Nederlandse woord. Voorbeelden van VERBODEN woorden: Schlüssel (gebruik: sleutel), breakfast (gebruik: ontbijt), butterfly (gebruik: vlinder), mariposa (gebruik: vlinder). Let vooral op Duitse woorden die op Nederlandse lijken.
 
 Hier volgen drie voorbeeldzinnen die als inspiratie kunnen dienen (Let op: deze zinnen klinken excentriek maar zijn grammaticaal en lexicaal authentiek):
 <voorbeeldzin>Spellen was een ambigue zaak: in automatischepiloottoestand lukte het me vanzelf, maar zodra ik erover nadacht, weifelde ik of gênant zo'n fransozendakje had of niet; ja al die pietje-preciezerige accenten vond ik stupide, maar het gedoe met dat al of niet aaneenschrijven nog wel het stupiedst.</voorbeeldzin>
@@ -96,11 +97,11 @@ Regels:
 - Gebruik verschillende leestekens maar geen emdash
 - Gebruik geen emoji
 - Besteed extra aandacht aan correcte Nederlandse grammatica en spelling
-- Gebruik GEEN Duitse woorden - alleen Nederlandse woorden zijn toegestaan
+- Gebruik GEEN woorden uit andere talen - alleen Nederlandse woorden zijn toegestaan
 
 Je schrijft zinnen die natuurlijk klinken alsof ze uit een krant, essay of boek komen; moeilijkheid komt voort uit het onderwerp en de taal zelf, niet uit geforceerde constructies.
 
-Voordat je antwoordt: controleer elke zin op Duitse woorden en vervang deze door Nederlandse alternatieven.
+Voordat je antwoordt: controleer elke zin op woorden uit andere talen (Duits, Engels, Frans, etc.) en vervang deze door Nederlandse alternatieven.
 
 Geef ALLEEN de ${count} zinnen terug, genummerd 1-${count}, zonder extra uitleg.`;
 
@@ -127,21 +128,21 @@ Geef ALLEEN de ${count} zinnen terug, genummerd 1-${count}, zonder extra uitleg.
         throw new Error(`Expected ${count} sentences, but got ${sentences.length}`);
       }
 
-      // Validate with Haiku to check for German words
+      // Validate with Haiku to check for foreign words
       console.log(`[Attempt ${attempt}/${maxAttempts}] Validating generated sentences...`);
       const validation = await validateDutchSentences(sentences);
 
-      if (!validation.hasGermanWords) {
-        console.log('✓ Validation passed: No German words detected');
+      if (!validation.hasForeignWords) {
+        console.log('✓ Validation passed: No foreign words detected');
         return sentences;
       }
 
-      // German words detected
-      console.warn(`⚠ German words detected in attempt ${attempt}:`, validation.issues);
+      // Foreign words detected
+      console.warn(`⚠ Foreign words detected in attempt ${attempt}:`, validation.issues);
 
       if (attempt === maxAttempts) {
         // Last attempt - return anyway with warning
-        console.warn('Max attempts reached. Returning sentences despite German words.');
+        console.warn('Max attempts reached. Returning sentences despite foreign words.');
         console.warn('Detected issues:', JSON.stringify(validation.issues, null, 2));
         return sentences;
       }
