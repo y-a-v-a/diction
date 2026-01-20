@@ -40,20 +40,16 @@ Als er GEEN vreemde woorden zijn, return: {"hasForeignWords": false, "issues": [
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20250929',
       max_tokens: 500,
-      messages: [{ role: 'user', content: prompt }]
+      messages: [
+        { role: 'user', content: prompt },
+        { role: 'assistant', content: '{' }
+      ]
     });
 
-    const responseText = message.content[0].text.trim();
+    // Prepend the opening brace we used as prefill
+    const responseText = '{' + message.content[0].text.trim();
 
-    // Extract JSON from response (handle potential markdown code blocks)
-    let jsonText = responseText;
-    if (responseText.includes('```json')) {
-      jsonText = responseText.match(/```json\n([\s\S]*?)\n```/)?.[1] || responseText;
-    } else if (responseText.includes('```')) {
-      jsonText = responseText.match(/```\n([\s\S]*?)\n```/)?.[1] || responseText;
-    }
-
-    const validation = JSON.parse(jsonText);
+    const validation = JSON.parse(responseText);
     return validation;
   } catch (error) {
     console.error('Validation error:', error);
