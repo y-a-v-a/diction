@@ -22,8 +22,9 @@ Let op:
 - Focus op woorden die duidelijk uit een andere taal komen en niet passen in Nederlandse tekst
 - Let vooral op Duitse woorden die vaak per ongeluk gebruikt worden (bijv. Schlüssel in plaats van sleutel)
 
-Zinnen:
+<zinnen>
 ${sentencesText}
+</zinnen>
 
 Geef een JSON antwoord in EXACT dit formaat (geen extra tekst):
 {
