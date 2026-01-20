@@ -1,4 +1,5 @@
 import { getDictation, deleteDictation } from '../services/storage.js';
+import { escapeHtml, deleteRateLimiter } from '../utils/security.js';
 
 export function setupDictationRoutes(app, render) {
   // GET /dictation/:id - Show dictation playback page
@@ -42,18 +43,23 @@ export function setupDictationRoutes(app, render) {
       let audioPlayersHtml = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
         const sentence = dictation.sentences[i];
+        // Escape sentence to prevent XSS
+        const escapedSentence = escapeHtml(sentence);
         audioPlayersHtml += `
           <div class="sentence-item">
             <div class="sentence-number">Zin ${i + 1}</div>
             <audio controls src="/dictations/${id}/${i}.mp3"></audio>
-            <div class="sentence-text">${sentence}</div>
+            <div class="sentence-text">${escapedSentence}</div>
           </div>
         `;
       }
 
+      // Escape topics to prevent XSS
+      const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
+
       const html = render('dictation.html', {
         id: id,
-        topics: dictation.topics.join(', '),
+        topics: escapedTopics,
         date: date,
         warning: warningHtml,
         audioPlayers: audioPlayersHtml
@@ -69,6 +75,12 @@ export function setupDictationRoutes(app, render) {
   // POST /dictation/:id/delete - Delete a dictation
   app.post('/dictation/:id/delete', (req, res) => {
     try {
+      // Rate limiting check
+      const clientIp = req.ip || req.connection.remoteAddress;
+      if (!deleteRateLimiter.check(clientIp)) {
+        return res.status(429).send('Te veel verwijderverzoeken. Probeer het over een minuut opnieuw.');
+      }
+
       const { id } = req.params;
 
       // Validate ID format (8 lowercase hex characters)

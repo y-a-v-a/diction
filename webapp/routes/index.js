@@ -1,4 +1,5 @@
 import { listDictations } from '../services/storage.js';
+import { escapeHtml } from '../utils/security.js';
 
 export function setupIndexRoutes(app, render) {
   app.get('/', (req, res) => {
@@ -19,6 +20,9 @@ export function setupIndexRoutes(app, render) {
             minute: '2-digit'
           });
 
+          // Escape user-provided content to prevent XSS
+          const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
+
           dictationsHtml += `
             <div class="dictation-card">
               <h3 class="dictation-title">
@@ -26,7 +30,7 @@ export function setupIndexRoutes(app, render) {
                   Dictee ${dictation.id}
                 </a>
               </h3>
-              <p style="margin-bottom: 8px;"><strong>Onderwerpen:</strong> ${dictation.topics.join(', ')}</p>
+              <p style="margin-bottom: 8px;"><strong>Onderwerpen:</strong> ${escapedTopics}</p>
               <p class="dictation-date">${date}</p>
               <div>
                 <a href="/dictation/${dictation.id}" class="btn btn-small">Bekijken</a>

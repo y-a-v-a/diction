@@ -2,59 +2,7 @@ import path from 'path';
 import { generateSentences } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
-
-/**
- * Simple in-memory rate limiter
- * Tracks requests per IP address
- */
-const rateLimitStore = new Map();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 5; // 5 requests per minute
-
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const userRequests = rateLimitStore.get(ip) || [];
-
-  // Remove old requests outside the window
-  const recentRequests = userRequests.filter(time => now - time < RATE_LIMIT_WINDOW);
-
-  if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
-    return false; // Rate limit exceeded
-  }
-
-  // Add current request
-  recentRequests.push(now);
-  rateLimitStore.set(ip, recentRequests);
-
-  return true; // Request allowed
-}
-
-// Clean up old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, requests] of rateLimitStore.entries()) {
-    const recentRequests = requests.filter(time => now - time < RATE_LIMIT_WINDOW);
-    if (recentRequests.length === 0) {
-      rateLimitStore.delete(ip);
-    } else {
-      rateLimitStore.set(ip, recentRequests);
-    }
-  }
-}, 5 * 60 * 1000);
-
-/**
- * Escape HTML to prevent XSS attacks
- */
-function escapeHtml(text) {
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return String(text).replace(/[&<>"']/g, (m) => map[m]);
-}
+import { escapeHtml, createRateLimiter } from '../utils/security.js';
 
 /**
  * Validate and sanitize a topic string
@@ -107,7 +55,7 @@ export function setupCreateRoutes(app, render) {
     try {
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
-      if (!checkRateLimit(clientIp)) {
+      if (!createRateLimiter.check(clientIp)) {
         return res.status(429).send(
           render('create.html', {}) +
           '<div class="error">Te veel verzoeken. Probeer het over een minuut opnieuw.</div>'
