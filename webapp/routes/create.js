@@ -2,6 +2,46 @@ import path from 'path';
 import { generateSentences } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
+import { escapeHtml, createRateLimiter } from '../utils/security.js';
+
+/**
+ * Validate and sanitize a topic string
+ */
+function validateTopic(topic, fieldName) {
+  // Type check
+  if (typeof topic !== 'string') {
+    throw new Error(`${fieldName} moet een tekstwaarde zijn.`);
+  }
+
+  // Trim whitespace
+  const trimmed = topic.trim();
+
+  // Check if empty
+  if (!trimmed) {
+    throw new Error(`${fieldName} mag niet leeg zijn.`);
+  }
+
+  // Check length
+  if (trimmed.length > 100) {
+    throw new Error(`${fieldName} mag maximaal 100 tekens bevatten.`);
+  }
+
+  // Check for control characters (except newlines and tabs which we'll strip)
+  if (/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/.test(trimmed)) {
+    throw new Error(`${fieldName} bevat ongeldige tekens.`);
+  }
+
+  // Remove any newlines or tabs to prevent prompt injection
+  const sanitized = trimmed.replace(/[\n\r\t]/g, ' ');
+
+  // Check for excessive special characters (potential abuse)
+  const specialCharCount = (sanitized.match(/[^a-zA-Z0-9\s\-_.,!?]/g) || []).length;
+  if (specialCharCount > sanitized.length * 0.5) {
+    throw new Error(`${fieldName} bevat te veel speciale tekens.`);
+  }
+
+  return sanitized;
+}
 
 export function setupCreateRoutes(app, render) {
   // GET /create - Show creation form
@@ -13,28 +53,40 @@ export function setupCreateRoutes(app, render) {
   // POST /create - Generate new dictation
   app.post('/create', async (req, res) => {
     try {
-      const { topic1, topic2, topic3, sentenceCount } = req.body;
-
-      // Validate topics
-      if (!topic1 || !topic2 || !topic3) {
-        return res.status(400).send(render('create.html', {}) + '<div class="error">Alle drie onderwerpen zijn verplicht.</div>');
+      // Rate limiting check
+      const clientIp = req.ip || req.connection.remoteAddress;
+      if (!createRateLimiter.check(clientIp)) {
+        return res.status(429).send(
+          render('create.html', {}) +
+          '<div class="error">Te veel verzoeken. Probeer het over een minuut opnieuw.</div>'
+        );
       }
 
-      if (topic1.length > 100 || topic2.length > 100 || topic3.length > 100) {
-        return res.status(400).send(render('create.html', {}) + '<div class="error">Onderwerpen mogen maximaal 100 tekens zijn.</div>');
+      const { topic1, topic2, topic3, sentenceCount } = req.body;
+
+      // Validate and sanitize topics
+      let topics;
+      try {
+        topics = [
+          validateTopic(topic1, 'Onderwerp 1'),
+          validateTopic(topic2, 'Onderwerp 2'),
+          validateTopic(topic3, 'Onderwerp 3')
+        ];
+      } catch (validationError) {
+        return res.status(400).send(
+          render('create.html', {}) +
+          `<div class="error">${escapeHtml(validationError.message)}</div>`
+        );
       }
 
       // Validate sentence count
       const count = parseInt(sentenceCount, 10);
       if (isNaN(count) || count < 1 || count > 8) {
-        return res.status(400).send(render('create.html', {}) + '<div class="error">Aantal zinnen moet tussen 1 en 8 zijn.</div>');
+        return res.status(400).send(
+          render('create.html', {}) +
+          '<div class="error">Aantal zinnen moet tussen 1 en 8 zijn.</div>'
+        );
       }
-
-      const topics = [
-        topic1.trim(),
-        topic2.trim(),
-        topic3.trim()
-      ];
 
       // Generate unique ID
       const id = generateId();
@@ -82,10 +134,12 @@ export function setupCreateRoutes(app, render) {
           // Claude generation failed - nothing useful to keep
           deleteDictation(id);
 
+          // Escape error message to prevent XSS
+          const safeErrorMessage = escapeHtml(error.message);
           const errorHtml = `
             <div class="error">
               <strong>Fout bij het maken van het dictee:</strong><br>
-              ${error.message}
+              ${safeErrorMessage}
             </div>
           `;
           res.status(500).send(render('create.html', {}) + errorHtml);
