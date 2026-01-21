@@ -1,8 +1,13 @@
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { generateSentences } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
 import { escapeHtml, createRateLimiter } from '../utils/security.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Middleware to check if request has valid secret token
@@ -22,46 +27,11 @@ function requireSecretToken(req, res, next) {
 
   if (!providedToken || providedToken !== secretToken) {
     console.warn(`🔒 Unauthorized access attempt to /create from ${req.ip}`);
-    return res.status(403).send(`
-      <!DOCTYPE html>
-      <html lang="nl">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Toegang Geweigerd</title>
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          }
-          .error-box {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            text-align: center;
-            max-width: 400px;
-          }
-          h1 { color: #e74c3c; margin-top: 0; }
-          p { color: #555; line-height: 1.6; }
-          a { color: #667eea; text-decoration: none; font-weight: 600; }
-          a:hover { text-decoration: underline; }
-        </style>
-      </head>
-      <body>
-        <div class="error-box">
-          <h1>🔒 Toegang Geweigerd</h1>
-          <p>Je hebt geen toegang tot deze pagina. Deze functie is alleen beschikbaar voor geautoriseerde gebruikers.</p>
-          <p><a href="/">← Terug naar home</a></p>
-        </div>
-      </body>
-      </html>
-    `);
+
+    // Read and send the 403 forbidden page
+    const forbiddenPagePath = path.join(__dirname, '../views/403.html');
+    const forbiddenPage = fs.readFileSync(forbiddenPagePath, 'utf-8');
+    return res.status(403).send(forbiddenPage);
   }
 
   // Token is valid, continue
