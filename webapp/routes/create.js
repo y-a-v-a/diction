@@ -1,8 +1,42 @@
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { generateSentences } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
 import { escapeHtml, createRateLimiter } from '../utils/security.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Middleware to check if request has valid secret token
+ * For PoC/demo: only users with the secret token can access /create
+ */
+function requireSecretToken(req, res, next) {
+  const secretToken = process.env.CREATE_SECRET_TOKEN;
+
+  // If no token is configured, allow access (for development)
+  if (!secretToken) {
+    console.warn('⚠️  CREATE_SECRET_TOKEN not set in .env - /create route is unprotected!');
+    return next();
+  }
+
+  // Check token in query string (GET) or request body (POST)
+  const providedToken = req.query.token || req.body.token;
+
+  if (!providedToken || providedToken !== secretToken) {
+    console.warn(`🔒 Unauthorized access attempt to /create from ${req.ip}`);
+
+    // Read and send the 403 forbidden page
+    const forbiddenPagePath = path.join(__dirname, '../views/403.html');
+    const forbiddenPage = fs.readFileSync(forbiddenPagePath, 'utf-8');
+    return res.status(403).send(forbiddenPage);
+  }
+
+  // Token is valid, continue
+  next();
+}
 
 /**
  * Validate and sanitize a topic string
@@ -44,14 +78,17 @@ function validateTopic(topic, fieldName) {
 }
 
 export function setupCreateRoutes(app, render) {
-  // GET /create - Show creation form
-  app.get('/create', (req, res) => {
-    const html = render('create.html', {});
+  // GET /create - Show creation form (protected by secret token)
+  app.get('/create', requireSecretToken, (req, res) => {
+    // Pass the token to the template so it can be included in the form
+    const token = req.query.token || '';
+    const tokenInput = token ? `<input type="hidden" name="token" value="${escapeHtml(token)}">` : '';
+    const html = render('create.html', { tokenInput });
     res.send(html);
   });
 
-  // POST /create - Generate new dictation
-  app.post('/create', async (req, res) => {
+  // POST /create - Generate new dictation (protected by secret token)
+  app.post('/create', requireSecretToken, async (req, res) => {
     try {
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
