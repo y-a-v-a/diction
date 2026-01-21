@@ -6,7 +6,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "token:generate": "node scripts/generate-token.js",
+    "token:setup": "node scripts/setup-token.js",
+    "token:url": "node scripts/show-create-url.js"
   },
   "keywords": ["dictation", "dutch", "education"],
   "author": "",
