@@ -5,6 +5,70 @@ import { generateId, createDictation, getDictationPath, deleteDictation } from '
 import { escapeHtml, createRateLimiter } from '../utils/security.js';
 
 /**
+ * Middleware to check if request has valid secret token
+ * For PoC/demo: only users with the secret token can access /create
+ */
+function requireSecretToken(req, res, next) {
+  const secretToken = process.env.CREATE_SECRET_TOKEN;
+
+  // If no token is configured, allow access (for development)
+  if (!secretToken) {
+    console.warn('⚠️  CREATE_SECRET_TOKEN not set in .env - /create route is unprotected!');
+    return next();
+  }
+
+  // Check token in query string (GET) or request body (POST)
+  const providedToken = req.query.token || req.body.token;
+
+  if (!providedToken || providedToken !== secretToken) {
+    console.warn(`🔒 Unauthorized access attempt to /create from ${req.ip}`);
+    return res.status(403).send(`
+      <!DOCTYPE html>
+      <html lang="nl">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Toegang Geweigerd</title>
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          }
+          .error-box {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+          }
+          h1 { color: #e74c3c; margin-top: 0; }
+          p { color: #555; line-height: 1.6; }
+          a { color: #667eea; text-decoration: none; font-weight: 600; }
+          a:hover { text-decoration: underline; }
+        </style>
+      </head>
+      <body>
+        <div class="error-box">
+          <h1>🔒 Toegang Geweigerd</h1>
+          <p>Je hebt geen toegang tot deze pagina. Deze functie is alleen beschikbaar voor geautoriseerde gebruikers.</p>
+          <p><a href="/">← Terug naar home</a></p>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
+  // Token is valid, continue
+  next();
+}
+
+/**
  * Validate and sanitize a topic string
  */
 function validateTopic(topic, fieldName) {
@@ -44,14 +108,17 @@ function validateTopic(topic, fieldName) {
 }
 
 export function setupCreateRoutes(app, render) {
-  // GET /create - Show creation form
-  app.get('/create', (req, res) => {
-    const html = render('create.html', {});
+  // GET /create - Show creation form (protected by secret token)
+  app.get('/create', requireSecretToken, (req, res) => {
+    // Pass the token to the template so it can be included in the form
+    const token = req.query.token || '';
+    const tokenInput = token ? `<input type="hidden" name="token" value="${escapeHtml(token)}">` : '';
+    const html = render('create.html', { tokenInput });
     res.send(html);
   });
 
-  // POST /create - Generate new dictation
-  app.post('/create', async (req, res) => {
+  // POST /create - Generate new dictation (protected by secret token)
+  app.post('/create', requireSecretToken, async (req, res) => {
     try {
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
