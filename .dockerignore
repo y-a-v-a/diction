@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Node
+node_modules
+npm-debug.log
+
+# Environment
+.env
+.env.*
+
+# Dictations (will be created fresh in container)
+webapp/dictations
+
+# Documentation
+README.md
+
+# Editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
