@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { setupIndexRoutes } from './routes/index.js';
 import { setupCreateRoutes } from './routes/create.js';
 import { setupDictationRoutes } from './routes/dictation.js';
+import { setupWeeklyScheduler } from './services/scheduler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,4 +64,7 @@ app.listen(PORT, () => {
   console.log(`- CLAUDE_API_KEY`);
   console.log(`- ELEVENLABS_API_KEY`);
   console.log(`- ELEVENLABS_VOICE_ID\n`);
+
+  // Setup automatic weekly dictation generation
+  setupWeeklyScheduler();
 });

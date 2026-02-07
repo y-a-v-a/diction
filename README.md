@@ -8,6 +8,7 @@ Inspired by what one can find here: https://dictees.nl/alle-dictees/groot-dictee
 
 - 🤖 AI-powered Dutch dictation generation using Claude
 - 🎙️ Text-to-speech with ElevenLabs or Resemble.ai
+- 📅 Automatic weekly generation for cost control (stay in free tier)
 - 🔒 Secret token protection for controlled access
 - 🐳 Docker support for easy deployment
 - 🛡️ Built-in security: input validation, XSS prevention, rate limiting

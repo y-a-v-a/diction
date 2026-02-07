@@ -1,0 +1,52 @@
+{
+  "topicSets": [
+    {
+      "topics": ["technologie", "klimaatverandering", "kunstmatige intelligentie"],
+      "description": "Modern themes"
+    },
+    {
+      "topics": ["geschiedenis", "Tweede Wereldoorlog", "Nederlandse cultuur"],
+      "description": "Historical themes"
+    },
+    {
+      "topics": ["sport", "voetbal", "Olympische Spelen"],
+      "description": "Sports themes"
+    },
+    {
+      "topics": ["natuur", "dieren", "milieu"],
+      "description": "Nature and environment"
+    },
+    {
+      "topics": ["kunst", "muziek", "literatuur"],
+      "description": "Arts and culture"
+    },
+    {
+      "topics": ["wetenschap", "ruimtevaart", "geneeskunde"],
+      "description": "Science themes"
+    },
+    {
+      "topics": ["eten", "Nederlandse keuken", "internationale gerechten"],
+      "description": "Food and cuisine"
+    },
+    {
+      "topics": ["reizen", "Europa", "vakantie"],
+      "description": "Travel themes"
+    },
+    {
+      "topics": ["onderwijs", "universiteit", "kinderen"],
+      "description": "Education themes"
+    },
+    {
+      "topics": ["economie", "handel", "werk"],
+      "description": "Economy and work"
+    },
+    {
+      "topics": ["politiek", "democratie", "verkiezingen"],
+      "description": "Politics themes"
+    },
+    {
+      "topics": ["techniek", "elektronica", "innovatie"],
+      "description": "Technology and innovation"
+    }
+  ]
+}

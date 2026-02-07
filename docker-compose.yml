@@ -26,6 +26,10 @@ services:
       # Secret token for /create route access
       - CREATE_SECRET_TOKEN=${CREATE_SECRET_TOKEN}
 
+      # Automatic weekly generation (cost control)
+      - ENABLE_AUTO_GENERATION=${ENABLE_AUTO_GENERATION:-true}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 9 * * 1}
+
       # Server configuration
       - PORT=3000
       - NODE_ENV=production

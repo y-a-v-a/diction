@@ -177,6 +177,70 @@ services:
       - "traefik.http.routers.diction.tls.certresolver=letsencrypt"
 ```
 
+## Automatic Weekly Generation
+
+The application includes automatic weekly dictation generation to control TTS API costs (stay within free tier).
+
+### How It Works
+
+- **Weekly Schedule**: Generates one dictation per week (default: Monday at 9:00 AM)
+- **Topic Rotation**: Cycles through predefined topic sets (see `config/topic-pool.json`)
+- **Cost Control**: Only 8 sentences per week = predictable API usage
+- **Dual Mode**: Automatic generation + manual creation (via secret token) work together
+
+### Configuration
+
+```bash
+# In .env.docker
+ENABLE_AUTO_GENERATION=true
+CRON_SCHEDULE=0 9 * * 1  # Every Monday at 9:00 AM
+```
+
+### Cron Schedule Examples
+
+```bash
+0 9 * * 1    # Every Monday at 9:00 AM (default)
+0 12 * * 0   # Every Sunday at 12:00 PM
+0 10 * * 3   # Every Wednesday at 10:00 AM
+0 6 * * 5    # Every Friday at 6:00 AM
+```
+
+### Checking Generation Status
+
+```bash
+# View logs to see generation status
+docker-compose logs -f diction
+
+# Check tracking data
+docker-compose exec diction cat data/auto-generation.json
+```
+
+### Topic Customization
+
+Edit `webapp/config/topic-pool.json` to customize weekly topics:
+
+```json
+{
+  "topicSets": [
+    {
+      "topics": ["your-topic-1", "your-topic-2", "your-topic-3"],
+      "description": "Custom theme"
+    }
+  ]
+}
+```
+
+### Disabling Automatic Generation
+
+To disable and use only manual creation:
+
+```bash
+# In .env.docker
+ENABLE_AUTO_GENERATION=false
+```
+
+Then use the secret token URL to create dictations manually.
+
 ## Security Notes
 
 - The container runs as non-root user `node`
@@ -195,6 +259,8 @@ services:
 | `ELEVENLABS_VOICE_ID` | If using ElevenLabs | - | Voice ID for Dutch voice |
 | `RESEMBLE_API_KEY` | If using Resemble | - | Resemble.ai API key |
 | `RESEMBLE_VOICE_UUID` | If using Resemble | - | Voice UUID from Resemble |
-| `CREATE_SECRET_TOKEN` | No | - | Secret token for /create access |
+| `CREATE_SECRET_TOKEN` | No | - | Secret token for manual /create access |
+| `ENABLE_AUTO_GENERATION` | No | `true` | Enable automatic weekly generation |
+| `CRON_SCHEDULE` | No | `0 9 * * 1` | Cron schedule for automatic generation |
 | `PORT` | No | `3000` | Server port (don't change in Docker) |
 | `NODE_ENV` | No | `production` | Node environment |
