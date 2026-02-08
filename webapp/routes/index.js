@@ -1,4 +1,5 @@
 import { listDictations } from '../services/storage.js';
+import { getNextGenerationTime } from '../services/scheduler.js';
 
 export function setupIndexRoutes(app, render) {
   app.get('/', (req, res) => {
@@ -40,7 +41,16 @@ export function setupIndexRoutes(app, render) {
         dictationsHtml += '</div>';
       }
 
-      const html = render('home.html', { dictations: dictationsHtml });
+      // Get next generation time for countdown
+      const nextGenTime = getNextGenerationTime();
+      const nextGenHtml = nextGenTime
+        ? `<div class="countdown-container" data-next-gen="${nextGenTime.toISOString()}"></div>`
+        : '';
+
+      const html = render('home.html', {
+        dictations: dictationsHtml,
+        nextGeneration: nextGenHtml
+      });
       res.send(html);
     } catch (error) {
       console.error('Error loading dictations:', error);

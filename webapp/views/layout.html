@@ -319,6 +319,85 @@
       audio {
         filter: invert(1) hue-rotate(180deg);
       }
+
+      .countdown-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        filter: none;
+      }
+
+      .countdown-container .countdown-time {
+        color: white;
+      }
+    }
+
+    /* Countdown Timer Styles */
+    .countdown-container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0 30px 0;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .countdown-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      color: white;
+    }
+
+    .countdown-time {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .countdown-unit {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 15px 20px;
+      min-width: 80px;
+    }
+
+    .countdown-value {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: white;
+    }
+
+    .countdown-label {
+      display: block;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .countdown-message {
+      margin-top: 15px;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    @media (max-width: 600px) {
+      .countdown-unit {
+        min-width: 70px;
+        padding: 12px 15px;
+      }
+
+      .countdown-value {
+        font-size: 2rem;
+      }
+
+      .countdown-label {
+        font-size: 0.75rem;
+      }
     }
   </style>
 </head>
@@ -330,5 +409,72 @@
     </nav>
     {{content}}
   </div>
+
+  <script>
+    // Countdown Timer
+    (function() {
+      const container = document.querySelector('.countdown-container');
+      if (!container) return;
+
+      const nextGenTime = new Date(container.dataset.nextGen);
+      if (isNaN(nextGenTime)) return;
+
+      function updateCountdown() {
+        const now = new Date();
+        const diff = nextGenTime - now;
+
+        if (diff <= 0) {
+          container.innerHTML = `
+            <h2 class="countdown-title">🎉 Nieuw dictee beschikbaar!</h2>
+            <p class="countdown-message">Ververs de pagina om het nieuwe dictee te zien.</p>
+          `;
+          return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        // Format date in Dutch
+        const dateStr = nextGenTime.toLocaleDateString('nl-NL', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZoneName: 'short'
+        });
+
+        container.innerHTML = `
+          <h2 class="countdown-title">⏰ Volgend dictee komt eraan</h2>
+          <div class="countdown-time">
+            <div class="countdown-unit">
+              <span class="countdown-value">${days}</span>
+              <span class="countdown-label">${days === 1 ? 'Dag' : 'Dagen'}</span>
+            </div>
+            <div class="countdown-unit">
+              <span class="countdown-value">${String(hours).padStart(2, '0')}</span>
+              <span class="countdown-label">Uren</span>
+            </div>
+            <div class="countdown-unit">
+              <span class="countdown-value">${String(minutes).padStart(2, '0')}</span>
+              <span class="countdown-label">Minuten</span>
+            </div>
+            <div class="countdown-unit">
+              <span class="countdown-value">${String(seconds).padStart(2, '0')}</span>
+              <span class="countdown-label">Seconden</span>
+            </div>
+          </div>
+          <p class="countdown-message">📅 ${dateStr}</p>
+        `;
+      }
+
+      // Update immediately and then every second
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    })();
+  </script>
 </body>
 </html>

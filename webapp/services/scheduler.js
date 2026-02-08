@@ -239,11 +239,55 @@ export function getAutoGenerationStatus() {
 
   return {
     enabled,
-    schedule: process.env.CRON_SCHEDULE || '0 9 * * 1',
+    schedule: process.env.CRON_SCHEDULE || '0 16 * * 5',
     lastGeneration: tracking.lastGeneration,
     totalGenerated: tracking.totalGenerated,
     nextGenerationDue: tracking.lastGeneration
       ? new Date(new Date(tracking.lastGeneration).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
       : 'As soon as possible'
   };
+}
+
+/**
+ * Calculate next scheduled generation time based on cron schedule
+ * This gives a more accurate prediction than just adding 7 days
+ */
+export function getNextGenerationTime() {
+  const enabled = process.env.ENABLE_AUTO_GENERATION !== 'false';
+
+  if (!enabled) {
+    return null;
+  }
+
+  // Parse cron schedule (format: minute hour day-of-month month day-of-week)
+  const schedule = process.env.CRON_SCHEDULE || '0 16 * * 5';
+  const parts = schedule.split(' ');
+
+  if (parts.length !== 5) {
+    return null;
+  }
+
+  const [minute, hour, , , dayOfWeek] = parts;
+  const cronMinute = parseInt(minute, 10);
+  const cronHour = parseInt(hour, 10);
+  const cronDayOfWeek = parseInt(dayOfWeek, 10); // 0 = Sunday, 1 = Monday, ..., 5 = Friday
+
+  const now = new Date();
+  const nextDate = new Date();
+
+  // Set the time to the scheduled time
+  nextDate.setUTCHours(cronHour, cronMinute, 0, 0);
+
+  // Calculate days until next occurrence
+  const currentDayOfWeek = nextDate.getUTCDay();
+  let daysUntilNext = cronDayOfWeek - currentDayOfWeek;
+
+  // If the day has passed this week, or it's today but the time has passed
+  if (daysUntilNext < 0 || (daysUntilNext === 0 && nextDate <= now)) {
+    daysUntilNext += 7;
+  }
+
+  nextDate.setUTCDate(nextDate.getUTCDate() + daysUntilNext);
+
+  return nextDate;
 }
