@@ -209,12 +209,12 @@ export function setupWeeklyScheduler() {
     return;
   }
 
-  // Schedule: Every Monday at 9:00 AM
+  // Schedule: Every Friday at 17:00 CET (16:00 UTC)
   // Format: minute hour day-of-month month day-of-week
-  const schedule = process.env.CRON_SCHEDULE || '0 9 * * 1';
+  const schedule = process.env.CRON_SCHEDULE || '0 16 * * 5';
 
   console.log(`⏰ Setting up weekly dictation scheduler`);
-  console.log(`   Schedule: ${schedule} (Every Monday at 9:00 AM)`);
+  console.log(`   Schedule: ${schedule} (Every Friday at 17:00 CET)`);
 
   cron.schedule(schedule, async () => {
     console.log('\n🔔 Weekly dictation generation triggered by schedule');

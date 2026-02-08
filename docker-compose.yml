@@ -28,7 +28,7 @@ services:
 
       # Automatic weekly generation (cost control)
       - ENABLE_AUTO_GENERATION=${ENABLE_AUTO_GENERATION:-true}
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 9 * * 1}
+      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 16 * * 5}
 
       # Server configuration
       - PORT=3000

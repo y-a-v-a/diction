@@ -183,7 +183,7 @@ The application includes automatic weekly dictation generation to control TTS AP
 
 ### How It Works
 
-- **Weekly Schedule**: Generates one dictation per week (default: Monday at 9:00 AM)
+- **Weekly Schedule**: Generates one dictation per week (default: Friday at 17:00 CET)
 - **Topic Rotation**: Cycles through predefined topic sets (see `config/topic-pool.json`)
 - **Cost Control**: Only 8 sentences per week = predictable API usage
 - **Dual Mode**: Automatic generation + manual creation (via secret token) work together
@@ -193,16 +193,18 @@ The application includes automatic weekly dictation generation to control TTS AP
 ```bash
 # In .env.docker
 ENABLE_AUTO_GENERATION=true
-CRON_SCHEDULE=0 9 * * 1  # Every Monday at 9:00 AM
+CRON_SCHEDULE=0 16 * * 5  # Every Friday at 17:00 CET (16:00 UTC)
 ```
 
 ### Cron Schedule Examples
 
+**Note:** Cron runs in UTC timezone. For CET, subtract 1 hour.
+
 ```bash
-0 9 * * 1    # Every Monday at 9:00 AM (default)
-0 12 * * 0   # Every Sunday at 12:00 PM
-0 10 * * 3   # Every Wednesday at 10:00 AM
-0 6 * * 5    # Every Friday at 6:00 AM
+0 16 * * 5   # Every Friday at 17:00 CET (default)
+0 9 * * 1    # Every Monday at 10:00 CET
+0 11 * * 0   # Every Sunday at 12:00 CET
+0 15 * * 3   # Every Wednesday at 16:00 CET
 ```
 
 ### Checking Generation Status
@@ -261,6 +263,6 @@ Then use the secret token URL to create dictations manually.
 | `RESEMBLE_VOICE_UUID` | If using Resemble | - | Voice UUID from Resemble |
 | `CREATE_SECRET_TOKEN` | No | - | Secret token for manual /create access |
 | `ENABLE_AUTO_GENERATION` | No | `true` | Enable automatic weekly generation |
-| `CRON_SCHEDULE` | No | `0 9 * * 1` | Cron schedule for automatic generation |
+| `CRON_SCHEDULE` | No | `0 16 * * 5` | Cron schedule (default: Friday 17:00 CET) |
 | `PORT` | No | `3000` | Server port (don't change in Docker) |
 | `NODE_ENV` | No | `production` | Node environment |
