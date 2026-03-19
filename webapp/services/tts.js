@@ -5,13 +5,15 @@
 
 import * as elevenlabs from './elevenlabs.js';
 import * as resemble from './resemble.js';
+import * as mockTts from './tts-mock.js';
 
 const TTS_SERVICE = process.env.TTS_SERVICE || 'elevenlabs';
 
 // Map of available TTS services
 const services = {
   'elevenlabs': elevenlabs,
-  'resemble': resemble
+  'resemble': resemble,
+  'mock': mockTts
 };
 
 /**

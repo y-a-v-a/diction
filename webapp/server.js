@@ -18,7 +18,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static audio files from dictations directory
-app.use('/dictations', express.static(path.join(__dirname, 'dictations')));
+const dictationsDir = process.env.DICTATIONS_DIR || path.join(__dirname, 'dictations');
+app.use('/dictations', express.static(dictationsDir));
 
 // Simple template rendering function
 function render(templateName, data = {}) {

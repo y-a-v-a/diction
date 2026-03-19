@@ -63,6 +63,14 @@ Als er GEEN vreemde woorden zijn, return: {"hasForeignWords": false, "issues": [
  * @see https://dictees.nl/alle-dictees/groot-dictee-der-nederlandse-taal/
  */
 export async function generateSentences(topic1, topic2, topic3, count = 8) {
+  if (process.env.TEST_MODE === 'true') {
+    return [
+      'De kat zit op de mat en kijkt naar de vogels buiten.',
+      'Het oude huis aan de gracht heeft een prachtige gevel.',
+      'Wij gaan morgen naar school met de fiets door het park.',
+    ];
+  }
+
   const maxAttempts = 2;
   let lastError = null;
 

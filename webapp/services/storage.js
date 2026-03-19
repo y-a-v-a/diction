@@ -6,7 +6,7 @@ import crypto from 'crypto';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DICTATIONS_DIR = path.join(__dirname, '..', 'dictations');
+const DICTATIONS_DIR = process.env.DICTATIONS_DIR || path.join(__dirname, '..', 'dictations');
 
 // Ensure dictations directory exists
 if (!fs.existsSync(DICTATIONS_DIR)) {
