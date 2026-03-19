@@ -6,6 +6,10 @@ node_modules/
 
 # Dictation storage
 dictations/
+dictations-test/
+
+# Allow test fixtures (nested dictations/ path)
+!tests/fixtures/dictations/
 
 # Logs
 *.log
