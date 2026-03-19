@@ -110,6 +110,23 @@ webapp/
         └── 0.mp3, ...    # Audio files
 ```
 
+## Testing
+
+The test suite uses Playwright and mocks all external APIs, so no real API keys are needed.
+
+```bash
+# First-time setup: install the Playwright browser
+npx playwright install chromium
+
+# Run all tests
+npm test
+
+# Run with interactive UI (useful for debugging)
+npm run test:ui
+```
+
+Tests auto-start a local server on port 3001 and clean up after themselves. Screenshots are saved to `test-results/` on failure.
+
 ## Notes
 
 - Dictations are stored in the `dictations/` directory
