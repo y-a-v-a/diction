@@ -6,6 +6,48 @@ export default {
     voiceId: null, // uses ELEVENLABS_VOICE_ID from env
   },
   ui: {
+    // Navigation
+    navHome: 'Home',
+    navDictations: 'Dictees',
+    appTitle: 'Diction',
+    langSwitch: 'EN',
+
+    // Home page
+    homeHeading: 'Diction',
+    homeDescription: 'Diction is een dictee-app die met behulp van AI unieke dictees genereert. Claude van Anthropic schrijft de zinnen en ElevenLabs spreekt ze in. Zo kun je op een moderne manier je spelling oefenen.',
+    homeHowItWorks: 'Hoe werkt het?',
+    homeStep1: 'Kies drie onderwerpen en het aantal zinnen',
+    homeStep2: 'De AI genereert een dictee op basis van jouw onderwerpen',
+    homeStep3: 'Luister naar de ingesproken zinnen en schrijf ze op',
+    homeStep4: 'Controleer je werk door de tekst te onthullen',
+    homeViewDictations: 'Bekijk dictees',
+    footerDescription: 'Genereer dictees met AI en oefen je spelling.',
+    footerCopyright: '2025-2026 Vincent Bruijn',
+
+    // Dictations listing
+    dictationsHeading: 'Dictees',
+    emptyState: 'Nog geen dictees. Maak je eerste dictee!',
+    topicsLabel: 'Onderwerpen',
+    viewButton: 'Bekijken',
+    deleteButton: 'Verwijderen',
+
+    // Create form
+    createHeading: 'Nieuw Dictee Maken',
+    createDescription: 'Voer drie onderwerpen in voor het dictee. Kies hoeveel zinnen je wilt genereren (1-8).',
+    languageLabel: 'Taal:',
+    topic1Label: 'Onderwerp 1:',
+    topic1Placeholder: 'Bijvoorbeeld: honden',
+    topic2Label: 'Onderwerp 2:',
+    topic2Placeholder: 'Bijvoorbeeld: het weer',
+    topic3Label: 'Onderwerp 3:',
+    topic3Placeholder: 'Bijvoorbeeld: voetbal',
+    sentenceCountLabel: 'Aantal zinnen (1-8):',
+    generateButton: 'Dictee Genereren',
+    cancelButton: 'Annuleren',
+    generating: 'Dictee wordt gegenereerd...',
+    generatingHint: 'Dit kan 30-60 seconden duren. Even geduld alstublieft.',
+
+    // Dictation detail
     sentence: 'Zin',
     showText: 'Toon Tekst',
     topics: 'Onderwerpen',
@@ -13,10 +55,33 @@ export default {
     deleteDictation: 'Dictee Verwijderen',
     deleteConfirm: 'Weet je zeker dat je dit dictee wilt verwijderen?',
     backHome: 'Terug naar Home',
-    textRevealed: 'De tekst wordt onthuld over:',
     textLocked: 'Tekst vergrendeld',
     textAvailable: 'Tekst beschikbaar',
     dateLocale: 'nl-NL',
+
+    // Play mode
+    pinLabel: 'Speel-modus PIN (4-6 cijfers):',
+    pinHint: 'Optioneel. Stel een PIN in om de speel-modus te gebruiken.',
+    playMode: 'Speel-modus',
+    enterPin: 'Voer PIN in',
+    pinPlaceholder: '4-6 cijfers',
+    pinError: 'Onjuiste PIN. Probeer het opnieuw.',
+    nextSentence: 'Volgende zin',
+    revealAll: 'Toon alle tekst',
+    revealConfirm: 'Weet je zeker dat je alle tekst wilt onthullen? Dit kan niet ongedaan worden.',
+    submit: 'Bevestigen',
+
+    // Errors
+    invalidId: 'Ongeldige dictee ID',
+    notFound: 'Dictee niet gevonden',
+    rateLimitError: 'Te veel verzoeken. Probeer het over een minuut opnieuw.',
+    deleteRateLimitError: 'Te veel verwijderverzoeken. Probeer het over een minuut opnieuw.',
+    sentenceCountError: 'Aantal zinnen moet tussen 1 en 8 zijn.',
+    pinFormatError: 'PIN moet 4-6 cijfers zijn.',
+    createError: 'Fout bij het maken van het dictee:',
+    unexpectedError: 'Er is een onverwachte fout opgetreden.',
+    audioWarning: 'Niet alle audio bestanden konden worden gegenereerd (bijv. door quotum limiet). De zinnen zijn wel opgeslagen en audio bestanden die wel zijn gegenereerd kun je hieronder afspelen.',
+    audioWarningLabel: 'Let op:',
   },
   claude: {
     generatePrompt(topic1, topic2, topic3, count) {

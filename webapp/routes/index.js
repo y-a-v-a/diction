@@ -1,27 +1,40 @@
-import { listDictations } from '../services/storage.js';
+import { listDictations, isRevealed as checkRevealed } from '../services/storage.js';
 import { escapeHtml } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
 export function setupIndexRoutes(app, render) {
   app.get('/', (req, res) => {
-    const html = render('home.html', {});
+    const ui = req.lang.ui;
+    const html = render(req, 'home.html', {
+      homeHeading: ui.homeHeading,
+      homeDescription: ui.homeDescription,
+      homeHowItWorks: ui.homeHowItWorks,
+      homeStep1: ui.homeStep1,
+      homeStep2: ui.homeStep2,
+      homeStep3: ui.homeStep3,
+      homeStep4: ui.homeStep4,
+      homeViewDictations: ui.homeViewDictations,
+      footerDescription: ui.footerDescription,
+      footerCopyright: ui.footerCopyright,
+    });
     res.send(html);
   });
 
   app.get('/dictations', (req, res) => {
     try {
+      const ui = req.lang.ui;
       const dictations = listDictations();
 
       let dictationsHtml = '';
       if (dictations.length === 0) {
-        dictationsHtml = '<p class="empty-state">Nog geen dictees. Maak je eerste dictee!</p>';
+        dictationsHtml = `<p class="empty-state">${escapeHtml(ui.emptyState)}</p>`;
       } else {
         dictationsHtml = '<div>';
         for (const dictation of dictations) {
           const languageCode = dictation.language || 'nl';
           const lang = getLanguage(languageCode);
 
-          const date = new Date(dictation.created).toLocaleDateString(lang.ui.dateLocale, {
+          const date = new Date(dictation.created).toLocaleDateString(ui.dateLocale, {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -29,24 +42,18 @@ export function setupIndexRoutes(app, render) {
             minute: '2-digit'
           });
 
-          // Escape user-provided content to prevent XSS
           const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
-
-          // Language badge
           const languageBadge = `<span class="badge badge-language">${escapeHtml(lang.displayName)}</span>`;
 
-          // Reveal status badge
           let revealBadge = '';
-          if (dictation.revealAt) {
-            const isRevealed = new Date() >= new Date(dictation.revealAt);
-            if (isRevealed) {
-              revealBadge = `<span class="badge badge-revealed">${escapeHtml(lang.ui.textAvailable)}</span>`;
-            } else {
-              revealBadge = `<span class="badge badge-locked">${escapeHtml(lang.ui.textLocked)}</span>`;
-            }
+          const revealed = checkRevealed(dictation);
+          if (revealed) {
+            revealBadge = `<span class="badge badge-revealed">${escapeHtml(ui.textAvailable)}</span>`;
+          } else {
+            revealBadge = `<span class="badge badge-locked">${escapeHtml(ui.textLocked)}</span>`;
           }
 
-          const displayTitle = dictation.title ? escapeHtml(dictation.title) : `Dictee ${dictation.id}`;
+          const displayTitle = dictation.title ? escapeHtml(dictation.title) : `Dictation ${dictation.id}`;
 
           dictationsHtml += `
             <div class="dictation-card">
@@ -57,12 +64,12 @@ export function setupIndexRoutes(app, render) {
                 ${languageBadge}
                 ${revealBadge}
               </h3>
-              <p style="margin-bottom: 8px;"><strong>Onderwerpen:</strong> ${escapedTopics}</p>
+              <p style="margin-bottom: 8px;"><strong>${escapeHtml(ui.topicsLabel)}:</strong> ${escapedTopics}</p>
               <p class="dictation-date">${date}</p>
               <div>
-                <a href="/dictation/${dictation.id}" class="btn btn-small">Bekijken</a>
-                <form method="POST" action="/dictation/${dictation.id}/delete" style="display: inline-block; margin-left: 10px;" onsubmit="return confirm('Weet je zeker dat je dit dictee wilt verwijderen?');">
-                  <button type="submit" class="delete btn-small">Verwijderen</button>
+                <a href="/dictation/${dictation.id}" class="btn btn-small">${escapeHtml(ui.viewButton)}</a>
+                <form method="POST" action="/dictation/${dictation.id}/delete" style="display: inline-block; margin-left: 10px;" data-confirm="${escapeHtml(ui.deleteConfirm)}" onsubmit="return confirm(this.dataset.confirm);">
+                  <button type="submit" class="delete btn-small">${escapeHtml(ui.deleteButton)}</button>
                 </form>
               </div>
             </div>
@@ -71,7 +78,12 @@ export function setupIndexRoutes(app, render) {
         dictationsHtml += '</div>';
       }
 
-      const html = render('dictations.html', { dictations: dictationsHtml });
+      const html = render(req, 'dictations.html', {
+        dictationsHeading: ui.dictationsHeading,
+        dictations: dictationsHtml,
+        footerDescription: ui.footerDescription,
+        footerCopyright: ui.footerCopyright,
+      });
       res.send(html);
     } catch (error) {
       console.error('Error loading dictations:', error);

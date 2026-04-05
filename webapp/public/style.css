@@ -44,15 +44,26 @@ a:visited {
 }
 
 nav {
+  display: flex;
+  gap: 20px;
   margin-bottom: 30px;
   padding-bottom: 15px;
   border-bottom: 1px solid #ddd;
 }
 
+nav .lang-switch {
+  margin-left: auto;
+  margin-right: 0;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border: 1px solid #3498db;
+  border-radius: 3px;
+}
+
 nav a {
   color: #3498db;
   text-decoration: none;
-  margin-right: 20px;
   font-weight: 500;
 }
 
@@ -361,6 +372,10 @@ audio {
   nav a,
   nav a:visited {
     color: #4a9eff;
+  }
+
+  nav .lang-switch {
+    border-color: #4a9eff;
   }
 
   label {

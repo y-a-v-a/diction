@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="{{langCode}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} — {{playMode}}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✍🏽</text></svg>">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body {
+      padding: 30px 20px;
+      font-size: 18px;
+    }
+    .play-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .play-title {
+      font-size: 2.2rem;
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #3498db;
+    }
+    .play-sentence-card {
+      padding: 25px;
+      margin-bottom: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .play-sentence-card.hidden {
+      display: none;
+    }
+    .play-sentence-number {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #3498db;
+      margin-bottom: 12px;
+    }
+    .play-sentence-card audio {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .play-sentence-text {
+      display: none;
+      font-size: 1.3rem;
+      padding: 15px;
+      background: #e8f4f8;
+      border-left: 4px solid #3498db;
+      margin-top: 12px;
+      color: #2c3e50;
+      border-radius: 0 4px 4px 0;
+    }
+    .play-sentence-text.visible {
+      display: block;
+    }
+    .play-controls {
+      text-align: center;
+      padding: 25px 0;
+      margin-top: 10px;
+      position: sticky;
+      bottom: 0;
+      background: white;
+      border-top: 1px solid #eee;
+    }
+    .play-btn {
+      font-size: 1.2rem;
+      padding: 15px 35px;
+      min-height: 52px;
+      border-radius: 6px;
+      margin: 0 8px;
+    }
+    .play-btn:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+    }
+    .play-btn.reveal {
+      background-color: #27ae60;
+    }
+    .play-btn.reveal:hover:not(:disabled) {
+      background-color: #219a52;
+    }
+    .play-progress {
+      text-align: center;
+      color: #666;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .play-container {
+        background: #2d2d2d;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .play-title {
+        color: #e0e0e0;
+        border-bottom-color: #4a9eff;
+      }
+      .play-sentence-card {
+        background: #252525;
+        border-color: #444;
+      }
+      .play-sentence-number {
+        color: #4a9eff;
+      }
+      .play-sentence-text {
+        background: #1a3a4a;
+        border-left-color: #4a9eff;
+        color: #d0d0d0;
+      }
+      .play-controls {
+        background: #2d2d2d;
+        border-top-color: #444;
+      }
+      .play-progress {
+        color: #999;
+      }
+      audio {
+        filter: invert(1) hue-rotate(180deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="play-container">
+    <h1 class="play-title">{{title}} {{languageIndicator}}</h1>
+
+    {{sentenceCards}}
+
+    <div class="play-controls">
+      <p class="play-progress" id="progress">{{sentenceLabel}} 1 / {{totalSentences}}</p>
+      <button class="play-btn" id="nextBtn">{{nextSentence}}</button>
+      <button class="play-btn reveal" id="revealBtn">{{revealAll}}</button>
+    </div>
+  </div>
+
+  <script>
+    var current = 0;
+    var total = {{totalSentences}};
+    var cards = document.querySelectorAll('.play-sentence-card');
+    var nextBtn = document.getElementById('nextBtn');
+    var revealBtn = document.getElementById('revealBtn');
+    var progress = document.getElementById('progress');
+    var sentenceLabel = '{{sentenceLabel}}';
+    var revealConfirm = '{{revealConfirm}}';
+    var dictationId = '{{dictationId}}';
+
+    function updateProgress() {
+      progress.textContent = sentenceLabel + ' ' + (current + 1) + ' / ' + total;
+    }
+
+    nextBtn.addEventListener('click', function() {
+      if (current < total - 1) {
+        current++;
+        cards[current].classList.remove('hidden');
+        cards[current].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        updateProgress();
+      }
+      if (current >= total - 1) {
+        nextBtn.disabled = true;
+      }
+    });
+
+    revealBtn.addEventListener('click', function() {
+      if (!confirm(revealConfirm)) return;
+      revealBtn.disabled = true;
+      revealBtn.textContent = '...';
+
+      fetch('/dictation/' + dictationId + '/reveal', { method: 'POST' })
+        .then(function(resp) { return resp.json(); })
+        .then(function() {
+          document.querySelectorAll('.play-sentence-text').forEach(function(el) {
+            el.classList.add('visible');
+          });
+          revealBtn.style.display = 'none';
+        })
+        .catch(function() {
+          revealBtn.disabled = false;
+          revealBtn.textContent = '{{revealAll}}';
+        });
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>

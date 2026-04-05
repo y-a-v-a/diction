@@ -12,30 +12,24 @@ const __dirname = path.dirname(__filename);
 
 /**
  * Middleware to check if request has valid secret token
- * For PoC/demo: only users with the secret token can access /create
  */
 function requireSecretToken(req, res, next) {
   const secretToken = process.env.CREATE_SECRET_TOKEN;
 
-  // If no token is configured, allow access (for development)
   if (!secretToken) {
-    console.warn('⚠️  CREATE_SECRET_TOKEN not set in .env - /create route is unprotected!');
+    console.warn('CREATE_SECRET_TOKEN not set in .env - /create route is unprotected!');
     return next();
   }
 
-  // Check token in query string (GET) or request body (POST)
   const providedToken = req.query.token || req.body.token;
 
   if (!providedToken || providedToken !== secretToken) {
-    console.warn(`🔒 Unauthorized access attempt to /create from ${req.ip}`);
-
-    // Read and send the 403 forbidden page
+    console.warn(`Unauthorized access attempt to /create from ${req.ip}`);
     const forbiddenPagePath = path.join(__dirname, '../views/403.html');
     const forbiddenPage = fs.readFileSync(forbiddenPagePath, 'utf-8');
     return res.status(403).send(forbiddenPage);
   }
 
-  // Token is valid, continue
   next();
 }
 
@@ -43,36 +37,29 @@ function requireSecretToken(req, res, next) {
  * Validate and sanitize a topic string
  */
 function validateTopic(topic, fieldName) {
-  // Type check
   if (typeof topic !== 'string') {
-    throw new Error(`${fieldName} moet een tekstwaarde zijn.`);
+    throw new Error(`${fieldName}: invalid`);
   }
 
-  // Trim whitespace
   const trimmed = topic.trim();
 
-  // Check if empty
   if (!trimmed) {
-    throw new Error(`${fieldName} mag niet leeg zijn.`);
+    throw new Error(`${fieldName}: empty`);
   }
 
-  // Check length
   if (trimmed.length > 100) {
-    throw new Error(`${fieldName} mag maximaal 100 tekens bevatten.`);
+    throw new Error(`${fieldName}: too long`);
   }
 
-  // Check for control characters (except newlines and tabs which we'll strip)
   if (/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/.test(trimmed)) {
-    throw new Error(`${fieldName} bevat ongeldige tekens.`);
+    throw new Error(`${fieldName}: invalid characters`);
   }
 
-  // Remove any newlines or tabs to prevent prompt injection
   const sanitized = trimmed.replace(/[\n\r\t]/g, ' ');
 
-  // Check for excessive special characters (potential abuse)
   const specialCharCount = (sanitized.match(/[^a-zA-Z0-9\s\-_.,!?]/g) || []).length;
   if (specialCharCount > sanitized.length * 0.5) {
-    throw new Error(`${fieldName} bevat te veel speciale tekens.`);
+    throw new Error(`${fieldName}: too many special characters`);
   }
 
   return sanitized;
@@ -95,43 +82,88 @@ function buildLanguageSelect(selectedCode) {
 export function setupCreateRoutes(app, render) {
   // GET /create - Show creation form (protected by secret token)
   app.get('/create', requireSecretToken, (req, res) => {
-    // Pass the token to the template so it can be included in the form
     const token = req.query.token || '';
     const tokenInput = token ? `<input type="hidden" name="token" value="${escapeHtml(token)}">` : '';
-    const languageSelect = buildLanguageSelect('nl');
-    const html = render('create.html', { tokenInput, languageSelect });
+    const ui = req.lang.ui;
+    const html = render(req, 'create.html', {
+      tokenInput,
+      languageSelect: buildLanguageSelect('nl'),
+      createHeading: ui.createHeading,
+      createDescription: ui.createDescription,
+      languageLabel: ui.languageLabel,
+      topic1Label: ui.topic1Label,
+      topic1Placeholder: ui.topic1Placeholder,
+      topic2Label: ui.topic2Label,
+      topic2Placeholder: ui.topic2Placeholder,
+      topic3Label: ui.topic3Label,
+      topic3Placeholder: ui.topic3Placeholder,
+      sentenceCountLabel: ui.sentenceCountLabel,
+      pinLabel: ui.pinLabel,
+      pinHint: ui.pinHint,
+      generateButton: ui.generateButton,
+      cancelButton: ui.cancelButton,
+      generating: ui.generating,
+      generatingHint: ui.generatingHint,
+    });
     res.send(html);
   });
 
   // POST /create - Generate new dictation (protected by secret token)
   app.post('/create', requireSecretToken, async (req, res) => {
     try {
+      const ui = req.lang.ui;
+
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
       if (!createRateLimiter.check(clientIp)) {
         return res.status(429).send(
-          render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect('nl') }) +
-          '<div class="error">Te veel verzoeken. Probeer het over een minuut opnieuw.</div>'
+          render(req, 'create.html', {
+            tokenInput: '', languageSelect: buildLanguageSelect('nl'),
+            createHeading: ui.createHeading, createDescription: ui.createDescription,
+            languageLabel: ui.languageLabel,
+            topic1Label: ui.topic1Label, topic1Placeholder: ui.topic1Placeholder,
+            topic2Label: ui.topic2Label, topic2Placeholder: ui.topic2Placeholder,
+            topic3Label: ui.topic3Label, topic3Placeholder: ui.topic3Placeholder,
+            sentenceCountLabel: ui.sentenceCountLabel,
+            pinLabel: ui.pinLabel, pinHint: ui.pinHint,
+            generateButton: ui.generateButton, cancelButton: ui.cancelButton,
+            generating: ui.generating, generatingHint: ui.generatingHint,
+          }) + `<div class="error">${escapeHtml(ui.rateLimitError)}</div>`
         );
       }
 
-      const { topic1, topic2, topic3, sentenceCount, language, revealAt } = req.body;
+      const { topic1, topic2, topic3, sentenceCount, language, pin } = req.body;
 
-      // Validate language
+      // Validate language (dictation language, separate from UI language)
       const languageCode = language && isValidLanguage(language) ? language : 'nl';
+      const lang = getLanguage(languageCode);
+
+      function renderCreateError(errorHtml) {
+        return render(req, 'create.html', {
+          tokenInput: '', languageSelect: buildLanguageSelect(languageCode),
+          createHeading: ui.createHeading, createDescription: ui.createDescription,
+          languageLabel: ui.languageLabel,
+          topic1Label: ui.topic1Label, topic1Placeholder: ui.topic1Placeholder,
+          topic2Label: ui.topic2Label, topic2Placeholder: ui.topic2Placeholder,
+          topic3Label: ui.topic3Label, topic3Placeholder: ui.topic3Placeholder,
+          sentenceCountLabel: ui.sentenceCountLabel,
+          pinLabel: ui.pinLabel, pinHint: ui.pinHint,
+          generateButton: ui.generateButton, cancelButton: ui.cancelButton,
+          generating: ui.generating, generatingHint: ui.generatingHint,
+        }) + errorHtml;
+      }
 
       // Validate and sanitize topics
       let topics;
       try {
         topics = [
-          validateTopic(topic1, 'Onderwerp 1'),
-          validateTopic(topic2, 'Onderwerp 2'),
-          validateTopic(topic3, 'Onderwerp 3')
+          validateTopic(topic1, ui.topic1Label),
+          validateTopic(topic2, ui.topic2Label),
+          validateTopic(topic3, ui.topic3Label)
         ];
       } catch (validationError) {
         return res.status(400).send(
-          render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
-          `<div class="error">${escapeHtml(validationError.message)}</div>`
+          renderCreateError(`<div class="error">${escapeHtml(validationError.message)}</div>`)
         );
       }
 
@@ -139,28 +171,19 @@ export function setupCreateRoutes(app, render) {
       const count = parseInt(sentenceCount, 10);
       if (isNaN(count) || count < 1 || count > 8) {
         return res.status(400).send(
-          render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
-          '<div class="error">Aantal zinnen moet tussen 1 en 8 zijn.</div>'
+          renderCreateError(`<div class="error">${escapeHtml(ui.sentenceCountError)}</div>`)
         );
       }
 
-      // Validate reveal deadline (optional)
-      let revealAtISO = null;
-      if (revealAt && revealAt.trim()) {
-        const revealDate = new Date(revealAt.trim());
-        if (isNaN(revealDate.getTime())) {
+      // Validate PIN (optional, 4-6 digits)
+      let validatedPin = null;
+      if (pin && pin.trim()) {
+        if (!/^[0-9]{4,6}$/.test(pin.trim())) {
           return res.status(400).send(
-            render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
-            '<div class="error">Ongeldig onthulmoment. Kies een geldige datum en tijd.</div>'
+            renderCreateError(`<div class="error">${escapeHtml(ui.pinFormatError)}</div>`)
           );
         }
-        if (revealDate <= new Date()) {
-          return res.status(400).send(
-            render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
-            '<div class="error">Het onthulmoment moet in de toekomst liggen.</div>'
-          );
-        }
-        revealAtISO = revealDate.toISOString();
+        validatedPin = pin.trim();
       }
 
       // Generate unique ID
@@ -169,7 +192,6 @@ export function setupCreateRoutes(app, render) {
       let dictationCreated = false;
 
       // Load language config for TTS
-      const lang = getLanguage(languageCode);
       const ttsOptions = {
         languageCode: lang.tts.languageCode,
         voiceId: lang.tts.voiceId || (languageCode !== 'nl' ? process.env[`ELEVENLABS_VOICE_ID_${languageCode.replace('-', '_').toUpperCase()}`] : null),
@@ -181,9 +203,9 @@ export function setupCreateRoutes(app, render) {
         const sentences = await generateSentences(topics[0], topics[1], topics[2], count, languageCode);
         console.log(`Generated ${sentences.length} sentences`);
 
-        // Step 2: Generate a title and create dictation metadata (preserve Claude's work)
+        // Step 2: Generate a title and create dictation metadata
         const title = await generateTitle(topics, sentences, languageCode);
-        createDictation(id, topics, sentences, { title, language: languageCode, revealAt: revealAtISO });
+        createDictation(id, topics, sentences, { title, language: languageCode, pin: validatedPin });
         dictationCreated = true;
         console.log(`Dictation ${id} metadata saved`);
 
@@ -195,43 +217,36 @@ export function setupCreateRoutes(app, render) {
 
           await generateSpeech(sentences[i], audioPath, ttsOptions);
 
-          // Add delay to avoid rate limiting (except after last request)
           if (i < sentences.length - 1) {
             await delay(500);
           }
         }
 
         console.log(`Dictation ${id} created successfully with all audio`);
-
-        // Redirect to the dictation page
         res.redirect(`/dictation/${id}`);
 
       } catch (error) {
         console.error('Error creating dictation:', error);
 
         if (dictationCreated) {
-          // Dictation metadata exists with sentences - keep it even if audio generation failed
           console.log(`Dictation ${id} kept with partial audio due to: ${error.message}`);
           res.redirect(`/dictation/${id}?warning=audio-incomplete`);
         } else {
-          // Claude generation failed - nothing useful to keep
           deleteDictation(id);
-
-          // Escape error message to prevent XSS
           const safeErrorMessage = escapeHtml(error.message);
           const errorHtml = `
             <div class="error">
-              <strong>Fout bij het maken van het dictee:</strong><br>
+              <strong>${escapeHtml(ui.createError)}</strong><br>
               ${safeErrorMessage}
             </div>
           `;
-          res.status(500).send(render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) + errorHtml);
+          res.status(500).send(renderCreateError(errorHtml));
         }
       }
 
     } catch (error) {
       console.error('Unexpected error:', error);
-      res.status(500).send('Er is een onverwachte fout opgetreden.');
+      res.status(500).send(req.lang.ui.unexpectedError);
     }
   });
 }

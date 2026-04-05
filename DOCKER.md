@@ -190,11 +190,8 @@ services:
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | - | Claude API key from Anthropic |
-| `TTS_SERVICE` | No | `elevenlabs` | TTS provider (`elevenlabs` or `resemble`) |
-| `ELEVENLABS_API_KEY` | If using ElevenLabs | - | ElevenLabs API key |
-| `ELEVENLABS_VOICE_ID` | If using ElevenLabs | - | Voice ID for Dutch voice |
-| `RESEMBLE_API_KEY` | If using Resemble | - | Resemble.ai API key |
-| `RESEMBLE_VOICE_UUID` | If using Resemble | - | Voice UUID from Resemble |
+| `ELEVENLABS_API_KEY` | Yes | - | ElevenLabs API key |
+| `ELEVENLABS_VOICE_ID` | Yes | - | Voice ID for Dutch voice |
 | `CREATE_SECRET_TOKEN` | No | - | Secret token for /create access |
 | `PORT` | No | `3000` | Server port (don't change in Docker) |
 | `NODE_ENV` | No | `production` | Node environment |

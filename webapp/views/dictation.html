@@ -5,9 +5,8 @@
 
 {{warning}}
 
-{{countdown}}
-
 <div class="actions-wrapper">
+  {{playModeLink}}
   {{showTextButton}}
   <a href="/dictations" class="cancel-link">{{backHome}}</a>
 </div>
@@ -21,92 +20,13 @@
 </form>
 
 <script>
-  // Show text toggle (only present when sentences are revealed)
-  const showTextBtn = document.getElementById('showTextBtn');
+  var showTextBtn = document.getElementById('showTextBtn');
   if (showTextBtn) {
     showTextBtn.addEventListener('click', function() {
-      const textElements = document.querySelectorAll('.sentence-text');
-      textElements.forEach(el => {
+      document.querySelectorAll('.sentence-text').forEach(function(el) {
         el.style.display = 'block';
       });
       this.style.display = 'none';
     });
-  }
-
-  // Countdown logic (only present when sentences are not yet revealed)
-  const countdownEl = document.getElementById('countdown');
-  if (countdownEl) {
-    const revealAt = new Date(countdownEl.dataset.revealAt);
-    const dictationId = countdownEl.dataset.dictationId;
-    const showTextLabel = countdownEl.dataset.showTextLabel;
-    const timerEl = document.getElementById('countdownTimer');
-    let intervalId;
-
-    function updateCountdown() {
-      const now = new Date();
-      const diff = revealAt - now;
-      if (diff <= 0) {
-        clearInterval(intervalId);
-        timerEl.textContent = '...';
-        fetchSentences();
-        return;
-      }
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const minutes = Math.floor((diff % 3600000) / 60000);
-      const seconds = Math.floor((diff % 60000) / 1000);
-
-      let parts = [];
-      if (days > 0) parts.push(days + 'd');
-      parts.push(hours + 'h');
-      parts.push(minutes + 'm');
-      parts.push(seconds + 's');
-      timerEl.textContent = parts.join(' ');
-    }
-
-    async function fetchSentences() {
-      try {
-        const resp = await fetch('/dictation/' + dictationId + '/sentences');
-        const data = await resp.json();
-        if (data.revealed && data.sentences) {
-          // Inject sentence texts into existing sentence-item divs
-          const items = document.querySelectorAll('.sentence-item');
-          data.sentences.forEach(function(text, i) {
-            if (items[i]) {
-              const div = document.createElement('div');
-              div.className = 'sentence-text';
-              div.textContent = text;
-              items[i].appendChild(div);
-            }
-          });
-
-          // Hide countdown, show the show-text button
-          countdownEl.style.display = 'none';
-          const actionsWrapper = document.querySelector('.actions-wrapper');
-          if (actionsWrapper) {
-            const btn = document.createElement('button');
-            btn.id = 'showTextBtn';
-            btn.className = 'secondary';
-            btn.textContent = showTextLabel;
-            btn.addEventListener('click', function() {
-              document.querySelectorAll('.sentence-text').forEach(function(el) {
-                el.style.display = 'block';
-              });
-              btn.style.display = 'none';
-            });
-            actionsWrapper.insertBefore(btn, actionsWrapper.firstChild);
-          }
-        } else {
-          // Server says not yet revealed (clock skew) - retry
-          setTimeout(fetchSentences, 2000);
-        }
-      } catch (e) {
-        // Network error - retry
-        setTimeout(fetchSentences, 3000);
-      }
-    }
-
-    intervalId = setInterval(updateCountdown, 1000);
-    updateCountdown();
   }
 </script>

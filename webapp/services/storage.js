@@ -47,7 +47,8 @@ export function createDictation(id, topics, sentences, options = {}) {
     topics,
     sentences,
     language: options.language || 'nl',
-    revealAt: options.revealAt || null,
+    pin: options.pin || null,
+    revealed: false,
     created: new Date().toISOString()
   };
 
@@ -102,6 +103,31 @@ export function listDictations() {
   dictations.sort((a, b) => new Date(b.created) - new Date(a.created));
 
   return dictations;
+}
+
+/**
+ * Update a dictation's metadata
+ */
+export function updateDictation(id, updates) {
+  const dictation = getDictation(id);
+  if (!dictation) {
+    return null;
+  }
+
+  const updated = { ...dictation, ...updates };
+  const metadataPath = path.join(DICTATIONS_DIR, id, 'metadata.json');
+  fs.writeFileSync(metadataPath, JSON.stringify(updated, null, 2));
+  return updated;
+}
+
+/**
+ * Check if a dictation's text is revealed
+ * Handles both new `revealed` flag and legacy `revealAt` timestamps
+ */
+export function isRevealed(dictation) {
+  if (dictation.revealed) return true;
+  if (dictation.revealAt && new Date() >= new Date(dictation.revealAt)) return true;
+  return false;
 }
 
 /**

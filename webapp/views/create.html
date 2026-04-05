@@ -1,49 +1,49 @@
-<h1>Nieuw Dictee Maken</h1>
+<h1>{{createHeading}}</h1>
 
 <p class="description">
-  Voer drie onderwerpen in voor het dictee. Kies hoeveel zinnen je wilt genereren (1-8).
+  {{createDescription}}
 </p>
 
 <form method="POST" action="/create" id="createForm">
   {{tokenInput}}
   <div>
-    <label for="language">Taal / Language:</label>
+    <label for="language">{{languageLabel}}</label>
     {{languageSelect}}
   </div>
 
   <div>
-    <label for="topic1">Onderwerp 1:</label>
-    <input type="text" id="topic1" name="topic1" required maxlength="100" placeholder="Bijvoorbeeld: honden">
+    <label for="topic1">{{topic1Label}}</label>
+    <input type="text" id="topic1" name="topic1" required maxlength="100" placeholder="{{topic1Placeholder}}">
   </div>
 
   <div>
-    <label for="topic2">Onderwerp 2:</label>
-    <input type="text" id="topic2" name="topic2" required maxlength="100" placeholder="Bijvoorbeeld: het weer">
+    <label for="topic2">{{topic2Label}}</label>
+    <input type="text" id="topic2" name="topic2" required maxlength="100" placeholder="{{topic2Placeholder}}">
   </div>
 
   <div>
-    <label for="topic3">Onderwerp 3:</label>
-    <input type="text" id="topic3" name="topic3" required maxlength="100" placeholder="Bijvoorbeeld: voetbal">
+    <label for="topic3">{{topic3Label}}</label>
+    <input type="text" id="topic3" name="topic3" required maxlength="100" placeholder="{{topic3Placeholder}}">
   </div>
 
   <div>
-    <label for="sentenceCount">Aantal zinnen (1-8):</label>
+    <label for="sentenceCount">{{sentenceCountLabel}}</label>
     <input type="number" id="sentenceCount" name="sentenceCount" required min="1" max="8" value="8" placeholder="8">
   </div>
 
   <div>
-    <label for="revealAt">Onthulmoment / Reveal time (optioneel):</label>
-    <input type="datetime-local" id="revealAt" name="revealAt">
-    <small class="field-hint">Laat leeg om zinnen direct te tonen. / Leave empty to show sentences immediately.</small>
+    <label for="pin">{{pinLabel}}</label>
+    <input type="text" id="pin" name="pin" pattern="[0-9]{4,6}" minlength="4" maxlength="6" inputmode="numeric" placeholder="1234">
+    <small class="field-hint">{{pinHint}}</small>
   </div>
 
-  <button type="submit">Dictee Genereren</button>
-  <a href="/" class="cancel-link">Annuleren</a>
+  <button type="submit">{{generateButton}}</button>
+  <a href="/" class="cancel-link">{{cancelButton}}</a>
 </form>
 
 <div id="loading" class="loading" style="display: none;">
-  <p><strong>Dictee wordt gegenereerd...</strong></p>
-  <p>Dit kan 30-60 seconden duren. Even geduld alstublieft.</p>
+  <p><strong>{{generating}}</strong></p>
+  <p>{{generatingHint}}</p>
 </div>
 
 <script>

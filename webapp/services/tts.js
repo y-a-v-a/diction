@@ -1,51 +1,9 @@
 /**
- * Text-to-Speech service abstraction layer
- * Allows switching between different TTS providers
+ * Text-to-Speech service — ElevenLabs
  */
 
-import * as elevenlabs from './elevenlabs.js';
-import * as resemble from './resemble.js';
+export { generateSpeech, delay } from './elevenlabs.js';
 
-const TTS_SERVICE = process.env.TTS_SERVICE || 'elevenlabs';
-
-// Map of available TTS services
-const services = {
-  'elevenlabs': elevenlabs,
-  'resemble': resemble
-};
-
-/**
- * Get the configured TTS service
- */
-function getTTSService() {
-  const service = services[TTS_SERVICE.toLowerCase()];
-
-  if (!service) {
-    throw new Error(`Unknown TTS service: ${TTS_SERVICE}. Available: ${Object.keys(services).join(', ')}`);
-  }
-
-  return service;
-}
-
-/**
- * Generate speech using the configured TTS service
- */
-export async function generateSpeech(text, outputPath, options = {}) {
-  const service = getTTSService();
-  return service.generateSpeech(text, outputPath, options);
-}
-
-/**
- * Delay helper for rate limiting
- */
-export function delay(ms) {
-  const service = getTTSService();
-  return service.delay(ms);
-}
-
-/**
- * Get the name of the currently configured TTS service
- */
 export function getCurrentService() {
-  return TTS_SERVICE;
+  return 'elevenlabs';
 }

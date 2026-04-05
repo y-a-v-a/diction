@@ -12,16 +12,9 @@ services:
       # Anthropic API Key - REQUIRED
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
-      # TTS Service Configuration
-      - TTS_SERVICE=${TTS_SERVICE:-elevenlabs}
-
-      # ElevenLabs Configuration (if using elevenlabs)
+      # ElevenLabs Configuration
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
       - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID}
-
-      # Resemble.ai Configuration (if using resemble)
-      - RESEMBLE_API_KEY=${RESEMBLE_API_KEY}
-      - RESEMBLE_VOICE_UUID=${RESEMBLE_VOICE_UUID}
 
       # Secret token for /create route access
       - CREATE_SECRET_TOKEN=${CREATE_SECRET_TOKEN}

@@ -1,35 +1,47 @@
-import { getDictation, deleteDictation } from '../services/storage.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { getDictation, deleteDictation, updateDictation, isRevealed as checkRevealed } from '../services/storage.js';
 import { escapeHtml, deleteRateLimiter } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Render a standalone template (bypasses layout.html)
+ */
+function renderTemplate(templateName, data = {}) {
+  let html = fs.readFileSync(path.join(__dirname, '../views', templateName), 'utf-8');
+  for (const [key, value] of Object.entries(data)) {
+    html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+  }
+  return html;
+}
+
 export function setupDictationRoutes(app, render) {
-  // GET /dictation/:id - Show dictation playback page
+  // GET /dictation/:id - Show dictation detail page
   app.get('/dictation/:id', (req, res) => {
     try {
       const { id } = req.params;
       const { warning } = req.query;
 
-      // Validate ID format (8 lowercase hex characters)
       if (!/^[0-9a-f]{8}$/.test(id)) {
-        return res.status(400).send('Ongeldige dictee ID');
+        return res.status(400).send(req.lang.ui.invalidId);
       }
 
       const dictation = getDictation(id);
 
       if (!dictation) {
-        return res.status(404).send('Dictee niet gevonden');
+        return res.status(404).send(req.lang.ui.notFound);
       }
 
-      // Load language config (backward compat: default to Dutch)
       const languageCode = dictation.language || 'nl';
       const lang = getLanguage(languageCode);
-      const ui = lang.ui;
+      const ui = req.lang.ui;
 
-      // Determine reveal state
-      const revealAt = dictation.revealAt ? new Date(dictation.revealAt) : null;
-      const isRevealed = !revealAt || new Date() >= revealAt;
+      const revealed = checkRevealed(dictation);
 
-      // Format the date
       const date = new Date(dictation.created).toLocaleDateString(ui.dateLocale, {
         year: 'numeric',
         month: 'long',
@@ -38,21 +50,18 @@ export function setupDictationRoutes(app, render) {
         minute: '2-digit'
       });
 
-      // Build warning message if present
       let warningHtml = '';
       if (warning === 'audio-incomplete') {
         warningHtml = `
           <div style="background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-            <strong>Let op:</strong> Niet alle audio bestanden konden worden gegenereerd (bijv. door quotum limiet).
-            De zinnen zijn wel opgeslagen en audio bestanden die wel zijn gegenereerd kun je hieronder afspelen.
+            <strong>${escapeHtml(ui.audioWarningLabel)}</strong> ${escapeHtml(ui.audioWarning)}
           </div>
         `;
       }
 
-      // Build audio players HTML
       let audioPlayersHtml = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
-        const sentenceTextHtml = isRevealed
+        const sentenceTextHtml = revealed
           ? `<div class="sentence-text">${escapeHtml(dictation.sentences[i])}</div>`
           : '';
 
@@ -65,30 +74,19 @@ export function setupDictationRoutes(app, render) {
         `;
       }
 
-      // Build countdown or show-text button
-      let countdownHtml = '';
-      let showTextButton = '';
+      const showTextButton = revealed
+        ? `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`
+        : '';
 
-      if (isRevealed) {
-        showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`;
-      } else {
-        countdownHtml = `
-          <div id="countdown" class="countdown-container" data-reveal-at="${escapeHtml(dictation.revealAt)}" data-dictation-id="${id}" data-show-text-label="${escapeHtml(ui.showText)}">
-            <p><strong>${escapeHtml(ui.textRevealed)}</strong></p>
-            <p id="countdownTimer" class="countdown-timer"></p>
-          </div>
-        `;
-      }
+      const playModeLink = dictation.pin
+        ? `<a href="/dictation/${id}/play" class="btn">${escapeHtml(ui.playMode)}</a>`
+        : '';
 
-      // Language indicator
       const languageIndicator = `<span class="language-badge">${escapeHtml(lang.displayName)}</span>`;
-
-      // Escape topics to prevent XSS
       const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
-
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
 
-      const html = render('dictation.html', {
+      const html = render(req, 'dictation.html', {
         title: displayTitle,
         dictationId: id,
         topics: escapedTopics,
@@ -97,8 +95,8 @@ export function setupDictationRoutes(app, render) {
         dateLabel: ui.createdAt,
         warning: warningHtml,
         audioPlayers: audioPlayersHtml,
-        countdown: countdownHtml,
         showTextButton: showTextButton,
+        playModeLink: playModeLink,
         languageIndicator: languageIndicator,
         deleteDictation: ui.deleteDictation,
         deleteConfirm: escapeHtml(ui.deleteConfirm),
@@ -112,8 +110,123 @@ export function setupDictationRoutes(app, render) {
     }
   });
 
-  // GET /dictation/:id/sentences - JSON API for sentence reveal
-  app.get('/dictation/:id/sentences', (req, res) => {
+  // GET /dictation/:id/play - Play mode (PIN-protected)
+  app.get('/dictation/:id/play', (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!/^[0-9a-f]{8}$/.test(id)) {
+        return res.status(400).send(req.lang.ui.invalidId);
+      }
+
+      const dictation = getDictation(id);
+      if (!dictation) {
+        return res.status(404).send(req.lang.ui.notFound);
+      }
+
+      if (!dictation.pin) {
+        return res.redirect(`/dictation/${id}`);
+      }
+
+      const languageCode = dictation.language || 'nl';
+      const lang = getLanguage(languageCode);
+      const ui = lang.ui;
+      const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
+
+      // Check PIN cookie
+      const cookieName = `play_pin_${id}`;
+      if (req.cookies[cookieName] !== dictation.pin) {
+        return res.send(renderTemplate('play-pin.html', {
+          title: displayTitle,
+          dictationId: id,
+          langCode: languageCode,
+          enterPin: ui.enterPin,
+          pinPlaceholder: ui.pinPlaceholder,
+          submit: ui.submit,
+          error: '',
+        }));
+      }
+
+      // Build sentence cards
+      const languageIndicator = `<span class="language-badge">${escapeHtml(lang.displayName)}</span>`;
+      let sentenceCards = '';
+      for (let i = 0; i < dictation.sentences.length; i++) {
+        const hiddenClass = i === 0 ? '' : ' hidden';
+        sentenceCards += `
+          <div class="play-sentence-card${hiddenClass}">
+            <div class="play-sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
+            <audio controls src="/dictations/${id}/${i}.mp3"></audio>
+            <div class="play-sentence-text">${escapeHtml(dictation.sentences[i])}</div>
+          </div>
+        `;
+      }
+
+      res.send(renderTemplate('play.html', {
+        title: displayTitle,
+        dictationId: id,
+        langCode: languageCode,
+        playMode: ui.playMode,
+        languageIndicator: languageIndicator,
+        sentenceCards: sentenceCards,
+        totalSentences: String(dictation.sentences.length),
+        sentenceLabel: ui.sentence,
+        nextSentence: ui.nextSentence,
+        revealAll: ui.revealAll,
+        revealConfirm: escapeHtml(ui.revealConfirm),
+      }));
+    } catch (error) {
+      console.error('Error loading play mode:', error);
+      res.status(500).send('Error loading play mode');
+    }
+  });
+
+  // POST /dictation/:id/play - PIN submission
+  app.post('/dictation/:id/play', (req, res) => {
+    try {
+      const { id } = req.params;
+      const { pin } = req.body;
+
+      if (!/^[0-9a-f]{8}$/.test(id)) {
+        return res.status(400).send(req.lang.ui.invalidId);
+      }
+
+      const dictation = getDictation(id);
+      if (!dictation || !dictation.pin) {
+        return res.redirect(`/dictation/${id}`);
+      }
+
+      const languageCode = dictation.language || 'nl';
+      const lang = getLanguage(languageCode);
+      const ui = lang.ui;
+      const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
+
+      if (!pin || pin.trim() !== dictation.pin) {
+        return res.send(renderTemplate('play-pin.html', {
+          title: displayTitle,
+          dictationId: id,
+          langCode: languageCode,
+          enterPin: ui.enterPin,
+          pinPlaceholder: ui.pinPlaceholder,
+          submit: ui.submit,
+          error: `<div class="error">${escapeHtml(ui.pinError)}</div>`,
+        }));
+      }
+
+      // Set PIN cookie and redirect to play mode
+      res.cookie(`play_pin_${id}`, pin.trim(), {
+        httpOnly: true,
+        maxAge: 86400000, // 24 hours
+        sameSite: 'lax',
+      });
+      res.redirect(`/dictation/${id}/play`);
+    } catch (error) {
+      console.error('Error verifying PIN:', error);
+      res.status(500).send('Error verifying PIN');
+    }
+  });
+
+  // POST /dictation/:id/reveal - Reveal all text (PIN-protected)
+  app.post('/dictation/:id/reveal', (req, res) => {
     try {
       const { id } = req.params;
 
@@ -122,24 +235,22 @@ export function setupDictationRoutes(app, render) {
       }
 
       const dictation = getDictation(id);
-
       if (!dictation) {
         return res.status(404).json({ error: 'Dictation not found' });
       }
 
-      const revealAt = dictation.revealAt ? new Date(dictation.revealAt) : null;
-      const isRevealed = !revealAt || new Date() >= revealAt;
-
-      if (!isRevealed) {
-        return res.json({ revealed: false, revealAt: dictation.revealAt });
+      // Verify PIN cookie
+      if (dictation.pin) {
+        const cookieName = `play_pin_${id}`;
+        if (req.cookies[cookieName] !== dictation.pin) {
+          return res.status(403).json({ error: 'Unauthorized' });
+        }
       }
 
-      return res.json({
-        revealed: true,
-        sentences: dictation.sentences
-      });
+      updateDictation(id, { revealed: true });
+      res.json({ success: true });
     } catch (error) {
-      console.error('Error fetching sentences:', error);
+      console.error('Error revealing dictation:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -150,14 +261,14 @@ export function setupDictationRoutes(app, render) {
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
       if (!deleteRateLimiter.check(clientIp)) {
-        return res.status(429).send('Te veel verwijderverzoeken. Probeer het over een minuut opnieuw.');
+        return res.status(429).send(req.lang.ui.deleteRateLimitError);
       }
 
       const { id } = req.params;
 
       // Validate ID format (8 lowercase hex characters)
       if (!/^[0-9a-f]{8}$/.test(id)) {
-        return res.status(400).send('Ongeldige dictee ID');
+        return res.status(400).send(req.lang.ui.invalidId);
       }
 
       const success = deleteDictation(id);
