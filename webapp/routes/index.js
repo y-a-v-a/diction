@@ -1,4 +1,4 @@
-import { listDictations, isRevealed as checkRevealed } from '../services/storage.js';
+import { listDictations } from '../services/storage.js';
 import { escapeHtml, isAdmin } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
@@ -47,14 +47,6 @@ export function setupIndexRoutes(app, render) {
           const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
           const languageBadge = `<span class="badge badge-language">${escapeHtml(lang.displayName)}</span>`;
 
-          let revealBadge = '';
-          const revealed = checkRevealed(dictation);
-          if (revealed) {
-            revealBadge = `<span class="badge badge-revealed">${escapeHtml(ui.badgeRevealed)}</span>`;
-          } else {
-            revealBadge = `<span class="badge badge-locked">${escapeHtml(ui.badgeLocked)}</span>`;
-          }
-
           const displayTitle = dictation.title ? escapeHtml(dictation.title) : `Dictation ${dictation.id}`;
 
           dictationsHtml += `
@@ -64,7 +56,6 @@ export function setupIndexRoutes(app, render) {
                   ${displayTitle}
                 </a>
                 ${languageBadge}
-                ${revealBadge}
               </h3>
               <p style="margin-bottom: 8px;"><strong>${escapeHtml(ui.topicsLabel)}:</strong> ${escapedTopics}</p>
               <p class="dictation-date">${date}</p>

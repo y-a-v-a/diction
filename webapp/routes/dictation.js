@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getDictation, deleteDictation, updateDictation, isRevealed as checkRevealed } from '../services/storage.js';
+import { getDictation, deleteDictation } from '../services/storage.js';
 import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
@@ -40,8 +40,6 @@ export function setupDictationRoutes(app, render) {
       const lang = getLanguage(languageCode);
       const ui = req.lang.ui;
 
-      const revealed = checkRevealed(dictation);
-
       const date = new Date(dictation.created).toLocaleDateString(ui.dateLocale, {
         year: 'numeric',
         month: 'long',
@@ -61,18 +59,16 @@ export function setupDictationRoutes(app, render) {
 
       let audioPlayersHtml = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
-        const hiddenAttr = revealed ? '' : ' hidden';
         audioPlayersHtml += `
           <div class="sentence-item">
             <div class="sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
             <audio controls src="/dictations/${id}/${i}.mp3"></audio>
-            <div class="sentence-text"${hiddenAttr}>${escapeHtml(dictation.sentences[i])}</div>
+            <div class="sentence-text" hidden>${escapeHtml(dictation.sentences[i])}</div>
           </div>
         `;
       }
 
-      const showTextLabel = revealed ? ui.hideText : ui.showText;
-      const showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(showTextLabel)}</button>`;
+      const showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`;
 
       const playModeLink = dictation.pin
         ? `<a href="/dictation/${id}/play" class="btn">${escapeHtml(ui.playMode)}</a>`
@@ -170,7 +166,6 @@ export function setupDictationRoutes(app, render) {
         title: displayTitle,
         dictationId: id,
         langCode: languageCode,
-        csrfToken: escapeHtml(req.csrfToken),
         playMode: ui.playMode,
         languageIndicator: languageIndicator,
         sentenceCards: sentenceCards,
@@ -235,40 +230,6 @@ export function setupDictationRoutes(app, render) {
     } catch (error) {
       console.error('Error verifying PIN:', error);
       res.status(500).send('Error verifying PIN');
-    }
-  });
-
-  // POST /dictation/:id/reveal - Reveal all text (PIN-protected)
-  app.post('/dictation/:id/reveal', (req, res) => {
-    try {
-      const { id } = req.params;
-
-      if (!validateCsrfToken(req)) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
-
-      if (!/^[0-9a-f]{8}$/.test(id)) {
-        return res.status(400).json({ error: 'Invalid dictation ID' });
-      }
-
-      const dictation = getDictation(id);
-      if (!dictation) {
-        return res.status(404).json({ error: 'Dictation not found' });
-      }
-
-      // Verify PIN cookie
-      if (dictation.pin) {
-        const cookieName = `play_pin_${id}`;
-        if (req.cookies[cookieName] !== dictation.pin) {
-          return res.status(403).json({ error: 'Unauthorized' });
-        }
-      }
-
-      updateDictation(id, { revealed: true });
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Error revealing dictation:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

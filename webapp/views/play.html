@@ -165,7 +165,6 @@
     var sentenceLabel = '{{sentenceLabel}}';
     var revealConfirm = '{{revealConfirm}}';
     var dictationId = '{{dictationId}}';
-    var csrfToken = '{{csrfToken}}';
 
     function updateProgress() {
       progress.textContent = sentenceLabel + ' ' + (current + 1) + ' / ' + total;
@@ -190,24 +189,10 @@
 
     revealBtn.addEventListener('click', function() {
       if (!confirm(revealConfirm)) return;
-      revealBtn.disabled = true;
-      revealBtn.textContent = '...';
-
-      fetch('/dictation/' + dictationId + '/reveal', {
-        method: 'POST',
-        headers: { 'x-csrf-token': csrfToken }
-      })
-        .then(function(resp) { return resp.json(); })
-        .then(function() {
-          document.querySelectorAll('.play-sentence-text').forEach(function(el) {
-            el.classList.add('visible');
-          });
-          revealBtn.style.display = 'none';
-        })
-        .catch(function() {
-          revealBtn.disabled = false;
-          revealBtn.textContent = '{{revealAll}}';
-        });
+      document.querySelectorAll('.play-sentence-text').forEach(function(el) {
+        el.classList.add('visible');
+      });
+      revealBtn.style.display = 'none';
     });
 
     updateProgress();

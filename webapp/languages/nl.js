@@ -59,8 +59,6 @@ export default {
     backHome: 'Terug naar Home',
     backToOverview: 'Terug naar Overzicht',
     hideText: 'Verberg Tekst',
-    badgeRevealed: 'Tekst zichtbaar',
-    badgeLocked: 'Tekst verborgen',
     dateLocale: 'nl-NL',
 
     // Play mode

@@ -59,8 +59,6 @@ export default {
     backHome: 'Back to Home',
     backToOverview: 'Back to Overview',
     hideText: 'Hide Text',
-    badgeRevealed: 'Text visible',
-    badgeLocked: 'Text hidden',
     dateLocale: 'en-US',
 
     // Play mode
