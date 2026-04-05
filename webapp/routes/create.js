@@ -163,7 +163,7 @@ export function setupCreateRoutes(app, render) {
     const html = render(req, 'create.html', {
       tokenInput,
       csrfInput,
-      languageSelect: buildLanguageSelect('nl'),
+      languageSelect: buildLanguageSelect(req.langCode),
       createHeading: ui.createHeading,
       createDescription: ui.createDescription,
       languageLabel: ui.languageLabel,
@@ -202,7 +202,7 @@ export function setupCreateRoutes(app, render) {
       if (!createRateLimiter.check(clientIp)) {
         return res.status(429).send(
           render(req, 'create.html', {
-            tokenInput: '', csrfInput, languageSelect: buildLanguageSelect('nl'),
+            tokenInput: '', csrfInput, languageSelect: buildLanguageSelect(req.langCode),
             createHeading: ui.createHeading, createDescription: ui.createDescription,
             languageLabel: ui.languageLabel,
             topic1Label: ui.topic1Label, topic1Placeholder: ui.topic1Placeholder,
