@@ -25,9 +25,13 @@ Listen to an AI-generated sentence:
 
 ## Screenshots
 
-| Dictation detail | Play mode |
+| Home | Dictation detail |
 |---|---|
-| ![Dictation detail view](Diction-screenshot-01.png) | ![Play mode view](Diction-screenshot-02.png) |
+| ![Home page](Diction-screenshot-00.png) | ![Dictation detail view](Diction-screenshot-01.png) |
+
+| Play mode | Text revealed |
+|---|---|
+| ![Play mode view](Diction-screenshot-02.png) | ![Play mode with revealed text](Diction-screenshot-03.png) |
 
 ## Quick Start
 
