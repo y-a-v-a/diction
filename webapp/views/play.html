@@ -195,6 +195,11 @@
     });
 
     updateProgress();
+
+    if (total <= 1) {
+      nextBtn.textContent = '{{closePage}}';
+      nextBtn.dataset.done = '1';
+    }
   </script>
 </body>
 </html>
