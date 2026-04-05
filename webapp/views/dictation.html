@@ -1,4 +1,4 @@
-<h1>Dictee: {{id}} {{languageIndicator}}</h1>
+<h1>{{title}} {{languageIndicator}}</h1>
 
 <p class="topics-line"><strong>{{topicsLabel}}:</strong> {{topics}}</p>
 <p class="date-text actions-wrapper">{{dateLabel}}: {{date}}</p>
@@ -9,14 +9,14 @@
 
 <div class="actions-wrapper">
   {{showTextButton}}
-  <a href="/" class="cancel-link">{{backHome}}</a>
+  <a href="/dictations" class="cancel-link">{{backHome}}</a>
 </div>
 
 <div class="audio-container">
   {{audioPlayers}}
 </div>
 
-<form method="POST" action="/dictation/{{id}}/delete" class="delete-form" data-confirm="{{deleteConfirm}}" onsubmit="return confirm(this.dataset.confirm);">
+<form method="POST" action="/dictation/{{dictationId}}/delete" class="delete-form" data-confirm="{{deleteConfirm}}" onsubmit="return confirm(this.dataset.confirm);">
   <button type="submit" class="delete">{{deleteDictation}}</button>
 </form>
 

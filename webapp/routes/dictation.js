@@ -86,8 +86,11 @@ export function setupDictationRoutes(app, render) {
       // Escape topics to prevent XSS
       const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
 
+      const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
+
       const html = render('dictation.html', {
-        id: id,
+        title: displayTitle,
+        dictationId: id,
         topics: escapedTopics,
         topicsLabel: ui.topics,
         date: date,
@@ -163,7 +166,7 @@ export function setupDictationRoutes(app, render) {
         console.log(`Dictation ${id} deleted`);
       }
 
-      res.redirect('/');
+      res.redirect('/dictations');
     } catch (error) {
       console.error('Error deleting dictation:', error);
       res.status(500).send('Error deleting dictation');

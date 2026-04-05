@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { generateSentences } from '../services/claude.js';
+import { generateSentences, generateTitle } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
 import { escapeHtml, createRateLimiter } from '../utils/security.js';
@@ -181,8 +181,9 @@ export function setupCreateRoutes(app, render) {
         const sentences = await generateSentences(topics[0], topics[1], topics[2], count, languageCode);
         console.log(`Generated ${sentences.length} sentences`);
 
-        // Step 2: Create dictation metadata immediately (preserve Claude's work)
-        createDictation(id, topics, sentences, { language: languageCode, revealAt: revealAtISO });
+        // Step 2: Generate a title and create dictation metadata (preserve Claude's work)
+        const title = await generateTitle(topics, sentences, languageCode);
+        createDictation(id, topics, sentences, { title, language: languageCode, revealAt: revealAtISO });
         dictationCreated = true;
         console.log(`Dictation ${id} metadata saved`);
 

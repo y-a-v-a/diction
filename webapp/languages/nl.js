@@ -54,6 +54,14 @@ Voordat je antwoordt: controleer elke zin op woorden uit andere talen (Duits, En
 
 Geef ALLEEN de ${count} zinnen terug, genummerd 1-${count}, zonder extra uitleg.`;
     },
+    titlePrompt(topics, sampleSentences) {
+      return `Bedenk een korte, creatieve titel (3-6 woorden) voor een dictee over: ${topics}.
+
+Hier zijn een paar voorbeeldzinnen uit het dictee:
+${sampleSentences}
+
+Geef ALLEEN de titel terug, zonder aanhalingstekens of extra uitleg.`;
+    },
     validationPrompt(sentencesText) {
       return `Je bent een Nederlandse taalexpert die woorden uit andere talen kan identificeren.
 

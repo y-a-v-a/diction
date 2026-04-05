@@ -37,6 +37,32 @@ async function validateSentences(sentences, languageCode = 'nl') {
 }
 
 /**
+ * Generate a short title for a dictation based on its topics and sentences
+ */
+export async function generateTitle(topics, sentences, languageCode = 'nl') {
+  const lang = getLanguage(languageCode);
+  const topicList = topics.join(', ');
+  const sampleSentences = sentences.slice(0, 3).join('\n');
+
+  const prompt = lang.claude.titlePrompt
+    ? lang.claude.titlePrompt(topicList, sampleSentences)
+    : `Generate a short, creative title (3-6 words) for a dictation about: ${topicList}. Return ONLY the title, nothing else.`;
+
+  try {
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20250929',
+      max_tokens: 60,
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    return message.content[0].text.trim().replace(/^["']|["']$/g, '');
+  } catch (error) {
+    console.error('Title generation error:', error.message);
+    return null;
+  }
+}
+
+/**
  * Generate sentences for a dictation based on 3 topics
  * @see https://dictees.nl/alle-dictees/groot-dictee-der-nederlandse-taal/
  */

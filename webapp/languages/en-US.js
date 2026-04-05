@@ -54,6 +54,14 @@ Before you answer: check each sentence for words from other languages (French, G
 
 Return ONLY the ${count} sentences, numbered 1-${count}, without any extra explanation.`;
     },
+    titlePrompt(topics, sampleSentences) {
+      return `Create a short, creative title (3-6 words) for a dictation about: ${topics}.
+
+Here are a few sample sentences from the dictation:
+${sampleSentences}
+
+Return ONLY the title, without quotes or extra explanation.`;
+    },
     validationPrompt(sentencesText) {
       return `You are an American English language expert who can identify words from other languages.
 

@@ -46,11 +46,13 @@ export function setupIndexRoutes(app, render) {
             }
           }
 
+          const displayTitle = dictation.title ? escapeHtml(dictation.title) : `Dictee ${dictation.id}`;
+
           dictationsHtml += `
             <div class="dictation-card">
               <h3 class="dictation-title">
                 <a href="/dictation/${dictation.id}" class="dictation-link">
-                  Dictee ${dictation.id}
+                  ${displayTitle}
                 </a>
                 ${languageBadge}
                 ${revealBadge}

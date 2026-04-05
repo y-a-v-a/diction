@@ -43,6 +43,7 @@ export function createDictation(id, topics, sentences, options = {}) {
   // Create metadata
   const metadata = {
     id,
+    title: options.title || null,
     topics,
     sentences,
     language: options.language || 'nl',
