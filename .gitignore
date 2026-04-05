@@ -14,3 +14,9 @@ npm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+.claude/
+SECURITY_PATCH_CHECKLIST.md
+SECURITY_SUMMARY.txt
+VULNERABILITY_ANALYSIS.md
+dev-start.sh

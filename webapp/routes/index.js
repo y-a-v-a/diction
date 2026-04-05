@@ -4,6 +4,11 @@ import { getLanguage } from '../languages/index.js';
 
 export function setupIndexRoutes(app, render) {
   app.get('/', (req, res) => {
+    const html = render('home.html', {});
+    res.send(html);
+  });
+
+  app.get('/dictations', (req, res) => {
     try {
       const dictations = listDictations();
 
@@ -64,7 +69,7 @@ export function setupIndexRoutes(app, render) {
         dictationsHtml += '</div>';
       }
 
-      const html = render('home.html', { dictations: dictationsHtml });
+      const html = render('dictations.html', { dictations: dictationsHtml });
       res.send(html);
     } catch (error) {
       console.error('Error loading dictations:', error);
