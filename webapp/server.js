@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getLanguage, isValidLanguage } from './languages/index.js';
+import { csrfMiddleware } from './utils/security.js';
 import { setupIndexRoutes } from './routes/index.js';
 import { setupCreateRoutes } from './routes/create.js';
 import { setupDictationRoutes } from './routes/dictation.js';
@@ -19,6 +20,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// CSRF middleware — sets _csrf cookie + req.csrfToken
+app.use(csrfMiddleware);
 
 // Language middleware — sets req.lang based on cookie
 app.use((req, res, next) => {

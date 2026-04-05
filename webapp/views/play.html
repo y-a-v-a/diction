@@ -149,6 +149,7 @@
     var sentenceLabel = '{{sentenceLabel}}';
     var revealConfirm = '{{revealConfirm}}';
     var dictationId = '{{dictationId}}';
+    var csrfToken = '{{csrfToken}}';
 
     function updateProgress() {
       progress.textContent = sentenceLabel + ' ' + (current + 1) + ' / ' + total;
@@ -171,7 +172,10 @@
       revealBtn.disabled = true;
       revealBtn.textContent = '...';
 
-      fetch('/dictation/' + dictationId + '/reveal', { method: 'POST' })
+      fetch('/dictation/' + dictationId + '/reveal', {
+        method: 'POST',
+        headers: { 'x-csrf-token': csrfToken }
+      })
         .then(function(resp) { return resp.json(); })
         .then(function() {
           document.querySelectorAll('.play-sentence-text').forEach(function(el) {

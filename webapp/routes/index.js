@@ -25,6 +25,8 @@ export function setupIndexRoutes(app, render) {
       const ui = req.lang.ui;
       const dictations = listDictations();
 
+      const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
+
       let dictationsHtml = '';
       if (dictations.length === 0) {
         dictationsHtml = `<p class="empty-state">${escapeHtml(ui.emptyState)}</p>`;
@@ -69,6 +71,7 @@ export function setupIndexRoutes(app, render) {
               <div>
                 <a href="/dictation/${dictation.id}" class="btn btn-small">${escapeHtml(ui.viewButton)}</a>
                 <form method="POST" action="/dictation/${dictation.id}/delete" style="display: inline-block; margin-left: 10px;" data-confirm="${escapeHtml(ui.deleteConfirm)}" onsubmit="return confirm(this.dataset.confirm);">
+                  ${csrfInput}
                   <button type="submit" class="delete btn-small">${escapeHtml(ui.deleteButton)}</button>
                 </form>
               </div>

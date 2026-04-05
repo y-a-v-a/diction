@@ -2,6 +2,39 @@
  * Security utilities for input validation and sanitization
  */
 
+import crypto from 'crypto';
+
+/**
+ * Generate a CSRF token
+ */
+export function generateCsrfToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+/**
+ * CSRF middleware — double-submit cookie pattern.
+ * Sets a `_csrf` cookie if not present, attaches `req.csrfToken` for use in templates.
+ */
+export function csrfMiddleware(req, res, next) {
+  let token = req.cookies._csrf;
+  if (!token) {
+    token = generateCsrfToken();
+    res.cookie('_csrf', token, { httpOnly: true, sameSite: 'strict' });
+  }
+  req.csrfToken = token;
+  next();
+}
+
+/**
+ * Validate CSRF token from request body or header against the cookie.
+ * Returns true if valid.
+ */
+export function validateCsrfToken(req) {
+  const cookieToken = req.cookies._csrf;
+  const submittedToken = req.body._csrf || req.get('x-csrf-token');
+  return cookieToken && submittedToken && cookieToken === submittedToken;
+}
+
 /**
  * Escape HTML to prevent XSS attacks
  * @param {string} text - Text to escape

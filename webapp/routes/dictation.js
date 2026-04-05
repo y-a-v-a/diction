@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getDictation, deleteDictation, updateDictation, isRevealed as checkRevealed } from '../services/storage.js';
-import { escapeHtml, deleteRateLimiter } from '../utils/security.js';
+import { escapeHtml, deleteRateLimiter, validateCsrfToken } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -85,10 +85,12 @@ export function setupDictationRoutes(app, render) {
       const languageIndicator = `<span class="language-badge">${escapeHtml(lang.displayName)}</span>`;
       const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
+      const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
 
       const html = render(req, 'dictation.html', {
         title: displayTitle,
         dictationId: id,
+        csrfInput: csrfInput,
         topics: escapedTopics,
         topicsLabel: ui.topics,
         date: date,
@@ -134,12 +136,14 @@ export function setupDictationRoutes(app, render) {
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
 
       // Check PIN cookie
+      const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
       const cookieName = `play_pin_${id}`;
       if (req.cookies[cookieName] !== dictation.pin) {
         return res.send(renderTemplate('play-pin.html', {
           title: displayTitle,
           dictationId: id,
           langCode: languageCode,
+          csrfInput: csrfInput,
           enterPin: ui.enterPin,
           pinPlaceholder: ui.pinPlaceholder,
           submit: ui.submit,
@@ -165,6 +169,7 @@ export function setupDictationRoutes(app, render) {
         title: displayTitle,
         dictationId: id,
         langCode: languageCode,
+        csrfToken: escapeHtml(req.csrfToken),
         playMode: ui.playMode,
         languageIndicator: languageIndicator,
         sentenceCards: sentenceCards,
@@ -186,6 +191,10 @@ export function setupDictationRoutes(app, render) {
       const { id } = req.params;
       const { pin } = req.body;
 
+      if (!validateCsrfToken(req)) {
+        return res.status(403).send(req.lang.ui.forbiddenError || 'Forbidden');
+      }
+
       if (!/^[0-9a-f]{8}$/.test(id)) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
@@ -201,10 +210,12 @@ export function setupDictationRoutes(app, render) {
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
 
       if (!pin || pin.trim() !== dictation.pin) {
+        const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
         return res.send(renderTemplate('play-pin.html', {
           title: displayTitle,
           dictationId: id,
           langCode: languageCode,
+          csrfInput: csrfInput,
           enterPin: ui.enterPin,
           pinPlaceholder: ui.pinPlaceholder,
           submit: ui.submit,
@@ -229,6 +240,10 @@ export function setupDictationRoutes(app, render) {
   app.post('/dictation/:id/reveal', (req, res) => {
     try {
       const { id } = req.params;
+
+      if (!validateCsrfToken(req)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
 
       if (!/^[0-9a-f]{8}$/.test(id)) {
         return res.status(400).json({ error: 'Invalid dictation ID' });
@@ -258,6 +273,11 @@ export function setupDictationRoutes(app, render) {
   // POST /dictation/:id/delete - Delete a dictation
   app.post('/dictation/:id/delete', (req, res) => {
     try {
+      // CSRF validation
+      if (!validateCsrfToken(req)) {
+        return res.status(403).send(req.lang.ui.forbiddenError || 'Forbidden');
+      }
+
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
       if (!deleteRateLimiter.check(clientIp)) {

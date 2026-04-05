@@ -50,6 +50,7 @@
     <p>{{enterPin}}</p>
     {{error}}
     <form method="POST" action="/dictation/{{dictationId}}/play">
+      {{csrfInput}}
       <input type="text" name="pin" class="pin-input" pattern="[0-9]{4,6}" minlength="4" maxlength="6" inputmode="numeric" placeholder="{{pinPlaceholder}}" required autofocus>
       <br>
       <button type="submit" class="pin-submit">{{submit}}</button>

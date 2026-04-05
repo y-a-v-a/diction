@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { generateSentences, generateTitle } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
-import { escapeHtml, createRateLimiter } from '../utils/security.js';
+import { escapeHtml, createRateLimiter, validateCsrfToken } from '../utils/security.js';
 import { getAvailableLanguages, getLanguage, isValidLanguage } from '../languages/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -84,9 +84,11 @@ export function setupCreateRoutes(app, render) {
   app.get('/create', requireSecretToken, (req, res) => {
     const token = req.query.token || '';
     const tokenInput = token ? `<input type="hidden" name="token" value="${escapeHtml(token)}">` : '';
+    const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
     const ui = req.lang.ui;
     const html = render(req, 'create.html', {
       tokenInput,
+      csrfInput,
       languageSelect: buildLanguageSelect('nl'),
       createHeading: ui.createHeading,
       createDescription: ui.createDescription,
@@ -113,12 +115,19 @@ export function setupCreateRoutes(app, render) {
     try {
       const ui = req.lang.ui;
 
+      // CSRF validation
+      if (!validateCsrfToken(req)) {
+        return res.status(403).send(ui.forbiddenError || 'Forbidden');
+      }
+
       // Rate limiting check
       const clientIp = req.ip || req.connection.remoteAddress;
+      const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
+
       if (!createRateLimiter.check(clientIp)) {
         return res.status(429).send(
           render(req, 'create.html', {
-            tokenInput: '', languageSelect: buildLanguageSelect('nl'),
+            tokenInput: '', csrfInput, languageSelect: buildLanguageSelect('nl'),
             createHeading: ui.createHeading, createDescription: ui.createDescription,
             languageLabel: ui.languageLabel,
             topic1Label: ui.topic1Label, topic1Placeholder: ui.topic1Placeholder,
@@ -140,7 +149,7 @@ export function setupCreateRoutes(app, render) {
 
       function renderCreateError(errorHtml) {
         return render(req, 'create.html', {
-          tokenInput: '', languageSelect: buildLanguageSelect(languageCode),
+          tokenInput: '', csrfInput, languageSelect: buildLanguageSelect(languageCode),
           createHeading: ui.createHeading, createDescription: ui.createDescription,
           languageLabel: ui.languageLabel,
           topic1Label: ui.topic1Label, topic1Placeholder: ui.topic1Placeholder,

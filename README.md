@@ -8,6 +8,9 @@ Inspired by what one can find here: https://dictees.nl/alle-dictees/groot-dictee
 
 - 🤖 AI-powered Dutch dictation generation using Claude
 - 🎙️ Text-to-speech with ElevenLabs
+- 🌐 Multi-language UI (Dutch and English) with cookie-based language switcher
+- 🎯 AI-generated titles for each dictation
+- 🎲 Group play mode — PIN-protected sequential playback optimized for projection on a shared screen
 - 🔒 Secret token protection for controlled access
 - 🐳 Docker support for easy deployment
 - 🛡️ Built-in security: input validation, XSS prevention, rate limiting
@@ -48,6 +51,15 @@ npm run token:setup
 # 4. Start the server
 npm start
 ```
+
+## Group Play Mode
+
+Play mode turns a dictation into a communal activity — perfect for family gatherings, classrooms, or game nights. One person controls playback on a shared screen while others write along.
+
+1. Create a dictation with a 4-6 digit PIN
+2. Share the play mode link — participants see a PIN entry form
+3. The admin advances sentences one by one
+4. At the end, reveal all text so everyone can check their work
 
 ## Documentation
 
