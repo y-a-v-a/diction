@@ -18,7 +18,7 @@ cp .env.docker.example .env.docker
 ```
 
 Edit `.env.docker` and set:
-- `CLAUDE_API_KEY` - Your Claude API key (required)
+- `ANTHROPIC_API_KEY` - Your Claude API key (required)
 - `ELEVENLABS_API_KEY` - Your ElevenLabs API key (required)
 - `ELEVENLABS_VOICE_ID` - Your Dutch voice ID (required)
 - `CREATE_SECRET_TOKEN` - Secret token for /create access (optional)
@@ -189,7 +189,7 @@ services:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `CLAUDE_API_KEY` | Yes | - | Claude API key from Anthropic |
+| `ANTHROPIC_API_KEY` | Yes | - | Claude API key from Anthropic |
 | `TTS_SERVICE` | No | `elevenlabs` | TTS provider (`elevenlabs` or `resemble`) |
 | `ELEVENLABS_API_KEY` | If using ElevenLabs | - | ElevenLabs API key |
 | `ELEVENLABS_VOICE_ID` | If using ElevenLabs | - | Voice ID for Dutch voice |

@@ -109,7 +109,9 @@
     }
 
     input[type="text"],
-    input[type="number"] {
+    input[type="number"],
+    input[type="datetime-local"],
+    select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ddd;
@@ -119,9 +121,43 @@
     }
 
     input[type="text"]:focus,
-    input[type="number"]:focus {
+    input[type="number"]:focus,
+    input[type="datetime-local"]:focus,
+    select:focus {
       outline: none;
       border-color: #3498db;
+    }
+
+    .field-hint {
+      display: block;
+      color: #999;
+      font-size: 13px;
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .badge-language {
+      background: #e8f4f8;
+      color: #2980b9;
+    }
+
+    .badge-locked {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-revealed {
+      background: #d4edda;
+      color: #155724;
     }
 
     label {
@@ -263,15 +299,34 @@
       }
 
       input[type="text"],
-      input[type="number"] {
+      input[type="number"],
+      input[type="datetime-local"],
+      select {
         background-color: #3a3a3a;
         border-color: #555;
         color: #e0e0e0;
       }
 
       input[type="text"]:focus,
-      input[type="number"]:focus {
+      input[type="number"]:focus,
+      input[type="datetime-local"]:focus,
+      select:focus {
         border-color: #4a9eff;
+      }
+
+      .badge-language {
+        background: #1a3a4a;
+        color: #4a9eff;
+      }
+
+      .badge-locked {
+        background: #3d3520;
+        color: #ffd966;
+      }
+
+      .badge-revealed {
+        background: #1a3d1a;
+        color: #7ddf7d;
       }
 
       .error {

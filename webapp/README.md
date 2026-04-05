@@ -31,7 +31,7 @@ cp .env.example .env
 Edit `.env` and add:
 
 ```
-CLAUDE_API_KEY=sk-ant-xxx
+ANTHROPIC_API_KEY=sk-ant-xxx
 ELEVENLABS_API_KEY=your_key_here
 ELEVENLABS_VOICE_ID=your_dutch_voice_id
 PORT=3000
@@ -123,7 +123,7 @@ webapp/
 ## Troubleshooting
 
 **Error: "Failed to generate sentences"**
-- Check that your CLAUDE_API_KEY is valid
+- Check that your ANTHROPIC_API_KEY is valid
 - Ensure you have API credits in your Anthropic account
 
 **Error: "Failed to generate speech"**

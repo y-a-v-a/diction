@@ -30,9 +30,9 @@ function getTTSService() {
 /**
  * Generate speech using the configured TTS service
  */
-export async function generateSpeech(text, outputPath) {
+export async function generateSpeech(text, outputPath, options = {}) {
   const service = getTTSService();
-  return service.generateSpeech(text, outputPath);
+  return service.generateSpeech(text, outputPath, options);
 }
 
 /**

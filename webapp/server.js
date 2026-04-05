@@ -60,7 +60,7 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`\n🎙️  Dictee app running on http://localhost:${PORT}`);
   console.log(`\nMake sure you have created a .env file with:`);
-  console.log(`- CLAUDE_API_KEY`);
+  console.log(`- ANTHROPIC_API_KEY`);
   console.log(`- ELEVENLABS_API_KEY`);
   console.log(`- ELEVENLABS_VOICE_ID\n`);
 });

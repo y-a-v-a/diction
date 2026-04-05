@@ -5,9 +5,10 @@ const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1/text-to-speech';
 /**
  * Generate speech audio from text using ElevenLabs API
  */
-export async function generateSpeech(text, outputPath) {
-  const voiceId = process.env.ELEVENLABS_VOICE_ID;
+export async function generateSpeech(text, outputPath, options = {}) {
+  const voiceId = options.voiceId || process.env.ELEVENLABS_VOICE_ID;
   const apiKey = process.env.ELEVENLABS_API_KEY;
+  const languageCode = options.languageCode || 'nl';
 
   if (!voiceId || !apiKey) {
     throw new Error('ElevenLabs API key or voice ID not configured');
@@ -24,7 +25,7 @@ export async function generateSpeech(text, outputPath) {
       body: JSON.stringify({
         text: text,
         model_id: 'eleven_multilingual_v2',
-        language_code: 'nl',
+        language_code: languageCode,
         voice_settings: {
           speed: 0.87
         }

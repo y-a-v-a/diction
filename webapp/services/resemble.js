@@ -5,8 +5,8 @@ const RESEMBLE_API_URL = 'https://f.cluster.resemble.ai/synthesize';
 /**
  * Generate speech audio from text using Resemble.ai API
  */
-export async function generateSpeech(text, outputPath) {
-  const voiceUuid = process.env.RESEMBLE_VOICE_UUID;
+export async function generateSpeech(text, outputPath, options = {}) {
+  const voiceUuid = options.voiceId || process.env.RESEMBLE_VOICE_UUID;
   const apiKey = process.env.RESEMBLE_API_KEY;
 
   if (!voiceUuid || !apiKey) {

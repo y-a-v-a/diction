@@ -1,31 +1,114 @@
-<h1>Dictee: {{id}}</h1>
+<h1>Dictee: {{id}} {{languageIndicator}}</h1>
 
-<p class="topics-line"><strong>Onderwerpen:</strong> {{topics}}</p>
-<p class="date-text actions-wrapper">Gemaakt op: {{date}}</p>
+<p class="topics-line"><strong>{{topicsLabel}}:</strong> {{topics}}</p>
+<p class="date-text actions-wrapper">{{dateLabel}}: {{date}}</p>
 
 {{warning}}
 
+{{countdown}}
+
 <div class="actions-wrapper">
-  <button id="showTextBtn" class="secondary">Toon Tekst</button>
-  <a href="/" class="cancel-link">Terug naar Home</a>
+  {{showTextButton}}
+  <a href="/" class="cancel-link">{{backHome}}</a>
 </div>
 
 <div class="audio-container">
   {{audioPlayers}}
 </div>
 
-<form method="POST" action="/dictation/{{id}}/delete" class="delete-form" onsubmit="return confirm('Weet je zeker dat je dit dictee wilt verwijderen?');">
-  <button type="submit" class="delete">Dictee Verwijderen</button>
+<form method="POST" action="/dictation/{{id}}/delete" class="delete-form" data-confirm="{{deleteConfirm}}" onsubmit="return confirm(this.dataset.confirm);">
+  <button type="submit" class="delete">{{deleteDictation}}</button>
 </form>
 
 <script>
-  document.getElementById('showTextBtn').addEventListener('click', function() {
-    const textElements = document.querySelectorAll('.sentence-text');
-    textElements.forEach(el => {
-      el.style.display = 'block';
+  // Show text toggle (only present when sentences are revealed)
+  const showTextBtn = document.getElementById('showTextBtn');
+  if (showTextBtn) {
+    showTextBtn.addEventListener('click', function() {
+      const textElements = document.querySelectorAll('.sentence-text');
+      textElements.forEach(el => {
+        el.style.display = 'block';
+      });
+      this.style.display = 'none';
     });
-    this.style.display = 'none';
-  });
+  }
+
+  // Countdown logic (only present when sentences are not yet revealed)
+  const countdownEl = document.getElementById('countdown');
+  if (countdownEl) {
+    const revealAt = new Date(countdownEl.dataset.revealAt);
+    const dictationId = countdownEl.dataset.dictationId;
+    const showTextLabel = countdownEl.dataset.showTextLabel;
+    const timerEl = document.getElementById('countdownTimer');
+    let intervalId;
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = revealAt - now;
+      if (diff <= 0) {
+        clearInterval(intervalId);
+        timerEl.textContent = '...';
+        fetchSentences();
+        return;
+      }
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+
+      let parts = [];
+      if (days > 0) parts.push(days + 'd');
+      parts.push(hours + 'h');
+      parts.push(minutes + 'm');
+      parts.push(seconds + 's');
+      timerEl.textContent = parts.join(' ');
+    }
+
+    async function fetchSentences() {
+      try {
+        const resp = await fetch('/dictation/' + dictationId + '/sentences');
+        const data = await resp.json();
+        if (data.revealed && data.sentences) {
+          // Inject sentence texts into existing sentence-item divs
+          const items = document.querySelectorAll('.sentence-item');
+          data.sentences.forEach(function(text, i) {
+            if (items[i]) {
+              const div = document.createElement('div');
+              div.className = 'sentence-text';
+              div.textContent = text;
+              items[i].appendChild(div);
+            }
+          });
+
+          // Hide countdown, show the show-text button
+          countdownEl.style.display = 'none';
+          const actionsWrapper = document.querySelector('.actions-wrapper');
+          if (actionsWrapper) {
+            const btn = document.createElement('button');
+            btn.id = 'showTextBtn';
+            btn.className = 'secondary';
+            btn.textContent = showTextLabel;
+            btn.addEventListener('click', function() {
+              document.querySelectorAll('.sentence-text').forEach(function(el) {
+                el.style.display = 'block';
+              });
+              btn.style.display = 'none';
+            });
+            actionsWrapper.insertBefore(btn, actionsWrapper.firstChild);
+          }
+        } else {
+          // Server says not yet revealed (clock skew) - retry
+          setTimeout(fetchSentences, 2000);
+        }
+      } catch (e) {
+        // Network error - retry
+        setTimeout(fetchSentences, 3000);
+      }
+    }
+
+    intervalId = setInterval(updateCountdown, 1000);
+    updateCountdown();
+  }
 </script>
 
 <style>
@@ -67,6 +150,34 @@
     color: #2c3e50;
   }
 
+  .language-badge {
+    font-size: 13px;
+    font-weight: normal;
+    background: #e8f4f8;
+    color: #2980b9;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .countdown-container {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .countdown-timer {
+    font-size: 28px;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+    margin-top: 8px;
+  }
+
   @media (prefers-color-scheme: dark) {
     .date-text {
       color: #999;
@@ -89,6 +200,17 @@
       background: #1a3a4a;
       border-left-color: #4a9eff;
       color: #d0d0d0;
+    }
+
+    .language-badge {
+      background: #1a3a4a;
+      color: #4a9eff;
+    }
+
+    .countdown-container {
+      background: #3d3520;
+      border-color: #ffc107;
+      color: #ffd966;
     }
   }
 </style>

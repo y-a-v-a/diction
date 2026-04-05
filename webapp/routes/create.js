@@ -5,6 +5,7 @@ import { generateSentences } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
 import { escapeHtml, createRateLimiter } from '../utils/security.js';
+import { getAvailableLanguages, getLanguage, isValidLanguage } from '../languages/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,13 +78,28 @@ function validateTopic(topic, fieldName) {
   return sanitized;
 }
 
+/**
+ * Build language select dropdown HTML
+ */
+function buildLanguageSelect(selectedCode) {
+  const languages = getAvailableLanguages();
+  let html = '<select id="language" name="language" required>';
+  for (const lang of languages) {
+    const selected = lang.code === selectedCode ? ' selected' : '';
+    html += `<option value="${escapeHtml(lang.code)}"${selected}>${escapeHtml(lang.displayName)}</option>`;
+  }
+  html += '</select>';
+  return html;
+}
+
 export function setupCreateRoutes(app, render) {
   // GET /create - Show creation form (protected by secret token)
   app.get('/create', requireSecretToken, (req, res) => {
     // Pass the token to the template so it can be included in the form
     const token = req.query.token || '';
     const tokenInput = token ? `<input type="hidden" name="token" value="${escapeHtml(token)}">` : '';
-    const html = render('create.html', { tokenInput });
+    const languageSelect = buildLanguageSelect('nl');
+    const html = render('create.html', { tokenInput, languageSelect });
     res.send(html);
   });
 
@@ -94,12 +110,15 @@ export function setupCreateRoutes(app, render) {
       const clientIp = req.ip || req.connection.remoteAddress;
       if (!createRateLimiter.check(clientIp)) {
         return res.status(429).send(
-          render('create.html', {}) +
+          render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect('nl') }) +
           '<div class="error">Te veel verzoeken. Probeer het over een minuut opnieuw.</div>'
         );
       }
 
-      const { topic1, topic2, topic3, sentenceCount } = req.body;
+      const { topic1, topic2, topic3, sentenceCount, language, revealAt } = req.body;
+
+      // Validate language
+      const languageCode = language && isValidLanguage(language) ? language : 'nl';
 
       // Validate and sanitize topics
       let topics;
@@ -111,7 +130,7 @@ export function setupCreateRoutes(app, render) {
         ];
       } catch (validationError) {
         return res.status(400).send(
-          render('create.html', {}) +
+          render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
           `<div class="error">${escapeHtml(validationError.message)}</div>`
         );
       }
@@ -120,9 +139,28 @@ export function setupCreateRoutes(app, render) {
       const count = parseInt(sentenceCount, 10);
       if (isNaN(count) || count < 1 || count > 8) {
         return res.status(400).send(
-          render('create.html', {}) +
+          render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
           '<div class="error">Aantal zinnen moet tussen 1 en 8 zijn.</div>'
         );
+      }
+
+      // Validate reveal deadline (optional)
+      let revealAtISO = null;
+      if (revealAt && revealAt.trim()) {
+        const revealDate = new Date(revealAt.trim());
+        if (isNaN(revealDate.getTime())) {
+          return res.status(400).send(
+            render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
+            '<div class="error">Ongeldig onthulmoment. Kies een geldige datum en tijd.</div>'
+          );
+        }
+        if (revealDate <= new Date()) {
+          return res.status(400).send(
+            render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) +
+            '<div class="error">Het onthulmoment moet in de toekomst liggen.</div>'
+          );
+        }
+        revealAtISO = revealDate.toISOString();
       }
 
       // Generate unique ID
@@ -130,14 +168,21 @@ export function setupCreateRoutes(app, render) {
       const dictationPath = getDictationPath(id);
       let dictationCreated = false;
 
+      // Load language config for TTS
+      const lang = getLanguage(languageCode);
+      const ttsOptions = {
+        languageCode: lang.tts.languageCode,
+        voiceId: lang.tts.voiceId || (languageCode !== 'nl' ? process.env[`ELEVENLABS_VOICE_ID_${languageCode.replace('-', '_').toUpperCase()}`] : null),
+      };
+
       try {
         // Step 1: Generate sentences using Claude
-        console.log(`Generating ${count} sentences for dictation ${id}...`);
-        const sentences = await generateSentences(topics[0], topics[1], topics[2], count);
+        console.log(`Generating ${count} ${languageCode} sentences for dictation ${id}...`);
+        const sentences = await generateSentences(topics[0], topics[1], topics[2], count, languageCode);
         console.log(`Generated ${sentences.length} sentences`);
 
         // Step 2: Create dictation metadata immediately (preserve Claude's work)
-        createDictation(id, topics, sentences);
+        createDictation(id, topics, sentences, { language: languageCode, revealAt: revealAtISO });
         dictationCreated = true;
         console.log(`Dictation ${id} metadata saved`);
 
@@ -147,7 +192,7 @@ export function setupCreateRoutes(app, render) {
           const audioPath = path.join(dictationPath, `${i}.mp3`);
           console.log(`Generating audio ${i + 1}/${sentences.length}...`);
 
-          await generateSpeech(sentences[i], audioPath);
+          await generateSpeech(sentences[i], audioPath, ttsOptions);
 
           // Add delay to avoid rate limiting (except after last request)
           if (i < sentences.length - 1) {
@@ -179,7 +224,7 @@ export function setupCreateRoutes(app, render) {
               ${safeErrorMessage}
             </div>
           `;
-          res.status(500).send(render('create.html', {}) + errorHtml);
+          res.status(500).send(render('create.html', { tokenInput: '', languageSelect: buildLanguageSelect(languageCode) }) + errorHtml);
         }
       }
 

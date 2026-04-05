@@ -30,7 +30,7 @@ export function generateId() {
 /**
  * Create a new dictation
  */
-export function createDictation(id, topics, sentences) {
+export function createDictation(id, topics, sentences, options = {}) {
   if (!validateId(id)) {
     throw new Error('Invalid dictation ID format');
   }
@@ -45,6 +45,8 @@ export function createDictation(id, topics, sentences) {
     id,
     topics,
     sentences,
+    language: options.language || 'nl',
+    revealAt: options.revealAt || null,
     created: new Date().toISOString()
   };
 
