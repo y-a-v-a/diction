@@ -12,12 +12,25 @@
       font-size: 18px;
     }
     .play-container {
+      position: relative;
       max-width: 1100px;
       margin: 0 auto;
       background: white;
       padding: 40px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .play-close {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      font-size: 2rem;
+      line-height: 1;
+      color: #999;
+      text-decoration: none;
+    }
+    .play-close:hover {
+      color: #333;
     }
     .play-title {
       font-size: 2.2rem;
@@ -93,6 +106,8 @@
       margin-bottom: 15px;
     }
     @media (prefers-color-scheme: dark) {
+      .play-close { color: #666; }
+      .play-close:hover { color: #ccc; }
       .play-container {
         background: #2d2d2d;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -128,6 +143,7 @@
 </head>
 <body>
   <div class="play-container">
+    <a href="/dictation/{{dictationId}}" class="play-close" title="{{closePage}}">&times;</a>
     <h1 class="play-title">{{title}} {{languageIndicator}}</h1>
 
     {{sentenceCards}}
