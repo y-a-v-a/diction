@@ -15,6 +15,12 @@ Inspired by what one can find here: https://dictees.nl/alle-dictees/groot-dictee
 - 🐳 Docker support for easy deployment
 - 🛡️ Built-in security: input validation, XSS prevention, rate limiting
 
+## Screenshots
+
+| Dictation detail | Play mode |
+|---|---|
+| ![Dictation detail view](Diction-screenshot-01.png) | ![Play mode view](Diction-screenshot-02.png) |
+
 ## Quick Start
 
 ### Option 1: Docker (Recommended)
