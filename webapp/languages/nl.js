@@ -16,7 +16,7 @@ export default {
 
     // Home page
     homeHeading: 'Diction',
-    homeDescription: 'Diction is een dictee-app die met behulp van AI unieke dictees genereert. Claude van Anthropic schrijft de zinnen en ElevenLabs spreekt ze in. Zo kun je op een moderne manier je spelling oefenen.',
+    homeDescription: 'Diction brengt mensen samen rond taal. AI genereert unieke dictees die je samen speelt — luister, schrijf, en kijk wie de lastigste woorden foutloos spelt. Een speels wedstrijdje voor familiebijeenkomsten, in de klas of op een spelavond.',
     homeHowItWorks: 'Hoe werkt het?',
     homeStep1: 'Kies drie onderwerpen en het aantal zinnen',
     homeStep2: 'De AI genereert een dictee op basis van jouw onderwerpen',

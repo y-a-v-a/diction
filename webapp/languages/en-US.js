@@ -16,7 +16,7 @@ export default {
 
     // Home page
     homeHeading: 'Diction',
-    homeDescription: 'Diction is a dictation app that generates unique dictations with the help of AI. Claude by Anthropic writes the sentences and ElevenLabs voices them. A modern way to practice your spelling.',
+    homeDescription: 'Diction brings people together around language. AI generates unique dictations that you play as a group — listen, write, and see who nails the trickiest words. A playful contest for family nights, classrooms, or game evenings.',
     homeHowItWorks: 'How does it work?',
     homeStep1: 'Choose three topics and the number of sentences',
     homeStep2: 'The AI generates a dictation based on your topics',
