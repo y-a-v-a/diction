@@ -1,17 +1,17 @@
 # Diction
 
-The Dutch dictation generator, AI powered.
+The Dutch and American English dictation generator, AI powered.
 
 Inspired by what one can find here: https://dictees.nl/alle-dictees/groot-dictee-der-nederlandse-taal/
 
 ## Features
 
-- 🤖 AI-powered Dutch dictation generation using Claude
+- 🤖 AI-powered Dutch and American English dictation generation using Claude
 - 🎙️ Text-to-speech with ElevenLabs
-- 🌐 Multi-language UI (Dutch and English) with cookie-based language switcher
+- 🌐 Multi-language UI (Dutch and American English) with cookie-based language switcher
 - 🎯 AI-generated titles for each dictation
 - 🎲 Group play mode — PIN-protected sequential playback optimized for projection on a shared screen
-- 🔒 Secret token protection for controlled access
+- 🔒 Passphrase gate and secret token protection for controlled access
 - 🐳 Docker support for easy deployment
 - 🛡️ Built-in security: input validation, XSS prevention, rate limiting
 
@@ -81,6 +81,35 @@ Play mode turns a dictation into a communal activity — perfect for family gath
 - The PIN is stored per-dictation and remembered in a cookie for 24 hours, so you won't need to re-enter it if you refresh
 - Dictations created without a PIN work exactly as before — no play mode link is shown
 - The play view is a standalone page (no nav bar) designed for large-screen projection
+
+## Passphrase Gate (Create Access)
+
+As an alternative to the secret token, you can protect `/create` with a passphrase. This is useful when you want to share access without distributing a long URL token — for example, at a conference demo where you tell the audience the code verbally.
+
+### Setup
+
+Add `CREATE_PASSPHRASE` to your `.env` (or `.env.docker`):
+
+```
+CREATE_PASSPHRASE=yourpassphrase
+```
+
+### How it works
+
+1. When a visitor opens `/create`, they see a passphrase entry form
+2. After entering the correct passphrase, a hashed cookie is set for 24 hours
+3. Subsequent visits to `/create` within that window skip the prompt
+
+### Access priority
+
+The create middleware checks access in this order:
+
+1. **Cookie** — valid `create_access` cookie from a previous passphrase entry
+2. **URL token** — `?token=` query parameter matching `CREATE_SECRET_TOKEN`
+3. **Passphrase form** — shown if `CREATE_PASSPHRASE` is set
+4. **403 Forbidden** — if neither passphrase nor token is configured
+
+If neither `CREATE_PASSPHRASE` nor `CREATE_SECRET_TOKEN` is set, the create page is open to everyone.
 
 ## Secret Token (Create Access)
 
