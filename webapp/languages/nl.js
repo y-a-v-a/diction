@@ -71,6 +71,12 @@ export default {
     revealConfirm: 'Weet je zeker dat je alle tekst wilt onthullen? Dit kan niet ongedaan worden.',
     submit: 'Bevestigen',
 
+    // Passphrase
+    passphraseHeading: 'Toegangscode',
+    passphraseDescription: 'Voer de toegangscode in om een dictee te maken.',
+    passphrasePlaceholder: 'Toegangscode',
+    passphraseError: 'Onjuiste toegangscode. Probeer het opnieuw.',
+
     // Errors
     invalidId: 'Ongeldige dictee ID',
     notFound: 'Dictee niet gevonden',

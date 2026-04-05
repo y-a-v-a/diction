@@ -19,6 +19,9 @@ services:
       # Secret token for /create route access
       - CREATE_SECRET_TOKEN=${CREATE_SECRET_TOKEN}
 
+      # Passphrase for /create access (public-facing alternative)
+      - CREATE_PASSPHRASE=${CREATE_PASSPHRASE:-}
+
       # Server configuration
       - PORT=3000
       - NODE_ENV=production

@@ -71,6 +71,12 @@ export default {
     revealConfirm: 'Are you sure you want to reveal all text? This cannot be undone.',
     submit: 'Submit',
 
+    // Passphrase
+    passphraseHeading: 'Access Code',
+    passphraseDescription: 'Enter the access code to create a dictation.',
+    passphrasePlaceholder: 'Access code',
+    passphraseError: 'Incorrect access code. Please try again.',
+
     // Errors
     invalidId: 'Invalid dictation ID',
     notFound: 'Dictation not found',

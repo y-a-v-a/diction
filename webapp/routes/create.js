@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { generateSentences, generateTitle } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
 import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
+import crypto from 'crypto';
 import { escapeHtml, createRateLimiter, validateCsrfToken } from '../utils/security.js';
 import { getAvailableLanguages, getLanguage, isValidLanguage } from '../languages/index.js';
 
@@ -11,26 +12,64 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Middleware to check if request has valid secret token
+ * Render the standalone passphrase entry page
  */
-function requireSecretToken(req, res, next) {
-  const secretToken = process.env.CREATE_SECRET_TOKEN;
+function renderPassphrasePage(req, error = '') {
+  const ui = req.lang.ui;
+  let html = fs.readFileSync(path.join(__dirname, '../views/passphrase.html'), 'utf-8');
+  const data = {
+    langCode: req.langCode,
+    csrfInput: `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`,
+    passphraseHeading: ui.passphraseHeading,
+    passphraseDescription: ui.passphraseDescription,
+    passphrasePlaceholder: ui.passphrasePlaceholder,
+    submit: ui.submit,
+    backHome: ui.backHome,
+    error,
+  };
+  for (const [key, value] of Object.entries(data)) {
+    html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
+  }
+  return html;
+}
 
-  if (!secretToken) {
-    console.warn('CREATE_SECRET_TOKEN not set in .env - /create route is unprotected!');
+/**
+ * Middleware to check if request has valid access.
+ * Checks in order: create_access cookie → URL/body token → passphrase form → 403
+ */
+function requireCreateAccess(req, res, next) {
+  const secretToken = process.env.CREATE_SECRET_TOKEN;
+  const passphrase = process.env.CREATE_PASSPHRASE;
+
+  // If neither protection mechanism is configured, allow access (with warning)
+  if (!secretToken && !passphrase) {
+    console.warn('Neither CREATE_SECRET_TOKEN nor CREATE_PASSPHRASE set - /create route is unprotected!');
     return next();
   }
 
-  const providedToken = req.query.token || req.body.token;
-
-  if (!providedToken || providedToken !== secretToken) {
-    console.warn(`Unauthorized access attempt to /create from ${req.ip}`);
-    const forbiddenPagePath = path.join(__dirname, '../views/403.html');
-    const forbiddenPage = fs.readFileSync(forbiddenPagePath, 'utf-8');
-    return res.status(403).send(forbiddenPage);
+  // 1. Check cookie (set after successful passphrase entry)
+  const expectedHash = passphrase ? crypto.createHash('sha256').update(passphrase).digest('hex') : null;
+  if (expectedHash && req.cookies.create_access === expectedHash) {
+    return next();
   }
 
-  next();
+  // 2. Check URL/body token
+  if (secretToken) {
+    const providedToken = req.query.token || req.body.token;
+    if (providedToken && providedToken === secretToken) {
+      return next();
+    }
+  }
+
+  // 3. If passphrase is configured, show the passphrase form
+  if (passphrase) {
+    return res.status(401).send(renderPassphrasePage(req));
+  }
+
+  // 4. Fall back to 403
+  console.warn(`Unauthorized access attempt to /create from ${req.ip}`);
+  const forbiddenPage = fs.readFileSync(path.join(__dirname, '../views/403.html'), 'utf-8');
+  return res.status(403).send(forbiddenPage);
 }
 
 /**
@@ -80,8 +119,33 @@ function buildLanguageSelect(selectedCode) {
 }
 
 export function setupCreateRoutes(app, render) {
-  // GET /create - Show creation form (protected by secret token)
-  app.get('/create', requireSecretToken, (req, res) => {
+  // POST /create/auth - Passphrase verification
+  app.post('/create/auth', (req, res) => {
+    if (!validateCsrfToken(req)) {
+      return res.status(403).send(req.lang.ui.forbiddenError || 'Forbidden');
+    }
+
+    const passphrase = process.env.CREATE_PASSPHRASE;
+    const submitted = req.body.passphrase;
+
+    if (!passphrase || !submitted || submitted !== passphrase) {
+      const ui = req.lang.ui;
+      return res.status(401).send(
+        renderPassphrasePage(req, `<div class="error">${escapeHtml(ui.passphraseError)}</div>`)
+      );
+    }
+
+    const accessHash = crypto.createHash('sha256').update(passphrase).digest('hex');
+    res.cookie('create_access', accessHash, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'strict',
+    });
+    res.redirect('/create');
+  });
+
+  // GET /create - Show creation form (protected)
+  app.get('/create', requireCreateAccess, (req, res) => {
     const token = req.query.token || '';
     const tokenInput = token ? `<input type="hidden" name="token" value="${escapeHtml(token)}">` : '';
     const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
@@ -111,7 +175,7 @@ export function setupCreateRoutes(app, render) {
   });
 
   // POST /create - Generate new dictation (protected by secret token)
-  app.post('/create', requireSecretToken, async (req, res) => {
+  app.post('/create', requireCreateAccess, async (req, res) => {
     try {
       const ui = req.lang.ui;
 
