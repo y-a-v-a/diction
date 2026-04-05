@@ -68,6 +68,9 @@ function render(req, templateName, data = {}) {
     appTitle: ui.appTitle,
     langSwitch: ui.langSwitch,
     langSwitchCode: req.langCode === 'nl' ? 'en-US' : 'nl',
+    themeSwitch: req.cookies.theme === 'light' ? ui.themeDark : ui.themeLight,
+    themeLightLabel: ui.themeLight,
+    themeDarkLabel: ui.themeDark,
     ...data,
   };
 

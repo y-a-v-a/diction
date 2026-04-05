@@ -11,6 +11,8 @@ export default {
     navDictations: 'Dictations',
     appTitle: 'Diction',
     langSwitch: 'NL',
+    themeLight: 'Light',
+    themeDark: 'Dark',
 
     // Home page
     homeHeading: 'Diction',

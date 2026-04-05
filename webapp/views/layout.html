@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{appTitle}}</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✍🏽</text></svg>">
+  <script>
+    (function() {
+      var c = document.cookie.match(/(?:^|; )theme=(\w+)/);
+      var t = c ? c[1] : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.className = t;
+    })();
+  </script>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -12,9 +19,25 @@
     <nav>
       <a href="/">{{navHome}}</a>
       <a href="/dictations">{{navDictations}}</a>
-      <a href="/lang/{{langSwitchCode}}" class="lang-switch">{{langSwitch}}</a>
+      <span class="nav-controls">
+        <button class="theme-switch" id="themeToggle" type="button">{{themeSwitch}}</button>
+        <a href="/lang/{{langSwitchCode}}" class="lang-switch">{{langSwitch}}</a>
+      </span>
     </nav>
     {{content}}
   </div>
+  <script>
+    (function() {
+      var btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.className;
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.className = next;
+        document.cookie = 'theme=' + next + ';path=/;max-age=31536000;SameSite=Lax';
+        btn.textContent = next === 'dark' ? '{{themeLightLabel}}' : '{{themeDarkLabel}}';
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -8,8 +8,8 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.7;
-  color: #374151;
-  background-color: #f0f2f5;
+  color: #3d2e22;
+  background-color: #f2ece5;
   padding: 24px 16px;
   min-height: 100vh;
 }
@@ -18,10 +18,10 @@ body {
 .container {
   max-width: 860px;
   margin: 0 auto;
-  background: white;
+  background: #fffcf8;
   padding: 0;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 3px rgba(60,40,20,0.08), 0 4px 12px rgba(60,40,20,0.05);
   overflow: hidden;
 }
 
@@ -31,12 +31,12 @@ nav {
   align-items: center;
   gap: 24px;
   padding: 16px 36px;
-  background: #fafbfc;
-  border-bottom: 1px solid #e5e7eb;
+  background: #f8f2ea;
+  border-bottom: 1px solid #e0d5c8;
 }
 
 nav a {
-  color: #4b5563;
+  color: #5c4a3a;
   text-decoration: none;
   font-weight: 500;
   font-size: 15px;
@@ -44,30 +44,57 @@ nav a {
 }
 
 nav a:visited {
-  color: #4b5563;
+  color: #5c4a3a;
 }
 
 nav a:hover {
-  color: #2563eb;
+  color: #993b2b;
   text-decoration: none;
 }
 
-nav .lang-switch {
+nav .nav-controls {
   margin-left: auto;
-  margin-right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+nav .lang-switch,
+nav .theme-switch {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 3px 10px;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid #c8bba8;
   border-radius: 4px;
-  color: #6b7280;
+  color: #7a6b58;
   transition: all 0.15s;
+  cursor: pointer;
+  background: none;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1.4;
 }
 
-nav .lang-switch:hover {
-  border-color: #2563eb;
-  color: #2563eb;
+nav .lang-switch:hover,
+nav .theme-switch:hover {
+  border-color: #993b2b;
+  color: #993b2b;
+}
+
+/* Undo button overrides for theme-switch */
+nav .theme-switch {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  transform: none;
+  box-shadow: none;
+}
+
+nav .theme-switch:hover {
+  transform: none;
+  box-shadow: none;
+  background: none;
 }
 
 /* Content padding inside container */
@@ -82,18 +109,18 @@ nav .lang-switch:hover {
 
 /* ===== Typography ===== */
 h1 {
-  color: #111827;
+  color: #2c1e14;
   font-size: 1.75rem;
   font-weight: 700;
   margin-top: 32px;
   margin-bottom: 8px;
   padding-bottom: 12px;
-  border-bottom: 3px solid #2563eb;
+  border-bottom: 3px solid #993b2b;
   letter-spacing: -0.02em;
 }
 
 h2 {
-  color: #1f2937;
+  color: #3d2e22;
   font-size: 1.25rem;
   font-weight: 600;
   margin-top: 28px;
@@ -101,21 +128,21 @@ h2 {
 }
 
 a {
-  color: #2563eb;
+  color: #993b2b;
   transition: color 0.15s;
 }
 
 a:visited {
-  color: #2563eb;
+  color: #993b2b;
 }
 
 a:hover {
-  color: #1d4ed8;
+  color: #b34432;
 }
 
 /* ===== Buttons ===== */
 button, .btn {
-  background-color: #2563eb;
+  background-color: #993b2b;
   color: white !important;
   border: none;
   padding: 10px 22px;
@@ -129,10 +156,10 @@ button, .btn {
 }
 
 button:hover, .btn:hover {
-  background-color: #1d4ed8;
+  background-color: #b34432;
   color: white !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 2px 4px rgba(153, 59, 43, 0.3);
 }
 
 button:active, .btn:active {
@@ -144,21 +171,21 @@ button:active, .btn:active {
 }
 
 button.delete {
-  background-color: #dc2626;
+  background-color: #7f1d1d;
 }
 
 button.delete:hover {
-  background-color: #b91c1c;
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+  background-color: #991b1b;
+  box-shadow: 0 2px 4px rgba(127, 29, 29, 0.3);
 }
 
 button.secondary {
-  background-color: #6b7280;
+  background-color: #7a6b58;
 }
 
 button.secondary:hover {
-  background-color: #4b5563;
-  box-shadow: 0 2px 4px rgba(107, 114, 128, 0.3);
+  background-color: #5c4a3a;
+  box-shadow: 0 2px 4px rgba(92, 74, 58, 0.3);
 }
 
 .btn-small {
@@ -178,7 +205,7 @@ label {
   margin-bottom: 6px;
   font-weight: 600;
   font-size: 14px;
-  color: #374151;
+  color: #3d2e22;
 }
 
 input[type="text"],
@@ -187,12 +214,12 @@ input[type="datetime-local"],
 select {
   width: 100%;
   padding: 10px 14px;
-  border: 1.5px solid #d1d5db;
+  border: 1.5px solid #c8bba8;
   border-radius: 6px;
   font-size: 15px;
   margin-bottom: 16px;
-  background: white;
-  color: #1f2937;
+  background: #fffcf8;
+  color: #2c1e14;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -201,8 +228,8 @@ input[type="number"]:focus,
 input[type="datetime-local"]:focus,
 select:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #993b2b;
+  box-shadow: 0 0 0 3px rgba(153, 59, 43, 0.1);
 }
 
 /* Narrower fields for small inputs */
@@ -213,7 +240,7 @@ input[name="pin"] {
 
 .field-hint {
   display: block;
-  color: #9ca3af;
+  color: #9a8b78;
   font-size: 13px;
   margin-top: -10px;
   margin-bottom: 16px;
@@ -232,13 +259,13 @@ input[name="pin"] {
 }
 
 .badge-language {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #f5ece0;
+  color: #993b2b;
 }
 
 .badge-locked {
-  background: #fef9c3;
-  color: #a16207;
+  background: #fef3cd;
+  color: #8a6d1b;
 }
 
 .badge-revealed {
@@ -249,8 +276,8 @@ input[name="pin"] {
 .language-badge {
   font-size: 12px;
   font-weight: 600;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #f5ece0;
+  color: #993b2b;
   padding: 3px 10px;
   border-radius: 4px;
   margin-left: 10px;
@@ -259,9 +286,9 @@ input[name="pin"] {
 
 /* ===== Messages ===== */
 .error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background-color: #fdf0ee;
+  border: 1px solid #e8bdb6;
+  color: #7f1d1d;
   padding: 14px 18px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -271,11 +298,11 @@ input[name="pin"] {
 .loading {
   text-align: center;
   padding: 24px;
-  color: #6b7280;
+  color: #7a6b58;
 }
 
 .empty-state {
-  color: #9ca3af;
+  color: #9a8b78;
   padding: 40px 0;
   text-align: center;
   font-size: 15px;
@@ -284,14 +311,14 @@ input[name="pin"] {
 /* ===== Home Page ===== */
 .description {
   margin-bottom: 24px;
-  color: #6b7280;
+  color: #6b5c4a;
   font-size: 16px;
   line-height: 1.8;
 }
 
 .feature-list {
   margin: 12px 0 28px 24px;
-  color: #4b5563;
+  color: #5c4a3a;
 }
 
 .feature-list li {
@@ -301,33 +328,33 @@ input[name="pin"] {
 
 /* ===== Dictation Cards ===== */
 .dictation-card {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e0d5c8;
   padding: 20px 22px;
   margin-bottom: 14px;
   border-radius: 8px;
-  background: #fafbfc;
+  background: #f8f2ea;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .dictation-card:hover {
-  border-color: #bfdbfe;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+  border-color: #c4946e;
+  box-shadow: 0 2px 8px rgba(153, 59, 43, 0.06);
 }
 
 .dictation-title {
   margin-bottom: 8px;
-  color: #111827;
+  color: #2c1e14;
   font-size: 1.1rem;
 }
 
 .dictation-link {
   text-decoration: none;
-  color: #2563eb;
+  color: #993b2b;
   font-weight: 600;
 }
 
 .dictation-link:visited {
-  color: #2563eb;
+  color: #993b2b;
 }
 
 .dictation-link:hover {
@@ -335,7 +362,7 @@ input[name="pin"] {
 }
 
 .dictation-date {
-  color: #9ca3af;
+  color: #9a8b78;
   font-size: 13px;
   margin-bottom: 12px;
 }
@@ -347,7 +374,7 @@ input[name="pin"] {
 }
 
 .date-text {
-  color: #9ca3af;
+  color: #9a8b78;
   font-size: 14px;
 }
 
@@ -360,12 +387,12 @@ input[name="pin"] {
 }
 
 .cancel-link {
-  color: #6b7280;
+  color: #7a6b58;
   font-size: 14px;
 }
 
 .audio-container {
-  background: #f9fafb;
+  background: #f5ece0;
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 8px;
@@ -374,15 +401,15 @@ input[name="pin"] {
 .sentence-item {
   margin-bottom: 16px;
   padding: 18px;
-  background: white;
+  background: #fffcf8;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e0d5c8;
 }
 
 .sentence-number {
   font-weight: 700;
   font-size: 14px;
-  color: #2563eb;
+  color: #993b2b;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -397,10 +424,10 @@ audio {
 .sentence-text {
   display: none;
   padding: 12px 16px;
-  background: #eff6ff;
-  border-left: 3px solid #2563eb;
+  background: #fdf0ee;
+  border-left: 3px solid #993b2b;
   margin-top: 12px;
-  color: #1e3a5f;
+  color: #3d2e22;
   border-radius: 0 6px 6px 0;
   font-size: 15px;
   line-height: 1.8;
@@ -414,7 +441,7 @@ audio {
   margin-top: 32px;
   padding-top: 24px;
   padding-bottom: 36px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e0d5c8;
   text-align: right;
 }
 
@@ -422,8 +449,8 @@ audio {
 footer {
   margin-top: 48px;
   padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
-  color: #9ca3af;
+  border-top: 1px solid #e0d5c8;
+  color: #9a8b78;
   font-size: 13px;
 }
 
@@ -433,9 +460,9 @@ footer p {
 
 /* ===== Legacy (keep for backward compat) ===== */
 .countdown-container {
-  background: #fef9c3;
+  background: #fef3cd;
   border: 1px solid #fde68a;
-  color: #a16207;
+  color: #8a6d1b;
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -453,230 +480,386 @@ footer p {
    Dark Mode — warm parchment & oxblood
    Inspired by aged books, vellum, and
    early printing with red ink on dark leather.
+
+   Applied via .dark class on <html>, with
+   media query fallback for no-JS.
    ======================================== */
-@media (prefers-color-scheme: dark) {
-  body {
-    color: #d4c8b8;
-    background-color: #151210;
-  }
-
-  .container {
-    background: #211c17;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 14px rgba(0,0,0,0.25);
-  }
-
-  /* Nav */
-  nav {
-    background: #1c1712;
-    border-bottom-color: #3a3028;
-  }
-
-  nav a,
-  nav a:visited {
-    color: #9a8b78;
-  }
-
-  nav a:hover {
-    color: #c4654e;
-  }
-
-  nav .lang-switch {
-    border-color: #4a3f34;
-    color: #9a8b78;
-  }
-
-  nav .lang-switch:hover {
-    border-color: #c4654e;
-    color: #c4654e;
-  }
-
-  /* Typography */
-  h1 {
-    color: #f0e6d8;
-    border-bottom-color: #993b2b;
-  }
-
-  h2 {
-    color: #e0d5c5;
-  }
-
-  a, a:visited {
-    color: #c4654e;
-  }
-
-  a:hover {
-    color: #d9856f;
-  }
-
-  /* Buttons */
-  button, .btn {
-    background-color: #993b2b;
-  }
-
-  button:hover, .btn:hover {
-    background-color: #b34432;
-    box-shadow: 0 2px 6px rgba(153, 59, 43, 0.4);
-  }
-
-  button.delete {
-    background-color: #7f1d1d;
-  }
-
-  button.delete:hover {
-    background-color: #991b1b;
-    box-shadow: 0 2px 4px rgba(127, 29, 29, 0.4);
-  }
-
-  button.secondary {
-    background-color: #5c5145;
-  }
-
-  button.secondary:hover {
-    background-color: #6e6256;
-  }
-
-  /* Forms */
-  label {
-    color: #c4b8a6;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  input[type="datetime-local"],
-  select {
-    background-color: #2a241d;
-    border-color: #3e362c;
-    color: #e8ddd0;
-  }
-
-  input[type="text"]:focus,
-  input[type="number"]:focus,
-  input[type="datetime-local"]:focus,
-  select:focus {
-    border-color: #993b2b;
-    box-shadow: 0 0 0 3px rgba(153, 59, 43, 0.15);
-  }
-
-  input::placeholder {
-    color: #6b5f52;
-  }
-
-  /* Badges */
-  .badge-language,
-  .language-badge {
-    background: #2e2218;
-    color: #c4654e;
-  }
-
-  .badge-locked {
-    background: #302818;
-    color: #d4a94e;
-  }
-
-  .badge-revealed {
-    background: #1a2e18;
-    color: #7dba6a;
-  }
-
-  /* Messages */
-  .error {
-    background-color: #2e1412;
-    border-color: #5c2420;
-    color: #e8a09a;
-  }
-
-  .loading {
-    color: #7a6e60;
-  }
-
-  .empty-state {
-    color: #7a6e60;
-  }
-
-  /* Home */
-  .description {
-    color: #9a8b78;
-  }
-
-  .feature-list {
-    color: #c4b8a6;
-  }
-
-  /* Cards */
-  .dictation-card {
-    border-color: #3a3028;
-    background: #1c1712;
-  }
-
-  .dictation-card:hover {
-    border-color: #993b2b;
-    box-shadow: 0 2px 8px rgba(153, 59, 43, 0.1);
-  }
-
-  .dictation-title {
-    color: #f0e6d8;
-  }
-
-  .dictation-link,
-  .dictation-link:visited {
-    color: #c4654e;
-  }
-
-  .dictation-date {
-    color: #7a6e60;
-  }
-
-  /* Detail */
-  .date-text {
-    color: #7a6e60;
-  }
-
-  .cancel-link {
-    color: #9a8b78;
-  }
-
-  .audio-container {
-    background: #181310;
-    border: 1px solid #2a241d;
-  }
-
-  .sentence-item {
-    background: #1c1712;
-    border-color: #332b22;
-  }
-
-  .sentence-number {
-    color: #c4654e;
-  }
-
-  .sentence-text {
-    background: #2e1f18;
-    border-left-color: #993b2b;
-    color: #d4c8b8;
-  }
-
-  .delete-form {
-    border-top-color: #3a3028;
-  }
-
-  audio {
-    filter: invert(1) hue-rotate(180deg);
-  }
-
-  /* Footer */
-  footer {
-    border-top-color: #3a3028;
-    color: #7a6e60;
-  }
-
-  /* Legacy */
-  .countdown-container {
-    background: #302818;
-    border-color: #8a6e2e;
-    color: #d4a94e;
-  }
-
-  .field-hint {
-    color: #7a6e60;
-  }
+html.dark body,
+html:not(.light) body {
+  color: #d4c8b8;
+  background-color: #151210;
 }
+
+html.dark .container,
+html:not(.light) .container {
+  background: #211c17;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 14px rgba(0,0,0,0.25);
+}
+
+/* Nav */
+html.dark nav,
+html:not(.light) nav {
+  background: #1c1712;
+  border-bottom-color: #3a3028;
+}
+
+html.dark nav a,
+html.dark nav a:visited,
+html:not(.light) nav a,
+html:not(.light) nav a:visited {
+  color: #9a8b78;
+}
+
+html.dark nav a:hover,
+html:not(.light) nav a:hover {
+  color: #c4654e;
+}
+
+html.dark nav .lang-switch,
+html.dark nav .theme-switch,
+html:not(.light) nav .lang-switch,
+html:not(.light) nav .theme-switch {
+  border-color: #4a3f34;
+  color: #9a8b78;
+}
+
+html.dark nav .lang-switch:hover,
+html.dark nav .theme-switch:hover,
+html:not(.light) nav .lang-switch:hover,
+html:not(.light) nav .theme-switch:hover {
+  border-color: #c4654e;
+  color: #c4654e;
+}
+
+/* Typography */
+html.dark h1,
+html:not(.light) h1 {
+  color: #f0e6d8;
+  border-bottom-color: #993b2b;
+}
+
+html.dark h2,
+html:not(.light) h2 {
+  color: #e0d5c5;
+}
+
+html.dark a,
+html.dark a:visited,
+html:not(.light) a,
+html:not(.light) a:visited {
+  color: #c4654e;
+}
+
+html.dark a:hover,
+html:not(.light) a:hover {
+  color: #d9856f;
+}
+
+/* Buttons */
+html.dark button,
+html.dark .btn,
+html:not(.light) button,
+html:not(.light) .btn {
+  background-color: #993b2b;
+}
+
+html.dark button:hover,
+html.dark .btn:hover,
+html:not(.light) button:hover,
+html:not(.light) .btn:hover {
+  background-color: #b34432;
+  box-shadow: 0 2px 6px rgba(153, 59, 43, 0.4);
+}
+
+html.dark button.delete,
+html:not(.light) button.delete {
+  background-color: #7f1d1d;
+}
+
+html.dark button.delete:hover,
+html:not(.light) button.delete:hover {
+  background-color: #991b1b;
+  box-shadow: 0 2px 4px rgba(127, 29, 29, 0.4);
+}
+
+html.dark button.secondary,
+html:not(.light) button.secondary {
+  background-color: #5c5145;
+}
+
+html.dark button.secondary:hover,
+html:not(.light) button.secondary:hover {
+  background-color: #6e6256;
+}
+
+/* Forms */
+html.dark label,
+html:not(.light) label {
+  color: #c4b8a6;
+}
+
+html.dark input[type="text"],
+html.dark input[type="number"],
+html.dark input[type="datetime-local"],
+html.dark select,
+html:not(.light) input[type="text"],
+html:not(.light) input[type="number"],
+html:not(.light) input[type="datetime-local"],
+html:not(.light) select {
+  background-color: #2a241d;
+  border-color: #3e362c;
+  color: #e8ddd0;
+}
+
+html.dark input[type="text"]:focus,
+html.dark input[type="number"]:focus,
+html.dark input[type="datetime-local"]:focus,
+html.dark select:focus,
+html:not(.light) input[type="text"]:focus,
+html:not(.light) input[type="number"]:focus,
+html:not(.light) input[type="datetime-local"]:focus,
+html:not(.light) select:focus {
+  border-color: #993b2b;
+  box-shadow: 0 0 0 3px rgba(153, 59, 43, 0.15);
+}
+
+html.dark input::placeholder,
+html:not(.light) input::placeholder {
+  color: #6b5f52;
+}
+
+/* Badges */
+html.dark .badge-language,
+html.dark .language-badge,
+html:not(.light) .badge-language,
+html:not(.light) .language-badge {
+  background: #2e2218;
+  color: #c4654e;
+}
+
+html.dark .badge-locked,
+html:not(.light) .badge-locked {
+  background: #302818;
+  color: #d4a94e;
+}
+
+html.dark .badge-revealed,
+html:not(.light) .badge-revealed {
+  background: #1a2e18;
+  color: #7dba6a;
+}
+
+/* Messages */
+html.dark .error,
+html:not(.light) .error {
+  background-color: #2e1412;
+  border-color: #5c2420;
+  color: #e8a09a;
+}
+
+html.dark .loading,
+html:not(.light) .loading {
+  color: #7a6e60;
+}
+
+html.dark .empty-state,
+html:not(.light) .empty-state {
+  color: #7a6e60;
+}
+
+/* Home */
+html.dark .description,
+html:not(.light) .description {
+  color: #9a8b78;
+}
+
+html.dark .feature-list,
+html:not(.light) .feature-list {
+  color: #c4b8a6;
+}
+
+/* Cards */
+html.dark .dictation-card,
+html:not(.light) .dictation-card {
+  border-color: #3a3028;
+  background: #1c1712;
+}
+
+html.dark .dictation-card:hover,
+html:not(.light) .dictation-card:hover {
+  border-color: #993b2b;
+  box-shadow: 0 2px 8px rgba(153, 59, 43, 0.1);
+}
+
+html.dark .dictation-title,
+html:not(.light) .dictation-title {
+  color: #f0e6d8;
+}
+
+html.dark .dictation-link,
+html.dark .dictation-link:visited,
+html:not(.light) .dictation-link,
+html:not(.light) .dictation-link:visited {
+  color: #c4654e;
+}
+
+html.dark .dictation-date,
+html:not(.light) .dictation-date {
+  color: #7a6e60;
+}
+
+/* Detail */
+html.dark .date-text,
+html:not(.light) .date-text {
+  color: #7a6e60;
+}
+
+html.dark .cancel-link,
+html:not(.light) .cancel-link {
+  color: #9a8b78;
+}
+
+html.dark .audio-container,
+html:not(.light) .audio-container {
+  background: #181310;
+  border: 1px solid #2a241d;
+}
+
+html.dark .sentence-item,
+html:not(.light) .sentence-item {
+  background: #1c1712;
+  border-color: #332b22;
+}
+
+html.dark .sentence-number,
+html:not(.light) .sentence-number {
+  color: #c4654e;
+}
+
+html.dark .sentence-text,
+html:not(.light) .sentence-text {
+  background: #2e1f18;
+  border-left-color: #993b2b;
+  color: #d4c8b8;
+}
+
+html.dark .delete-form,
+html:not(.light) .delete-form {
+  border-top-color: #3a3028;
+}
+
+html.dark audio,
+html:not(.light) audio {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Footer */
+html.dark footer,
+html:not(.light) footer {
+  border-top-color: #3a3028;
+  color: #7a6e60;
+}
+
+/* Legacy */
+html.dark .countdown-container,
+html:not(.light) .countdown-container {
+  background: #302818;
+  border-color: #8a6e2e;
+  color: #d4a94e;
+}
+
+html.dark .field-hint,
+html:not(.light) .field-hint {
+  color: #7a6e60;
+}
+
+/* ========================================
+   Light mode explicit override
+   When .light is set, ensure light styles
+   win over the html:not(.light) fallback.
+   ======================================== */
+html.light body {
+  color: #3d2e22;
+  background-color: #f2ece5;
+}
+
+html.light .container {
+  background: #fffcf8;
+  box-shadow: 0 1px 3px rgba(60,40,20,0.08), 0 4px 12px rgba(60,40,20,0.05);
+}
+
+html.light nav {
+  background: #f8f2ea;
+  border-bottom-color: #e0d5c8;
+}
+
+html.light nav a,
+html.light nav a:visited { color: #5c4a3a; }
+html.light nav a:hover { color: #993b2b; }
+
+html.light nav .lang-switch,
+html.light nav .theme-switch {
+  border-color: #c8bba8;
+  color: #7a6b58;
+}
+html.light nav .lang-switch:hover,
+html.light nav .theme-switch:hover {
+  border-color: #993b2b;
+  color: #993b2b;
+}
+
+html.light h1 { color: #2c1e14; border-bottom-color: #993b2b; }
+html.light h2 { color: #3d2e22; }
+html.light a, html.light a:visited { color: #993b2b; }
+html.light a:hover { color: #b34432; }
+
+html.light button, html.light .btn { background-color: #993b2b; }
+html.light button:hover, html.light .btn:hover {
+  background-color: #b34432;
+  box-shadow: 0 2px 4px rgba(153, 59, 43, 0.3);
+}
+html.light button.delete { background-color: #7f1d1d; }
+html.light button.delete:hover { background-color: #991b1b; }
+html.light button.secondary { background-color: #7a6b58; }
+
+html.light label { color: #3d2e22; }
+html.light input[type="text"],
+html.light input[type="number"],
+html.light input[type="datetime-local"],
+html.light select {
+  background: #fffcf8; border-color: #c8bba8; color: #2c1e14;
+}
+html.light input[type="text"]:focus,
+html.light input[type="number"]:focus,
+html.light input[type="datetime-local"]:focus,
+html.light select:focus {
+  border-color: #993b2b;
+  box-shadow: 0 0 0 3px rgba(153, 59, 43, 0.1);
+}
+
+html.light .badge-language, html.light .language-badge { background: #f5ece0; color: #993b2b; }
+html.light .badge-locked { background: #fef3cd; color: #8a6d1b; }
+html.light .badge-revealed { background: #dcfce7; color: #15803d; }
+
+html.light .error { background-color: #fdf0ee; border-color: #e8bdb6; color: #7f1d1d; }
+html.light .loading { color: #7a6b58; }
+html.light .empty-state { color: #9a8b78; }
+html.light .description { color: #6b5c4a; }
+html.light .feature-list { color: #5c4a3a; }
+
+html.light .dictation-card { border-color: #e0d5c8; background: #f8f2ea; }
+html.light .dictation-card:hover { border-color: #c4946e; box-shadow: 0 2px 8px rgba(153,59,43,0.06); }
+html.light .dictation-title { color: #2c1e14; }
+html.light .dictation-link, html.light .dictation-link:visited { color: #993b2b; }
+html.light .dictation-date { color: #9a8b78; }
+html.light .date-text { color: #9a8b78; }
+html.light .cancel-link { color: #7a6b58; }
+
+html.light .audio-container { background: #f5ece0; border: none; }
+html.light .sentence-item { background: #fffcf8; border-color: #e0d5c8; }
+html.light .sentence-number { color: #993b2b; }
+html.light .sentence-text { background: #fdf0ee; border-left-color: #993b2b; color: #3d2e22; }
+html.light .delete-form { border-top-color: #e0d5c8; }
+html.light audio { filter: none; }
+html.light footer { border-top-color: #e0d5c8; color: #9a8b78; }
+html.light .field-hint { color: #9a8b78; }
