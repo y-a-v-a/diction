@@ -61,22 +61,18 @@ export function setupDictationRoutes(app, render) {
 
       let audioPlayersHtml = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
-        const sentenceTextHtml = revealed
-          ? `<div class="sentence-text">${escapeHtml(dictation.sentences[i])}</div>`
-          : '';
-
+        const hiddenAttr = revealed ? '' : ' hidden';
         audioPlayersHtml += `
           <div class="sentence-item">
             <div class="sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
             <audio controls src="/dictations/${id}/${i}.mp3"></audio>
-            ${sentenceTextHtml}
+            <div class="sentence-text"${hiddenAttr}>${escapeHtml(dictation.sentences[i])}</div>
           </div>
         `;
       }
 
-      const showTextButton = revealed
-        ? `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`
-        : '';
+      const showTextLabel = revealed ? ui.textAvailable : ui.textLocked;
+      const showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`;
 
       const playModeLink = dictation.pin
         ? `<a href="/dictation/${id}/play" class="btn">${escapeHtml(ui.playMode)}</a>`
@@ -103,6 +99,8 @@ export function setupDictationRoutes(app, render) {
         deleteDictation: ui.deleteDictation,
         deleteConfirm: escapeHtml(ui.deleteConfirm),
         backHome: ui.backHome,
+        textLocked: escapeHtml(ui.textLocked),
+        textAvailable: escapeHtml(ui.textAvailable),
       });
 
       res.send(html);

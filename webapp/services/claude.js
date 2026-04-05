@@ -16,7 +16,7 @@ async function validateSentences(sentences, languageCode = 'nl') {
 
   try {
     const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20250929',
+      model: 'claude-haiku-4-5',
       max_tokens: 500,
       messages: [
         { role: 'user', content: prompt },
@@ -50,7 +50,7 @@ export async function generateTitle(topics, sentences, languageCode = 'nl') {
 
   try {
     const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20250929',
+      model: 'claude-haiku-4-5',
       max_tokens: 60,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -77,7 +77,7 @@ export async function generateSentences(topic1, topic2, topic3, count = 8, langu
 
       // Generate sentences with Sonnet
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-opus-4-6',
         max_tokens: 1024,
         messages: [{
           role: 'user',

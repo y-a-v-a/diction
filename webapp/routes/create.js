@@ -170,6 +170,7 @@ export function setupCreateRoutes(app, render) {
       cancelButton: ui.cancelButton,
       generating: ui.generating,
       generatingHint: ui.generatingHint,
+      error: '',
     });
     res.send(html);
   });
@@ -201,7 +202,8 @@ export function setupCreateRoutes(app, render) {
             pinLabel: ui.pinLabel, pinHint: ui.pinHint,
             generateButton: ui.generateButton, cancelButton: ui.cancelButton,
             generating: ui.generating, generatingHint: ui.generatingHint,
-          }) + `<div class="error">${escapeHtml(ui.rateLimitError)}</div>`
+            error: `<div class="error">${escapeHtml(ui.rateLimitError)}</div>`,
+          })
         );
       }
 
@@ -223,7 +225,8 @@ export function setupCreateRoutes(app, render) {
           pinLabel: ui.pinLabel, pinHint: ui.pinHint,
           generateButton: ui.generateButton, cancelButton: ui.cancelButton,
           generating: ui.generating, generatingHint: ui.generatingHint,
-        }) + errorHtml;
+          error: errorHtml,
+        });
       }
 
       // Validate and sanitize topics
