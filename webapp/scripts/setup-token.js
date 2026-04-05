@@ -30,9 +30,11 @@ const tokenLine = `\n# Secret token for /create route access (PoC/demo protectio
 
 fs.appendFileSync(envPath, tokenLine);
 
+const port = process.env.PORT || '3000';
+
 console.log('✅ Token generated and saved to .env');
 console.log('');
 console.log('Your create URL is:');
-console.log(`http://localhost:3000/create?token=${token}`);
+console.log(`http://localhost:${port}/create?token=${token}`);
 console.log('');
 console.log('💡 Tip: Run "npm run token:url" to see this URL again later');
