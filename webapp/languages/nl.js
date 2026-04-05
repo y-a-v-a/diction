@@ -68,6 +68,7 @@ export default {
     pinPlaceholder: '4-6 cijfers',
     pinError: 'Onjuiste PIN. Probeer het opnieuw.',
     nextSentence: 'Volgende zin',
+    closePage: 'Sluiten',
     revealAll: 'Toon alle tekst',
     revealConfirm: 'Weet je zeker dat je alle tekst wilt onthullen? Dit kan niet ongedaan worden.',
     submit: 'Bevestigen',

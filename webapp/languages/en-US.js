@@ -68,6 +68,7 @@ export default {
     pinPlaceholder: '4-6 digits',
     pinError: 'Incorrect PIN. Please try again.',
     nextSentence: 'Next Sentence',
+    closePage: 'Close',
     revealAll: 'Reveal All Text',
     revealConfirm: 'Are you sure you want to reveal all text? This cannot be undone.',
     submit: 'Submit',

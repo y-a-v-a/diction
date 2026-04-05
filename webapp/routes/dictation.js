@@ -174,6 +174,7 @@ export function setupDictationRoutes(app, render) {
         totalSentences: String(dictation.sentences.length),
         sentenceLabel: ui.sentence,
         nextSentence: ui.nextSentence,
+        closePage: ui.closePage,
         revealAll: ui.revealAll,
         revealConfirm: escapeHtml(ui.revealConfirm),
       }));

@@ -156,6 +156,10 @@
     }
 
     nextBtn.addEventListener('click', function() {
+      if (nextBtn.dataset.done) {
+        window.location.href = '/dictation/' + dictationId;
+        return;
+      }
       if (current < total - 1) {
         current++;
         cards[current].classList.remove('hidden');
@@ -163,7 +167,8 @@
         updateProgress();
       }
       if (current >= total - 1) {
-        nextBtn.disabled = true;
+        nextBtn.textContent = '{{closePage}}';
+        nextBtn.dataset.done = '1';
       }
     });
 
