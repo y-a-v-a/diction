@@ -79,6 +79,11 @@ export default {
     passphrasePlaceholder: 'Toegangscode',
     passphraseError: 'Onjuiste toegangscode. Probeer het opnieuw.',
 
+    // 403
+    forbiddenTitle: 'Toegang Geweigerd',
+    forbiddenMessage: 'Je hebt geen toegang tot deze pagina. Deze functie is alleen beschikbaar voor geautoriseerde gebruikers.',
+    forbiddenBack: 'Terug naar home',
+
     // Errors
     invalidId: 'Ongeldige dictee ID',
     notFound: 'Dictee niet gevonden',

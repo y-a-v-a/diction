@@ -68,7 +68,17 @@ function requireCreateAccess(req, res, next) {
 
   // 4. Fall back to 403
   console.warn(`Unauthorized access attempt to /create from ${req.ip}`);
-  const forbiddenPage = fs.readFileSync(path.join(__dirname, '../views/403.html'), 'utf-8');
+  const ui = req.lang.ui;
+  let forbiddenPage = fs.readFileSync(path.join(__dirname, '../views/403.html'), 'utf-8');
+  const data = {
+    langCode: req.langCode,
+    forbiddenTitle: ui.forbiddenTitle,
+    forbiddenMessage: ui.forbiddenMessage,
+    forbiddenBack: ui.forbiddenBack,
+  };
+  for (const [key, value] of Object.entries(data)) {
+    forbiddenPage = forbiddenPage.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
+  }
   return res.status(403).send(forbiddenPage);
 }
 

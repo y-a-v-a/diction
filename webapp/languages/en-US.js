@@ -79,6 +79,11 @@ export default {
     passphrasePlaceholder: 'Access code',
     passphraseError: 'Incorrect access code. Please try again.',
 
+    // 403
+    forbiddenTitle: 'Access Denied',
+    forbiddenMessage: 'You do not have access to this page. This feature is only available to authorized users.',
+    forbiddenBack: 'Back to home',
+
     // Errors
     invalidId: 'Invalid dictation ID',
     notFound: 'Dictation not found',
