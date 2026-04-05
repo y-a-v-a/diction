@@ -301,6 +301,20 @@ input[name="pin"] {
   color: #7a6b58;
 }
 
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e0d5c8;
+  border-top-color: #993b2b;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .empty-state {
   color: #9a8b78;
   padding: 40px 0;
@@ -660,6 +674,12 @@ html:not(.light) .error {
 html.dark .loading,
 html:not(.light) .loading {
   color: #7a6e60;
+}
+
+html.dark .spinner,
+html:not(.light) .spinner {
+  border-color: #3a3228;
+  border-top-color: #c4654e;
 }
 
 html.dark .empty-state,

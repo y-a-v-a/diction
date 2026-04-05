@@ -45,6 +45,7 @@
 </form>
 
 <div id="loading" class="loading" style="display: none;">
+  <div class="spinner"></div>
   <p><strong>{{generating}}</strong></p>
   <p>{{generatingHint}}</p>
 </div>
@@ -53,5 +54,7 @@
   document.getElementById('createForm').addEventListener('submit', function() {
     document.getElementById('loading').style.display = 'block';
     this.style.display = 'none';
+    var desc = document.querySelector('.description');
+    if (desc) desc.style.display = 'none';
   });
 </script>
