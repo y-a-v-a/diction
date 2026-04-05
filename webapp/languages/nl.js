@@ -57,8 +57,7 @@ export default {
     deleteDictation: 'Dictee Verwijderen',
     deleteConfirm: 'Weet je zeker dat je dit dictee wilt verwijderen?',
     backHome: 'Terug naar Home',
-    textLocked: 'Tekst vergrendeld',
-    textAvailable: 'Tekst beschikbaar',
+    hideText: 'Verberg Tekst',
     dateLocale: 'nl-NL',
 
     // Play mode

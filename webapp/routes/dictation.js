@@ -71,8 +71,8 @@ export function setupDictationRoutes(app, render) {
         `;
       }
 
-      const showTextLabel = revealed ? ui.textAvailable : ui.textLocked;
-      const showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`;
+      const showTextLabel = revealed ? ui.hideText : ui.showText;
+      const showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(showTextLabel)}</button>`;
 
       const playModeLink = dictation.pin
         ? `<a href="/dictation/${id}/play" class="btn">${escapeHtml(ui.playMode)}</a>`
@@ -99,8 +99,8 @@ export function setupDictationRoutes(app, render) {
         deleteDictation: ui.deleteDictation,
         deleteConfirm: escapeHtml(ui.deleteConfirm),
         backHome: ui.backHome,
-        textLocked: escapeHtml(ui.textLocked),
-        textAvailable: escapeHtml(ui.textAvailable),
+        showText: escapeHtml(ui.showText),
+        hideText: escapeHtml(ui.hideText),
       });
 
       res.send(html);

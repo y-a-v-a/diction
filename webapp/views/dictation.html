@@ -23,14 +23,14 @@
 <script>
   var showTextBtn = document.getElementById('showTextBtn');
   if (showTextBtn) {
-    var textLocked = '{{textLocked}}';
-    var textAvailable = '{{textAvailable}}';
+    var showLabel = '{{showText}}';
+    var hideLabel = '{{hideText}}';
     showTextBtn.addEventListener('click', function() {
       var texts = document.querySelectorAll('.sentence-text');
       var anyHidden = false;
       texts.forEach(function(el) { if (el.hidden) anyHidden = true; });
       texts.forEach(function(el) { el.hidden = !anyHidden; });
-      this.textContent = anyHidden ? textAvailable : textLocked;
+      this.textContent = anyHidden ? hideLabel : showLabel;
     });
   }
 </script>

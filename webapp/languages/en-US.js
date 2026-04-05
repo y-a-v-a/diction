@@ -57,8 +57,7 @@ export default {
     deleteDictation: 'Delete Dictation',
     deleteConfirm: 'Are you sure you want to delete this dictation?',
     backHome: 'Back to Home',
-    textLocked: 'Text locked',
-    textAvailable: 'Text available',
+    hideText: 'Hide Text',
     dateLocale: 'en-US',
 
     // Play mode

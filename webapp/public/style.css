@@ -436,7 +436,6 @@ audio {
 }
 
 .sentence-text {
-  display: none;
   padding: 12px 16px;
   background: #fdf0ee;
   border-left: 3px solid #993b2b;
