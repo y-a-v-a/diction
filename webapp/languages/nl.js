@@ -3,7 +3,7 @@ export default {
   displayName: 'Nederlands',
   tts: {
     languageCode: 'nl',
-    voiceId: null, // uses ELEVENLABS_VOICE_ID from env
+    voiceId: null, // falls back to ELEVENLABS_VOICE_ID env var
   },
   ui: {
     // Navigation

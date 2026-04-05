@@ -280,7 +280,7 @@ export function setupCreateRoutes(app, render) {
       // Load language config for TTS
       const ttsOptions = {
         languageCode: lang.tts.languageCode,
-        voiceId: lang.tts.voiceId || (languageCode !== 'nl' ? process.env[`ELEVENLABS_VOICE_ID_${languageCode.replace('-', '_').toUpperCase()}`] : null),
+        voiceId: lang.tts.voiceId,
       };
 
       try {
