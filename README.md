@@ -150,6 +150,29 @@ The token is carried through the form submission via a hidden input field, so yo
 - If `CREATE_SECRET_TOKEN` is **not set** in `.env`, the `/create` route is unprotected (a warning is logged)
 - For Docker deployments, set the token in `.env.docker` instead — see [DOCKER.md](DOCKER.md)
 
+## Admin Access (Delete Protection)
+
+Deleting dictations requires admin authentication. Without it, delete buttons are hidden and the delete endpoint is blocked.
+
+### Setup
+
+Add `ADMIN_SECRET` to your `.env` (or `.env.docker`):
+
+```
+ADMIN_SECRET=yoursecret
+```
+
+Or let `npm run token:setup` generate one automatically alongside the create token.
+
+### How it works
+
+1. Visit `/admin/login` and enter the admin secret
+2. A SHA-256 hashed cookie is set for 7 days
+3. Delete buttons appear on the dictation listing and detail pages
+4. Logout via `/admin/logout`
+
+If `ADMIN_SECRET` is not set, delete functionality is disabled for everyone.
+
 ## Documentation
 
 - [DOCKER.md](DOCKER.md) - Docker deployment guide
@@ -159,7 +182,8 @@ The token is carried through the form submission via a hidden input field, so yo
 ## Security
 
 This application includes:
-- Secret token authentication for creation endpoints
+- Secret token and passphrase authentication for creation endpoints
+- Admin-only delete access with hashed cookie
 - Input validation and sanitization
 - XSS prevention (HTML escaping)
 - Rate limiting

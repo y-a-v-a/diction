@@ -18,23 +18,30 @@ if (fs.existsSync(envPath)) {
   envContent = fs.readFileSync(envPath, 'utf-8');
 }
 
-// Check if CREATE_SECRET_TOKEN already exists
+// Append CREATE_SECRET_TOKEN if not already set
 if (envContent.includes('CREATE_SECRET_TOKEN=')) {
-  console.error('❌ CREATE_SECRET_TOKEN already exists in .env file!');
-  console.error('To regenerate, manually remove the existing token from .env first.');
-  process.exit(1);
+  console.log('ℹ️  CREATE_SECRET_TOKEN already exists in .env, skipping.');
+} else {
+  const tokenLine = `\n# Secret token for /create route access (PoC/demo protection)\nCREATE_SECRET_TOKEN=${token}\n`;
+  fs.appendFileSync(envPath, tokenLine);
+
+  const port = process.env.PORT || '3000';
+  console.log('✅ Token generated and saved to .env');
+  console.log(`   Create URL: http://localhost:${port}/create?token=${token}`);
+  console.log('');
 }
 
-// Append the token to .env
-const tokenLine = `\n# Secret token for /create route access (PoC/demo protection)\nCREATE_SECRET_TOKEN=${token}\n`;
+// Generate admin secret if not already set
+envContent = fs.readFileSync(envPath, 'utf-8');
+if (envContent.includes('ADMIN_SECRET=')) {
+  console.log('ℹ️  ADMIN_SECRET already exists in .env, skipping.');
+} else {
+  const adminSecret = crypto.randomBytes(16).toString('hex');
+  const adminLine = `\n# Admin secret for delete access (login at /admin/login)\nADMIN_SECRET=${adminSecret}\n`;
+  fs.appendFileSync(envPath, adminLine);
+  console.log('✅ Admin secret generated and saved to .env');
+  console.log(`   Login at /admin/login with: ${adminSecret}`);
+}
 
-fs.appendFileSync(envPath, tokenLine);
-
-const port = process.env.PORT || '3000';
-
-console.log('✅ Token generated and saved to .env');
 console.log('');
-console.log('Your create URL is:');
-console.log(`http://localhost:${port}/create?token=${token}`);
-console.log('');
-console.log('💡 Tip: Run "npm run token:url" to see this URL again later');
+console.log('💡 Tip: Run "npm run token:url" to see the create URL again later');

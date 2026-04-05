@@ -1,0 +1,13 @@
+<h1>{{adminLoginHeading}}</h1>
+
+<p class="description">{{adminLoginDescription}}</p>
+
+{{error}}
+
+<form method="POST" action="/admin/login">
+  {{csrfInput}}
+  <div>
+    <input type="password" name="secret" placeholder="{{adminSecretPlaceholder}}" required autofocus>
+  </div>
+  <button type="submit">{{submit}}</button>
+</form>

@@ -94,6 +94,17 @@ class RateLimiter {
   }
 }
 
+/**
+ * Check if the request has a valid admin cookie.
+ * Compares the `admin` cookie against the SHA-256 hash of ADMIN_SECRET.
+ */
+export function isAdmin(req) {
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret) return false;
+  const expectedHash = crypto.createHash('sha256').update(secret).digest('hex');
+  return req.cookies.admin === expectedHash;
+}
+
 // Export rate limiter instances for different endpoints
 export const createRateLimiter = new RateLimiter(60 * 1000, 5); // 5 per minute for creates
 export const deleteRateLimiter = new RateLimiter(60 * 1000, 10); // 10 per minute for deletes

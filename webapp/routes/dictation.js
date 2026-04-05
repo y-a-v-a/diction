@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getDictation, deleteDictation, updateDictation, isRevealed as checkRevealed } from '../services/storage.js';
-import { escapeHtml, deleteRateLimiter, validateCsrfToken } from '../utils/security.js';
+import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -96,9 +96,12 @@ export function setupDictationRoutes(app, render) {
         showTextButton: showTextButton,
         playModeLink: playModeLink,
         languageIndicator: languageIndicator,
-        deleteDictation: ui.deleteDictation,
-        deleteConfirm: escapeHtml(ui.deleteConfirm),
-        backHome: ui.backHome,
+        deleteForm: isAdmin(req) ? `
+          <form method="POST" action="/dictation/${id}/delete" class="delete-form" data-confirm="${escapeHtml(ui.deleteConfirm)}" onsubmit="return confirm(this.dataset.confirm);">
+            ${csrfInput}
+            <button type="submit" class="delete">${escapeHtml(ui.deleteDictation)}</button>
+          </form>` : '',
+        backHome: ui.backToOverview,
         showText: escapeHtml(ui.showText),
         hideText: escapeHtml(ui.hideText),
       });
@@ -272,9 +275,14 @@ export function setupDictationRoutes(app, render) {
   // POST /dictation/:id/delete - Delete a dictation
   app.post('/dictation/:id/delete', (req, res) => {
     try {
+      // Admin check
+      if (!isAdmin(req)) {
+        return res.status(403).send('Forbidden');
+      }
+
       // CSRF validation
       if (!validateCsrfToken(req)) {
-        return res.status(403).send(req.lang.ui.forbiddenError || 'Forbidden');
+        return res.status(403).send('Forbidden');
       }
 
       // Rate limiting check

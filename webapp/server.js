@@ -5,7 +5,8 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getLanguage, isValidLanguage } from './languages/index.js';
-import { csrfMiddleware } from './utils/security.js';
+import crypto from 'crypto';
+import { csrfMiddleware, validateCsrfToken, isAdmin } from './utils/security.js';
 import { setupIndexRoutes } from './routes/index.js';
 import { setupCreateRoutes } from './routes/create.js';
 import { setupDictationRoutes } from './routes/dictation.js';
@@ -89,6 +90,46 @@ function render(req, templateName, data = {}) {
 
   return layout;
 }
+
+// Admin login route
+app.post('/admin/login', (req, res) => {
+  if (!validateCsrfToken(req)) {
+    return res.status(403).send('Forbidden');
+  }
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret || req.body.secret !== secret) {
+    const ui = req.lang.ui;
+    return res.status(401).send(render(req, 'admin-login.html', {
+      adminLoginHeading: ui.adminLoginHeading,
+      adminLoginDescription: ui.adminLoginDescription,
+      adminSecretPlaceholder: ui.adminSecretPlaceholder,
+      submit: ui.submit,
+      csrfInput: `<input type="hidden" name="_csrf" value="${req.csrfToken}">`,
+      error: `<div class="error">${ui.adminLoginError}</div>`,
+    }));
+  }
+  const hash = crypto.createHash('sha256').update(secret).digest('hex');
+  res.cookie('admin', hash, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'strict' });
+  res.redirect(req.get('Referer') || '/dictations');
+});
+
+app.get('/admin/login', (req, res) => {
+  if (isAdmin(req)) return res.redirect('/dictations');
+  const ui = req.lang.ui;
+  res.send(render(req, 'admin-login.html', {
+    adminLoginHeading: ui.adminLoginHeading,
+    adminLoginDescription: ui.adminLoginDescription,
+    adminSecretPlaceholder: ui.adminSecretPlaceholder,
+    submit: ui.submit,
+    csrfInput: `<input type="hidden" name="_csrf" value="${req.csrfToken}">`,
+    error: '',
+  }));
+});
+
+app.get('/admin/logout', (req, res) => {
+  res.clearCookie('admin');
+  res.redirect('/dictations');
+});
 
 // Setup routes
 setupIndexRoutes(app, render);

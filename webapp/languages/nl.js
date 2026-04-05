@@ -57,7 +57,10 @@ export default {
     deleteDictation: 'Dictee Verwijderen',
     deleteConfirm: 'Weet je zeker dat je dit dictee wilt verwijderen?',
     backHome: 'Terug naar Home',
+    backToOverview: 'Terug naar Overzicht',
     hideText: 'Verberg Tekst',
+    badgeRevealed: 'Tekst zichtbaar',
+    badgeLocked: 'Tekst verborgen',
     dateLocale: 'nl-NL',
 
     // Play mode
@@ -83,6 +86,13 @@ export default {
     forbiddenTitle: 'Toegang Geweigerd',
     forbiddenMessage: 'Je hebt geen toegang tot deze pagina. Deze functie is alleen beschikbaar voor geautoriseerde gebruikers.',
     forbiddenBack: 'Terug naar home',
+
+    // Admin
+    adminLoginHeading: 'Admin Login',
+    adminLoginDescription: 'Voer het admin-wachtwoord in om dictees te beheren.',
+    adminSecretPlaceholder: 'Admin-wachtwoord',
+    adminLoginError: 'Onjuist wachtwoord. Probeer het opnieuw.',
+    adminLogout: 'Uitloggen',
 
     // Errors
     invalidId: 'Ongeldige dictee ID',

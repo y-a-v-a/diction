@@ -1,5 +1,5 @@
 import { listDictations, isRevealed as checkRevealed } from '../services/storage.js';
-import { escapeHtml } from '../utils/security.js';
+import { escapeHtml, isAdmin } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
 export function setupIndexRoutes(app, render) {
@@ -50,9 +50,9 @@ export function setupIndexRoutes(app, render) {
           let revealBadge = '';
           const revealed = checkRevealed(dictation);
           if (revealed) {
-            revealBadge = `<span class="badge badge-revealed">${escapeHtml(ui.textAvailable)}</span>`;
+            revealBadge = `<span class="badge badge-revealed">${escapeHtml(ui.badgeRevealed)}</span>`;
           } else {
-            revealBadge = `<span class="badge badge-locked">${escapeHtml(ui.textLocked)}</span>`;
+            revealBadge = `<span class="badge badge-locked">${escapeHtml(ui.badgeLocked)}</span>`;
           }
 
           const displayTitle = dictation.title ? escapeHtml(dictation.title) : `Dictation ${dictation.id}`;
@@ -70,10 +70,10 @@ export function setupIndexRoutes(app, render) {
               <p class="dictation-date">${date}</p>
               <div>
                 <a href="/dictation/${dictation.id}" class="btn btn-small">${escapeHtml(ui.viewButton)}</a>
-                <form method="POST" action="/dictation/${dictation.id}/delete" style="display: inline-block; margin-left: 10px;" data-confirm="${escapeHtml(ui.deleteConfirm)}" onsubmit="return confirm(this.dataset.confirm);">
+                ${isAdmin(req) ? `<form method="POST" action="/dictation/${dictation.id}/delete" style="display: inline-block; margin-left: 10px;" data-confirm="${escapeHtml(ui.deleteConfirm)}" onsubmit="return confirm(this.dataset.confirm);">
                   ${csrfInput}
                   <button type="submit" class="delete btn-small">${escapeHtml(ui.deleteButton)}</button>
-                </form>
+                </form>` : ''}
               </div>
             </div>
           `;

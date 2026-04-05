@@ -15,10 +15,7 @@
   {{audioPlayers}}
 </div>
 
-<form method="POST" action="/dictation/{{dictationId}}/delete" class="delete-form" data-confirm="{{deleteConfirm}}" onsubmit="return confirm(this.dataset.confirm);">
-  {{csrfInput}}
-  <button type="submit" class="delete">{{deleteDictation}}</button>
-</form>
+{{deleteForm}}
 
 <script>
   var showTextBtn = document.getElementById('showTextBtn');

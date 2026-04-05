@@ -22,6 +22,9 @@ services:
       # Passphrase for /create access (public-facing alternative)
       - CREATE_PASSPHRASE=${CREATE_PASSPHRASE:-}
 
+      # Admin secret for delete access
+      - ADMIN_SECRET=${ADMIN_SECRET:-}
+
       # Server configuration
       - PORT=3000
       - NODE_ENV=production

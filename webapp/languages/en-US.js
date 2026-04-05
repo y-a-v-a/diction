@@ -57,7 +57,10 @@ export default {
     deleteDictation: 'Delete Dictation',
     deleteConfirm: 'Are you sure you want to delete this dictation?',
     backHome: 'Back to Home',
+    backToOverview: 'Back to Overview',
     hideText: 'Hide Text',
+    badgeRevealed: 'Text visible',
+    badgeLocked: 'Text hidden',
     dateLocale: 'en-US',
 
     // Play mode
@@ -83,6 +86,13 @@ export default {
     forbiddenTitle: 'Access Denied',
     forbiddenMessage: 'You do not have access to this page. This feature is only available to authorized users.',
     forbiddenBack: 'Back to home',
+
+    // Admin
+    adminLoginHeading: 'Admin Login',
+    adminLoginDescription: 'Enter the admin secret to manage dictations.',
+    adminSecretPlaceholder: 'Admin secret',
+    adminLoginError: 'Incorrect secret. Please try again.',
+    adminLogout: 'Logout',
 
     // Errors
     invalidId: 'Invalid dictation ID',
