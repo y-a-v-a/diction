@@ -7,10 +7,10 @@
 
 body {
   font-family: 'Gentium Plus', Georgia, 'Times New Roman', serif;
+  font-size: 18px;
   line-height: 1.7;
   color: #3d2e22;
   background-color: #f2ece5;
-  padding: 24px 16px;
   min-height: 100vh;
 }
 
@@ -28,7 +28,7 @@ body {
 /* ===== Navigation ===== */
 nav {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 24px;
   padding: 16px 36px;
   background: #f8f2ea;
@@ -39,7 +39,6 @@ nav a {
   color: #5c4a3a;
   text-decoration: none;
   font-weight: 500;
-  font-size: 15px;
   transition: color 0.15s;
 }
 
@@ -52,16 +51,28 @@ nav a:hover {
   text-decoration: none;
 }
 
+nav .nav-brand {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #993b2b;
+  letter-spacing: -0.02em;
+}
+
+nav .nav-brand:visited {
+  color: #993b2b;
+}
+
 nav .nav-controls {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 10px;
+  align-self: center;
 }
 
 nav .lang-switch,
 nav .theme-switch {
-  font-size: 12px;
+  font-size: inherit;
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 3px 10px;
@@ -84,7 +95,6 @@ nav .theme-switch:hover {
 
 /* Undo button overrides for theme-switch */
 nav .theme-switch {
-  font-size: 12px;
   padding: 3px 10px;
   border-radius: 4px;
   transform: none;
@@ -114,8 +124,6 @@ h1 {
   font-weight: 700;
   margin-top: 32px;
   margin-bottom: 8px;
-  padding-bottom: 12px;
-  border-bottom: 3px solid #993b2b;
   letter-spacing: -0.02em;
 }
 
@@ -125,6 +133,39 @@ h2 {
   font-weight: 600;
   margin-top: 28px;
   margin-bottom: 12px;
+}
+
+/* ===== Home columns ===== */
+.home-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 16px;
+}
+
+.home-left .description {
+  margin-top: 0;
+}
+
+.home-left .description::first-letter {
+  font-size: 3.2em;
+  float: left;
+  line-height: 0.8;
+  margin-right: 6px;
+  margin-top: 4px;
+  color: #993b2b;
+  font-weight: 700;
+}
+
+.home-right h2 {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .home-columns {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 a {
@@ -149,7 +190,7 @@ button, .btn {
   padding: 10px 22px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: inherit;
   font-weight: 500;
   text-decoration: none;
   display: inline-block;
@@ -190,7 +231,7 @@ button.secondary:hover {
 }
 
 .btn-small {
-  font-size: 13px;
+  font-size: 0.8em;
   padding: 6px 14px;
   border-radius: 5px;
 }
@@ -205,7 +246,7 @@ label {
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: inherit;
   color: #3d2e22;
 }
 
@@ -219,7 +260,7 @@ select {
   padding: 10px 14px;
   border: 1.5px solid #c8bba8;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: inherit;
   margin-bottom: 16px;
   background: #fffcf8;
   color: #2c1e14;
@@ -245,14 +286,13 @@ input[name="pin"] {
 .field-hint {
   display: block;
   color: #9a8b78;
-  font-size: 13px;
   margin-top: -10px;
   margin-bottom: 16px;
 }
 
 /* ===== Badges ===== */
 .badge {
-  font-size: 11px;
+  font-size: 0.8em;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -278,7 +318,7 @@ input[name="pin"] {
 }
 
 .language-badge {
-  font-size: 12px;
+  font-size: 0.8em;
   font-weight: 600;
   background: #f5ece0;
   color: #993b2b;
@@ -296,7 +336,7 @@ input[name="pin"] {
   padding: 14px 18px;
   border-radius: 8px;
   margin-bottom: 20px;
-  font-size: 14px;
+  font-size: 0.8em;
 }
 
 .loading {
@@ -323,14 +363,13 @@ input[name="pin"] {
   color: #9a8b78;
   padding: 40px 0;
   text-align: center;
-  font-size: 15px;
+  font-size: 0.8em;
 }
 
 /* ===== Home Page ===== */
 .description {
   margin-bottom: 24px;
   color: #6b5c4a;
-  font-size: 16px;
   line-height: 1.8;
 }
 
@@ -362,7 +401,6 @@ input[name="pin"] {
 .dictation-title {
   margin-bottom: 8px;
   color: #2c1e14;
-  font-size: 1.1rem;
 }
 
 .dictation-link {
@@ -381,19 +419,19 @@ input[name="pin"] {
 
 .dictation-date {
   color: #9a8b78;
-  font-size: 13px;
   margin-bottom: 12px;
+  font-style: italic;
 }
 
 /* ===== Dictation Detail ===== */
 .topics-line {
   margin-bottom: 6px;
-  font-size: 15px;
+  font-size: 0.8em;
 }
 
 .date-text {
   color: #9a8b78;
-  font-size: 14px;
+  font-size: 0.8em;
 }
 
 .actions-wrapper {
@@ -406,7 +444,6 @@ input[name="pin"] {
 
 .cancel-link {
   color: #7a6b58;
-  font-size: 14px;
 }
 
 .audio-container {
@@ -426,16 +463,15 @@ input[name="pin"] {
 
 .sentence-number {
   font-weight: 700;
-  font-size: 14px;
   color: #993b2b;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 audio {
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   border-radius: 8px;
 }
 
@@ -446,7 +482,7 @@ audio {
   margin-top: 12px;
   color: #3d2e22;
   border-radius: 0 6px 6px 0;
-  font-size: 15px;
+  font-size: 0.8em;
   line-height: 1.8;
 }
 
@@ -464,11 +500,15 @@ audio {
 
 /* ===== Footer ===== */
 footer {
+  background: #2c1e14;
+  color: #b8a898;
   margin-top: 48px;
-  padding-top: 20px;
-  border-top: 1px solid #e0d5c8;
-  color: #9a8b78;
-  font-size: 13px;
+}
+
+.footer-content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 32px 8em;
 }
 
 footer p {
@@ -525,6 +565,13 @@ html.dark nav a:visited,
 html:not(.light) nav a,
 html:not(.light) nav a:visited {
   color: #9a8b78;
+}
+
+html.dark nav .nav-brand,
+html.dark nav .nav-brand:visited,
+html:not(.light) nav .nav-brand,
+html:not(.light) nav .nav-brand:visited {
+  color: #c4654e;
 }
 
 html.dark nav a:hover,
@@ -779,8 +826,8 @@ html:not(.light) audio {
 /* Footer */
 html.dark footer,
 html:not(.light) footer {
-  border-top-color: #3a3028;
-  color: #7a6e60;
+  background: #0e0b08;
+  color: #5a5048;
 }
 
 /* Legacy */
@@ -884,5 +931,5 @@ html.light .sentence-number { color: #993b2b; }
 html.light .sentence-text { background: #fdf0ee; border-left-color: #993b2b; color: #3d2e22; }
 html.light .delete-form { border-top-color: #e0d5c8; }
 html.light audio { filter: none; }
-html.light footer { border-top-color: #e0d5c8; color: #9a8b78; }
+html.light footer { background: #2c1e14; color: #b8a898; }
 html.light .field-hint { color: #9a8b78; }

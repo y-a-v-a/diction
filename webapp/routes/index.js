@@ -14,8 +14,6 @@ export function setupIndexRoutes(app, render) {
       homeStep3: ui.homeStep3,
       homeStep4: ui.homeStep4,
       homeViewDictations: ui.homeViewDictations,
-      footerDescription: ui.footerDescription,
-      footerCopyright: ui.footerCopyright,
     });
     res.send(html);
   });
@@ -75,8 +73,6 @@ export function setupIndexRoutes(app, render) {
       const html = render(req, 'dictations.html', {
         dictationsHeading: ui.dictationsHeading,
         dictations: dictationsHtml,
-        footerDescription: ui.footerDescription,
-        footerCopyright: ui.footerCopyright,
       });
       res.send(html);
     } catch (error) {

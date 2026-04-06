@@ -72,6 +72,8 @@ function render(req, templateName, data = {}) {
     themeSwitch: req.cookies.theme === 'light' ? ui.themeDark : ui.themeLight,
     themeLightLabel: ui.themeLight,
     themeDarkLabel: ui.themeDark,
+    footerDescription: ui.footerDescription,
+    footerCopyright: ui.footerCopyright,
     ...data,
   };
 

@@ -15,7 +15,7 @@ export default {
     themeDark: 'Dark',
 
     // Home page
-    homeHeading: 'Diction',
+    homeHeading: 'Gather round, spell it out',
     homeDescription: 'Diction brings people together around language. AI generates unique dictations that you play as a group — listen, write, and see who nails the trickiest words. A playful contest for family nights, classrooms, or game evenings.',
     homeHowItWorks: 'How does it work?',
     homeStep1: 'Choose three topics and the number of sentences',

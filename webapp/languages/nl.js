@@ -15,7 +15,7 @@ export default {
     themeDark: 'Donker',
 
     // Home page
-    homeHeading: 'Diction',
+    homeHeading: 'Kom erbij, spel het uit',
     homeDescription: 'Diction brengt mensen samen rond taal. AI genereert unieke dictees die je samen speelt — luister, schrijf, en kijk wie de lastigste woorden foutloos spelt. Een speels wedstrijdje voor familiebijeenkomsten, in de klas of op een spelavond.',
     homeHowItWorks: 'Hoe werkt het?',
     homeStep1: 'Kies drie onderwerpen en het aantal zinnen',

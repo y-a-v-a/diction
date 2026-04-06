@@ -1,22 +1,21 @@
 <h1>{{homeHeading}}</h1>
 
-<p class="description">
-  {{homeDescription}}
-</p>
-
-<h2>{{homeHowItWorks}}</h2>
-<ol class="feature-list">
-  <li>{{homeStep1}}</li>
-  <li>{{homeStep2}}</li>
-  <li>{{homeStep3}}</li>
-  <li>{{homeStep4}}</li>
-</ol>
-
-<div class="btn-wrapper">
-  <a href="/dictations" class="btn">{{homeViewDictations}}</a>
+<div class="home-columns">
+  <div class="home-left">
+    <p class="description">
+      {{homeDescription}}
+    </p>
+    <div class="btn-wrapper">
+      <a href="/dictations" class="btn">{{homeViewDictations}}</a>
+    </div>
+  </div>
+  <div class="home-right">
+    <h2>{{homeHowItWorks}}</h2>
+    <ol class="feature-list">
+      <li>{{homeStep1}}</li>
+      <li>{{homeStep2}}</li>
+      <li>{{homeStep3}}</li>
+      <li>{{homeStep4}}</li>
+    </ol>
+  </div>
 </div>
-
-<footer>
-  <p>{{footerDescription}}</p>
-  <p>&copy; {{footerCopyright}}</p>
-</footer>

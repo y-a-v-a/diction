@@ -20,7 +20,7 @@
 <body>
   <div class="container">
     <nav>
-      <a href="/">{{navHome}}</a>
+      <a href="/" class="nav-brand">Diction</a>
       <a href="/dictations">{{navDictations}}</a>
       <span class="nav-controls">
         <button class="theme-switch" id="themeToggle" type="button">{{themeSwitch}}</button>
@@ -29,6 +29,12 @@
     </nav>
     {{content}}
   </div>
+  <footer>
+    <div class="footer-content">
+      <p>{{footerDescription}}</p>
+      <p>&copy; {{footerCopyright}}</p>
+    </div>
+  </footer>
   <script>
     (function() {
       var btn = document.getElementById('themeToggle');
