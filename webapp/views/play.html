@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{title}} — {{playMode}}</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✍🏽</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&display=swap">
   <link rel="stylesheet" href="/style.css">
   <style>
     body {
@@ -15,10 +18,10 @@
       position: relative;
       max-width: 1100px;
       margin: 0 auto;
-      background: white;
+      background: #fffcf8;
       padding: 40px;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(60,40,20,0.08), 0 4px 12px rgba(60,40,20,0.05);
     }
     .play-close {
       position: absolute;
@@ -26,26 +29,26 @@
       right: 18px;
       font-size: 2rem;
       line-height: 1;
-      color: #999;
+      color: #9a8b78;
       text-decoration: none;
     }
     .play-close:hover {
-      color: #333;
+      color: #993b2b;
     }
     .play-title {
       font-size: 2.2rem;
       text-align: center;
-      color: #2c3e50;
+      color: #3d2e22;
       margin-bottom: 30px;
       padding-bottom: 15px;
-      border-bottom: 2px solid #3498db;
+      border-bottom: 2px solid #993b2b;
     }
     .play-sentence-card {
       padding: 25px;
       margin-bottom: 20px;
-      background: #f9f9f9;
+      background: #f8f2ea;
       border-radius: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #e0d5c8;
     }
     .play-sentence-card.hidden {
       display: none;
@@ -53,7 +56,7 @@
     .play-sentence-number {
       font-size: 1.4rem;
       font-weight: bold;
-      color: #3498db;
+      color: #993b2b;
       margin-bottom: 12px;
     }
     .play-sentence-card audio {
@@ -64,10 +67,10 @@
       display: none;
       font-size: 1.3rem;
       padding: 15px;
-      background: #e8f4f8;
-      border-left: 4px solid #3498db;
+      background: #fdf0ee;
+      border-left: 4px solid #993b2b;
       margin-top: 12px;
-      color: #2c3e50;
+      color: #3d2e22;
       border-radius: 0 4px 4px 0;
     }
     .play-sentence-text.visible {
@@ -79,10 +82,11 @@
       margin-top: 10px;
       position: sticky;
       bottom: 0;
-      background: white;
-      border-top: 1px solid #eee;
+      background: #fffcf8;
+      border-top: 1px solid #e0d5c8;
     }
     .play-btn {
+      font-family: inherit;
       font-size: 1.2rem;
       padding: 15px 35px;
       min-height: 52px;
@@ -90,56 +94,73 @@
       margin: 0 8px;
     }
     .play-btn:disabled {
-      background-color: #bdc3c7;
+      background-color: #c8bba8;
       cursor: not-allowed;
     }
     .play-btn.reveal {
-      background-color: #27ae60;
+      background-color: #5a7a3a;
     }
     .play-btn.reveal:hover:not(:disabled) {
-      background-color: #219a52;
+      background-color: #4a6a2e;
     }
     .play-progress {
       text-align: center;
-      color: #666;
+      color: #7a6b58;
       font-size: 1rem;
       margin-bottom: 15px;
     }
-    @media (prefers-color-scheme: dark) {
-      .play-close { color: #666; }
-      .play-close:hover { color: #ccc; }
-      .play-container {
-        background: #2d2d2d;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      }
-      .play-title {
-        color: #e0e0e0;
-        border-bottom-color: #4a9eff;
-      }
-      .play-sentence-card {
-        background: #252525;
-        border-color: #444;
-      }
-      .play-sentence-number {
-        color: #4a9eff;
-      }
-      .play-sentence-text {
-        background: #1a3a4a;
-        border-left-color: #4a9eff;
-        color: #d0d0d0;
-      }
-      .play-controls {
-        background: #2d2d2d;
-        border-top-color: #444;
-      }
-      .play-progress {
-        color: #999;
-      }
-      audio {
-        filter: invert(1) hue-rotate(180deg);
-      }
+
+    /* Dark theme */
+    html.dark .play-container,
+    html:not(.light) .play-container {
+      background: #211c17;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    html.dark .play-close,
+    html:not(.light) .play-close { color: #5a5048; }
+    html.dark .play-close:hover,
+    html:not(.light) .play-close:hover { color: #c4654e; }
+    html.dark .play-title,
+    html:not(.light) .play-title {
+      color: #d4c8b8;
+      border-bottom-color: #993b2b;
+    }
+    html.dark .play-sentence-card,
+    html:not(.light) .play-sentence-card {
+      background: #1c1712;
+      border-color: #3a3228;
+    }
+    html.dark .play-sentence-number,
+    html:not(.light) .play-sentence-number {
+      color: #c4654e;
+    }
+    html.dark .play-sentence-text,
+    html:not(.light) .play-sentence-text {
+      background: #2e1f18;
+      border-left-color: #993b2b;
+      color: #d4c8b8;
+    }
+    html.dark .play-controls,
+    html:not(.light) .play-controls {
+      background: #211c17;
+      border-top-color: #3a3228;
+    }
+    html.dark .play-progress,
+    html:not(.light) .play-progress {
+      color: #7a6e60;
+    }
+    html.dark audio,
+    html:not(.light) audio {
+      filter: invert(1) hue-rotate(180deg);
     }
   </style>
+  <script>
+    (function() {
+      var c = document.cookie.match(/(?:^|; )theme=(\w+)/);
+      var t = c ? c[1] : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.className = t;
+    })();
+  </script>
 </head>
 <body>
   <div class="play-container">

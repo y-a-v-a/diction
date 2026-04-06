@@ -6,7 +6,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Gentium Plus', Georgia, 'Times New Roman', serif;
   line-height: 1.7;
   color: #3d2e22;
   background-color: #f2ece5;
@@ -142,6 +142,7 @@ a:hover {
 
 /* ===== Buttons ===== */
 button, .btn {
+  font-family: inherit;
   background-color: #993b2b;
   color: white !important;
   border: none;
@@ -213,6 +214,7 @@ input[type="number"],
 input[type="password"],
 input[type="datetime-local"],
 select {
+  font-family: inherit;
   width: 100%;
   padding: 10px 14px;
   border: 1.5px solid #c8bba8;
