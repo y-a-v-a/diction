@@ -482,7 +482,8 @@ audio {
   margin-top: 12px;
   color: #3d2e22;
   border-radius: 0 6px 6px 0;
-  font-size: 0.8em;
+  font-size: 1.1em;
+  letter-spacing: 0.03em;
   line-height: 1.8;
 }
 

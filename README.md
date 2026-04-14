@@ -1,6 +1,6 @@
 # Diction
 
-Diction brings people together around language. AI generates unique dictations in Dutch or American English that you play as a group — listen, write, and see who nails the trickiest words. A playful contest for family nights, classrooms, or game evenings.
+Diction brings people together around language. AI generates unique dictations in Dutch or American English that you play as a group — listen, write, and see who nails the trickiest words. A playful contest for family nights, classrooms, or game evenings. Try it at [diction.vincentbruijn.nl](https://diction.vincentbruijn.nl/).
 
 Inspired by the [Groot Dictee der Nederlandse Taal](https://dictees.nl/alle-dictees/groot-dictee-der-nederlandse-taal/).
 

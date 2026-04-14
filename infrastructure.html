@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diction — Infrastructure Reference</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #1a1a1a; }
+    h1 { border-bottom: 2px solid #1a1a1a; padding-bottom: 0.5rem; }
+    h2 { margin-top: 2rem; color: #333; }
+    code { background: #f0f0f0; padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f0f0f0; padding: 1rem; border-radius: 4px; overflow-x: auto; }
+    pre code { background: none; padding: 0; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #f0f0f0; }
+    .note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 0.75rem 1rem; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+
+<h1>Diction — Infrastructure Reference</h1>
+<p>Overview of the deployment pipeline and AWS setup for <a href="https://diction.vincentbruijn.nl">diction.vincentbruijn.nl</a>.</p>
+
+<h2>1. Pipeline Overview</h2>
+<pre><code>GitHub (manual trigger) → Docker build → ECR push → ECS Express Mode → ALB → diction.vincentbruijn.nl</code></pre>
+
+<h2>2. GitHub Actions Workflow</h2>
+<p>File: <code>.github/workflows/docker-build.yml</code></p>
+<ul>
+  <li>Trigger: <strong>manual</strong> via <code>workflow_dispatch</code> (Actions tab → Run workflow)</li>
+  <li>Authenticates to AWS via <strong>OIDC</strong> (no long-lived credentials)</li>
+  <li>Builds the Docker image and pushes to ECR with <code>:latest</code> and <code>:&lt;sha&gt;</code> tags</li>
+</ul>
+
+<h3>GitHub repo settings (Settings → Secrets and variables → Actions)</h3>
+<table>
+  <tr><th>Type</th><th>Name</th><th>Value</th></tr>
+  <tr><td>Secret</td><td><code>AWS_ROLE_ARN</code></td><td>IAM role ARN for OIDC</td></tr>
+  <tr><td>Variable</td><td><code>AWS_REGION</code></td><td><code>eu-west-1</code></td></tr>
+  <tr><td>Variable</td><td><code>ECR_REPOSITORY</code></td><td><code>diction</code></td></tr>
+</table>
+
+<h2>3. AWS Components</h2>
+
+<h3>ECR (Elastic Container Registry)</h3>
+<p>Repository: <code>diction</code> in <code>eu-west-1</code>. Stores the Docker images.</p>
+
+<h3>ECS Express Mode</h3>
+<p>Runs the container on Fargate. Automatically provisions ALB, target groups, and auto-scaling.</p>
+<ul>
+  <li>Container port: <code>3000</code></li>
+  <li>Health check path: <code>/</code></li>
+</ul>
+
+<h3>IAM — OIDC Trust (GitHub → AWS)</h3>
+<ul>
+  <li>Identity provider: <code>token.actions.githubusercontent.com</code></li>
+  <li>IAM role trust policy scoped to <code>repo:y-a-v-a/diction:*</code></li>
+  <li>Role permissions: <code>ecr:GetAuthorizationToken</code>, ECR push actions on the <code>diction</code> repository</li>
+</ul>
+
+<h3>IAM — ECS Task Execution Role</h3>
+<p>Must have <code>secretsmanager:GetSecretValue</code> permission on the diction secret.</p>
+
+<h2>4. Secrets (AWS Secrets Manager)</h2>
+<p>Stored as a single JSON secret named <code>diction</code>.</p>
+<table>
+  <tr><th>JSON key</th><th>Used by</th></tr>
+  <tr><td><code>ANTHROPIC_API_KEY</code></td><td>Claude SDK</td></tr>
+  <tr><td><code>ELEVENLABS_API_KEY</code></td><td>ElevenLabs TTS</td></tr>
+  <tr><td><code>ELEVENLABS_VOICE_ID</code></td><td>ElevenLabs TTS</td></tr>
+  <tr><td><code>CREATE_SECRET_TOKEN</code></td><td>/create route access</td></tr>
+  <tr><td><code>CREATE_PASSPHRASE</code></td><td>/create passphrase form</td></tr>
+  <tr><td><code>ADMIN_SECRET</code></td><td>/admin/login access</td></tr>
+</table>
+
+<p>ARN format for ECS task definition references:</p>
+<pre><code>arn:aws:secretsmanager:eu-west-1:323831145078:secret:diction-P5pWhG:KEY_NAME::</code></pre>
+<p>The trailing <code>::</code> means latest version, no specific version stage.</p>
+
+<h2>5. Custom Domain</h2>
+<table>
+  <tr><th>Step</th><th>Where</th><th>What</th></tr>
+  <tr><td>SSL certificate</td><td>AWS ACM (eu-west-1)</td><td>Certificate for <code>diction.vincentbruijn.nl</code>, DNS validated</td></tr>
+  <tr><td>Certificate attachment</td><td>ALB HTTPS:443 listener</td><td>ACM certificate attached to the listener</td></tr>
+  <tr><td>Listener rule</td><td>ALB HTTPS:443 listener</td><td>Host header <code>diction.vincentbruijn.nl</code> routes to ECS target group</td></tr>
+  <tr><td>DNS CNAME</td><td>DNS provider (vincentbruijn.nl)</td><td><code>diction</code> → ALB DNS name</td></tr>
+</table>
+
+<h2>6. Deploying a New Version</h2>
+<ol>
+  <li>Push code to <code>main</code></li>
+  <li>Go to GitHub Actions → <strong>Build and Push to ECR</strong> → <strong>Run workflow</strong></li>
+  <li>After the image is pushed, update the ECS service:
+    <pre><code>aws ecs update-service --cluster &lt;cluster&gt; --service &lt;service&gt; --force-new-deployment</code></pre>
+    Or use the ECS console: select service → Update → Force new deployment
+  </li>
+</ol>
+
+<h2>7. Dockerfile</h2>
+<p>File: <code>Dockerfile</code> in the project root.</p>
+<ul>
+  <li>Base image: <code>node:20-alpine</code></li>
+  <li>Installs production dependencies only (<code>npm ci --omit=dev</code>)</li>
+  <li>Runs as non-root <code>node</code> user</li>
+  <li>Exposes port <code>3000</code></li>
+  <li>Includes a health check on <code>/</code></li>
+</ul>
+
+<div class="note">
+  <strong>Note:</strong> The <code>.env</code> file is excluded from the Docker image via <code>.dockerignore</code>. All secrets are injected at runtime via ECS + Secrets Manager.
+</div>
+
+</body>
+</html>
