@@ -6,7 +6,19 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getLanguage, isValidLanguage } from './languages/index.js';
 import crypto from 'crypto';
-import { csrfMiddleware, validateCsrfToken, isAdmin } from './utils/security.js';
+import { csrfMiddleware, isAdmin } from './utils/security.js';
+import {
+  getAuthUrl,
+  getCallbackUrl,
+  exchangeCodeForTokens,
+  decodeIdToken,
+  createSessionToken,
+  isEmailAllowed,
+  isGoogleConfigured,
+  SESSION_COOKIE,
+  STATE_COOKIE,
+  SESSION_TTL_MS,
+} from './utils/googleAuth.js';
 import { setupIndexRoutes } from './routes/index.js';
 import { setupCreateRoutes } from './routes/create.js';
 import { setupDictationRoutes } from './routes/dictation.js';
@@ -93,43 +105,58 @@ function render(req, templateName, data = {}) {
   return layout;
 }
 
-// Admin login route
-app.post('/admin/login', (req, res) => {
-  if (!validateCsrfToken(req)) {
-    return res.status(403).send('Forbidden');
-  }
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret || req.body.secret !== secret) {
-    const ui = req.lang.ui;
-    return res.status(401).send(render(req, 'admin-login.html', {
-      adminLoginHeading: ui.adminLoginHeading,
-      adminLoginDescription: ui.adminLoginDescription,
-      adminSecretPlaceholder: ui.adminSecretPlaceholder,
-      submit: ui.submit,
-      csrfInput: `<input type="hidden" name="_csrf" value="${req.csrfToken}">`,
-      error: `<div class="error">${ui.adminLoginError}</div>`,
-    }));
-  }
-  const hash = crypto.createHash('sha256').update(secret).digest('hex');
-  res.cookie('admin', hash, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'strict' });
-  res.redirect(req.get('Referer') || '/dictations');
-});
-
+// Admin login page — shows the "Sign in with Google" button
 app.get('/admin/login', (req, res) => {
   if (isAdmin(req)) return res.redirect('/dictations');
   const ui = req.lang.ui;
   res.send(render(req, 'admin-login.html', {
     adminLoginHeading: ui.adminLoginHeading,
     adminLoginDescription: ui.adminLoginDescription,
-    adminSecretPlaceholder: ui.adminSecretPlaceholder,
-    submit: ui.submit,
-    csrfInput: `<input type="hidden" name="_csrf" value="${req.csrfToken}">`,
-    error: '',
+    googleSignIn: ui.googleSignIn,
+    error: req.query.error ? `<div class="error">${ui.adminLoginError}</div>` : '',
   }));
 });
 
+// Start the Google OAuth flow
+app.get('/auth/google', (req, res) => {
+  if (!isGoogleConfigured()) {
+    return res.status(500).send(req.lang.ui.googleNotConfigured);
+  }
+  const state = crypto.randomBytes(16).toString('hex');
+  // sameSite 'lax' so the cookie returns on the top-level redirect from Google
+  res.cookie(STATE_COOKIE, state, { httpOnly: true, maxAge: 10 * 60 * 1000, sameSite: 'lax' });
+  res.redirect(getAuthUrl({ state, callbackUrl: getCallbackUrl(req) }));
+});
+
+// Google OAuth callback — verifies the user and issues an admin session
+app.get('/auth/google/callback', async (req, res) => {
+  try {
+    const { code, state } = req.query;
+    const savedState = req.cookies[STATE_COOKIE];
+    res.clearCookie(STATE_COOKIE);
+
+    if (!code || !state || !savedState || state !== savedState) {
+      return res.redirect('/admin/login?error=1');
+    }
+
+    const tokens = await exchangeCodeForTokens({ code, callbackUrl: getCallbackUrl(req) });
+    const profile = decodeIdToken(tokens.id_token);
+
+    if (!profile.email || profile.email_verified === false || !isEmailAllowed(profile.email)) {
+      return res.redirect('/admin/login?error=1');
+    }
+
+    const session = createSessionToken(profile.email);
+    res.cookie(SESSION_COOKIE, session, { httpOnly: true, maxAge: SESSION_TTL_MS, sameSite: 'lax' });
+    res.redirect('/dictations');
+  } catch (err) {
+    console.error('Google auth error:', err);
+    res.redirect('/admin/login?error=1');
+  }
+});
+
 app.get('/admin/logout', (req, res) => {
-  res.clearCookie('admin');
+  res.clearCookie(SESSION_COOKIE);
   res.redirect('/dictations');
 });
 

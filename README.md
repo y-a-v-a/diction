@@ -170,26 +170,36 @@ The token is carried through the form submission via a hidden input field, so yo
 
 ## Admin Access (Delete Protection)
 
-Deleting dictations requires admin authentication. Without it, delete buttons are hidden and the delete endpoint is blocked.
+Deleting dictations requires admin authentication via **Google social login**. Without it, delete buttons are hidden and the delete endpoint is blocked.
 
 ### Setup
 
-Add `ADMIN_SECRET` to your `.env` (or `.env.docker`):
+1. Create OAuth 2.0 credentials in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+   Add an **Authorized redirect URI** of `<your-origin>/auth/google/callback`
+   (e.g. `http://localhost:3000/auth/google/callback`).
+2. Add the following to your `.env` (or `.env.docker`):
 
 ```
-ADMIN_SECRET=yoursecret
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
+# Comma-separated allowlist of Google emails granted admin access
+ADMIN_EMAILS=you@example.com
+# Secret used to sign the admin session cookie (HMAC)
+SESSION_SECRET=a-long-random-string
 ```
 
-Or let `npm run token:setup` generate one automatically alongside the create token.
+`npm run token:setup` generates a `SESSION_SECRET` automatically alongside the create token.
+`GOOGLE_CALLBACK_URL` can be set to override the auto-derived callback URL behind a proxy.
 
 ### How it works
 
-1. Visit `/admin/login` and enter the admin secret
-2. A SHA-256 hashed cookie is set for 7 days
-3. Delete buttons appear on the dictation listing and detail pages
-4. Logout via `/admin/logout`
+1. Visit `/admin/login` and click **Sign in with Google**
+2. After Google authenticates you, your verified email is checked against `ADMIN_EMAILS`
+3. On success, an HMAC-signed session cookie is set for 7 days
+4. Delete buttons appear on the dictation listing and detail pages
+5. Logout via `/admin/logout`
 
-If `ADMIN_SECRET` is not set, delete functionality is disabled for everyone.
+If `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` are unset, sign-in is unavailable; if `ADMIN_EMAILS` is empty, no account is granted admin access and delete functionality is disabled for everyone.
 
 ## Documentation
 
@@ -201,7 +211,7 @@ If `ADMIN_SECRET` is not set, delete functionality is disabled for everyone.
 
 This application includes:
 - Secret token and passphrase authentication for creation endpoints
-- Admin-only delete access with hashed cookie
+- Admin-only delete access via Google social login (allowlisted emails, HMAC-signed session cookie)
 - Input validation and sanitization
 - XSS prevention (HTML escaping)
 - Rate limiting

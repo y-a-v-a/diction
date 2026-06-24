@@ -87,9 +87,10 @@ export default {
 
     // Admin
     adminLoginHeading: 'Admin Login',
-    adminLoginDescription: 'Voer het admin-wachtwoord in om dictees te beheren.',
-    adminSecretPlaceholder: 'Admin-wachtwoord',
-    adminLoginError: 'Onjuist wachtwoord. Probeer het opnieuw.',
+    adminLoginDescription: 'Log in met je Google-account om dictees te beheren.',
+    googleSignIn: 'Inloggen met Google',
+    googleNotConfigured: 'Google-inloggen is niet geconfigureerd.',
+    adminLoginError: 'Inloggen mislukt of dit account heeft geen toegang.',
     adminLogout: 'Uitloggen',
 
     // Errors
