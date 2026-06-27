@@ -31,16 +31,17 @@ if (envContent.includes('CREATE_SECRET_TOKEN=')) {
   console.log('');
 }
 
-// Generate admin secret if not already set
+// Generate session signing secret if not already set
+// Used to sign the admin session cookie issued after Google login.
 envContent = fs.readFileSync(envPath, 'utf-8');
-if (envContent.includes('ADMIN_SECRET=')) {
-  console.log('ℹ️  ADMIN_SECRET already exists in .env, skipping.');
+if (envContent.includes('SESSION_SECRET=')) {
+  console.log('ℹ️  SESSION_SECRET already exists in .env, skipping.');
 } else {
-  const adminSecret = crypto.randomBytes(16).toString('hex');
-  const adminLine = `\n# Admin secret for delete access (login at /admin/login)\nADMIN_SECRET=${adminSecret}\n`;
-  fs.appendFileSync(envPath, adminLine);
-  console.log('✅ Admin secret generated and saved to .env');
-  console.log(`   Login at /admin/login with: ${adminSecret}`);
+  const sessionSecret = crypto.randomBytes(32).toString('hex');
+  const sessionLine = `\n# Secret used to sign admin session cookies (Google login)\nSESSION_SECRET=${sessionSecret}\n`;
+  fs.appendFileSync(envPath, sessionLine);
+  console.log('✅ Session secret generated and saved to .env');
+  console.log('   Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and ADMIN_EMAILS to enable admin login.');
 }
 
 console.log('');

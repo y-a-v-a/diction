@@ -3,6 +3,7 @@
  */
 
 import crypto from 'crypto';
+import { verifySessionToken, isEmailAllowed, SESSION_COOKIE } from './googleAuth.js';
 
 /**
  * Generate a CSRF token
@@ -95,14 +96,14 @@ class RateLimiter {
 }
 
 /**
- * Check if the request has a valid admin cookie.
- * Compares the `admin` cookie against the SHA-256 hash of ADMIN_SECRET.
+ * Check if the request has a valid admin session.
+ * Verifies the HMAC-signed `admin_session` cookie issued after Google login
+ * and confirms the email is still on the admin allowlist.
  */
 export function isAdmin(req) {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) return false;
-  const expectedHash = crypto.createHash('sha256').update(secret).digest('hex');
-  return req.cookies.admin === expectedHash;
+  const data = verifySessionToken(req.cookies && req.cookies[SESSION_COOKIE]);
+  if (!data) return false;
+  return isEmailAllowed(data.email);
 }
 
 // Export rate limiter instances for different endpoints

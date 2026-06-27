@@ -230,6 +230,16 @@ button.secondary:hover {
   box-shadow: 0 2px 4px rgba(92, 74, 58, 0.3);
 }
 
+.google-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.google-signin svg {
+  display: block;
+}
+
 .btn-small {
   font-size: 0.8em;
   padding: 6px 14px;

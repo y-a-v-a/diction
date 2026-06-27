@@ -87,9 +87,10 @@ export default {
 
     // Admin
     adminLoginHeading: 'Admin Login',
-    adminLoginDescription: 'Enter the admin secret to manage dictations.',
-    adminSecretPlaceholder: 'Admin secret',
-    adminLoginError: 'Incorrect secret. Please try again.',
+    adminLoginDescription: 'Sign in with your Google account to manage dictations.',
+    googleSignIn: 'Sign in with Google',
+    googleNotConfigured: 'Google sign-in is not configured.',
+    adminLoginError: 'Sign-in failed or this account is not authorized.',
     adminLogout: 'Logout',
 
     // Errors
