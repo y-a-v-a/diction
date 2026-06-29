@@ -3,7 +3,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { generateSentences, generateTitle } from '../services/claude.js';
 import { generateSpeech, delay, getCurrentService } from '../services/tts.js';
-import { generateId, createDictation, getDictationPath, deleteDictation } from '../services/storage.js';
+import { generateId, createDictation, saveAudio, setDictationAudio, deleteDictation } from '../services/storage.js';
 import crypto from 'crypto';
 import { escapeHtml, createRateLimiter, validateCsrfToken } from '../utils/security.js';
 import { getAvailableLanguages, getLanguage, isValidLanguage } from '../languages/index.js';
@@ -274,7 +274,6 @@ export function setupCreateRoutes(app, render) {
 
       // Generate unique ID
       const id = generateId();
-      const dictationPath = getDictationPath(id);
       let dictationCreated = false;
 
       // Load language config for TTS
@@ -291,17 +290,21 @@ export function setupCreateRoutes(app, render) {
 
         // Step 2: Generate a title and create dictation metadata
         const title = await generateTitle(topics, sentences, languageCode);
-        createDictation(id, topics, sentences, { title, language: languageCode, pin: validatedPin });
+        await createDictation(id, topics, sentences, { title, language: languageCode, pin: validatedPin });
         dictationCreated = true;
         console.log(`Dictation ${id} metadata saved`);
 
         // Step 3: Generate audio for each sentence
         console.log(`Generating audio files for dictation ${id} using ${getCurrentService()}...`);
+        const audioUrls = [];
         for (let i = 0; i < sentences.length; i++) {
-          const audioPath = path.join(dictationPath, `${i}.mp3`);
           console.log(`Generating audio ${i + 1}/${sentences.length}...`);
 
-          await generateSpeech(sentences[i], audioPath, ttsOptions);
+          const audioBuffer = await generateSpeech(sentences[i], ttsOptions);
+          const url = await saveAudio(id, i, audioBuffer);
+          audioUrls.push(url);
+          // Persist incrementally so partial audio survives a later failure.
+          await setDictationAudio(id, audioUrls);
 
           if (i < sentences.length - 1) {
             await delay(500);
@@ -318,7 +321,7 @@ export function setupCreateRoutes(app, render) {
           console.log(`Dictation ${id} kept with partial audio due to: ${error.message}`);
           res.redirect(`/dictation/${id}?warning=audio-incomplete`);
         } else {
-          deleteDictation(id);
+          await deleteDictation(id);
           const safeErrorMessage = escapeHtml(error.message);
           const errorHtml = `
             <div class="error">

@@ -18,10 +18,10 @@ export function setupIndexRoutes(app, render) {
     res.send(html);
   });
 
-  app.get('/dictations', (req, res) => {
+  app.get('/dictations', async (req, res) => {
     try {
       const ui = req.lang.ui;
-      const dictations = listDictations();
+      const dictations = await listDictations();
 
       const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
 

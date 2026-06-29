@@ -62,8 +62,10 @@ class RateLimiter {
     this.windowMs = windowMs;
     this.maxRequests = maxRequests;
 
-    // Clean up old entries every 5 minutes
-    setInterval(() => {
+    // Clean up old entries every 5 minutes. `unref()` so this timer never
+    // keeps the process alive on its own (matters for the test runner and for
+    // serverless functions freezing/exiting cleanly).
+    const cleanup = setInterval(() => {
       const now = Date.now();
       for (const [ip, requests] of this.store.entries()) {
         const recentRequests = requests.filter(time => now - time < this.windowMs);
@@ -74,6 +76,9 @@ class RateLimiter {
         }
       }
     }, 5 * 60 * 1000);
+    if (typeof cleanup.unref === 'function') {
+      cleanup.unref();
+    }
   }
 
   check(ip) {
