@@ -1,11 +1,11 @@
-import fs from 'fs';
-
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1/text-to-speech';
 
 /**
- * Generate speech audio from text using ElevenLabs API
+ * Generate speech audio from text using ElevenLabs API.
+ * Returns the audio as a Buffer; persistence is left to the storage layer so
+ * this works regardless of whether the app runs on a writable filesystem.
  */
-export async function generateSpeech(text, outputPath, options = {}) {
+export async function generateSpeech(text, options = {}) {
   const voiceId = options.voiceId || process.env.ELEVENLABS_VOICE_ID;
   const apiKey = process.env.ELEVENLABS_API_KEY;
   const languageCode = options.languageCode || 'nl';
@@ -60,10 +60,7 @@ export async function generateSpeech(text, outputPath, options = {}) {
     }
 
     const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    fs.writeFileSync(outputPath, buffer);
-
-    return true;
+    return Buffer.from(arrayBuffer);
   } catch (error) {
     console.error('ElevenLabs API error:', error);
     throw new Error(`Failed to generate speech: ${error.message}`);

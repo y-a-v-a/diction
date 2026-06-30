@@ -1,0 +1,9 @@
+# Local-only persistence — never deploy generated dictations.
+dictations
+
+# Secrets and local env files (configure these in the Vercel dashboard instead).
+.env
+.env.*
+
+# Dev/test artifacts not needed at runtime.
+test

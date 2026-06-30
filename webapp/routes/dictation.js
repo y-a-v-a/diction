@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getDictation, deleteDictation } from '../services/storage.js';
+import { getDictation, deleteDictation, getAudioUrl } from '../services/storage.js';
 import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
 import { getLanguage } from '../languages/index.js';
 
@@ -21,7 +21,7 @@ function renderTemplate(templateName, data = {}) {
 
 export function setupDictationRoutes(app, render) {
   // GET /dictation/:id - Show dictation detail page
-  app.get('/dictation/:id', (req, res) => {
+  app.get('/dictation/:id', async (req, res) => {
     try {
       const { id } = req.params;
       const { warning } = req.query;
@@ -30,7 +30,7 @@ export function setupDictationRoutes(app, render) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
-      const dictation = getDictation(id);
+      const dictation = await getDictation(id);
 
       if (!dictation) {
         return res.status(404).send(req.lang.ui.notFound);
@@ -62,7 +62,7 @@ export function setupDictationRoutes(app, render) {
         audioPlayersHtml += `
           <div class="sentence-item">
             <div class="sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
-            <audio controls src="/dictations/${id}/${i}.mp3"></audio>
+            <audio controls src="${escapeHtml(getAudioUrl(dictation, i))}"></audio>
             <div class="sentence-text" hidden>${escapeHtml(dictation.sentences[i])}</div>
           </div>
         `;
@@ -110,7 +110,7 @@ export function setupDictationRoutes(app, render) {
   });
 
   // GET /dictation/:id/play - Play mode (PIN-protected)
-  app.get('/dictation/:id/play', (req, res) => {
+  app.get('/dictation/:id/play', async (req, res) => {
     try {
       const { id } = req.params;
 
@@ -118,7 +118,7 @@ export function setupDictationRoutes(app, render) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
-      const dictation = getDictation(id);
+      const dictation = await getDictation(id);
       if (!dictation) {
         return res.status(404).send(req.lang.ui.notFound);
       }
@@ -156,7 +156,7 @@ export function setupDictationRoutes(app, render) {
         sentenceCards += `
           <div class="play-sentence-card${hiddenClass}">
             <div class="play-sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
-            <audio controls src="/dictations/${id}/${i}.mp3"></audio>
+            <audio controls src="${escapeHtml(getAudioUrl(dictation, i))}"></audio>
             <div class="play-sentence-text">${escapeHtml(dictation.sentences[i])}</div>
           </div>
         `;
@@ -183,7 +183,7 @@ export function setupDictationRoutes(app, render) {
   });
 
   // POST /dictation/:id/play - PIN submission
-  app.post('/dictation/:id/play', (req, res) => {
+  app.post('/dictation/:id/play', async (req, res) => {
     try {
       const { id } = req.params;
       const { pin } = req.body;
@@ -196,7 +196,7 @@ export function setupDictationRoutes(app, render) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
-      const dictation = getDictation(id);
+      const dictation = await getDictation(id);
       if (!dictation || !dictation.pin) {
         return res.redirect(`/dictation/${id}`);
       }
@@ -234,7 +234,7 @@ export function setupDictationRoutes(app, render) {
   });
 
   // POST /dictation/:id/delete - Delete a dictation
-  app.post('/dictation/:id/delete', (req, res) => {
+  app.post('/dictation/:id/delete', async (req, res) => {
     try {
       // Admin check
       if (!isAdmin(req)) {
@@ -259,7 +259,7 @@ export function setupDictationRoutes(app, render) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
-      const success = deleteDictation(id);
+      const success = await deleteDictation(id);
 
       if (success) {
         console.log(`Dictation ${id} deleted`);

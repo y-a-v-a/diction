@@ -70,6 +70,13 @@ npm run token:setup
 npm start
 ```
 
+### Option 3: Deploy to Vercel
+
+Diction runs on Vercel as a serverless app, using **Vercel Blob** for durable
+storage of dictation metadata and audio. Follow the step-by-step checklist in
+[VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) (set the project **Root Directory**
+to `webapp`, connect a Blob store, and add the environment variables).
+
 ## Group Play Mode
 
 Play mode turns a dictation into a communal activity — perfect for family gatherings, classrooms, or game nights.
