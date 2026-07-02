@@ -1,5 +1,11 @@
+/**
+ * Sentence and title generation — Claude (Anthropic API).
+ *
+ * This is the "author" side of the pipeline: topics go in, validated
+ * sentences in the requested content language come out.
+ */
 import Anthropic from '@anthropic-ai/sdk';
-import { getLanguage } from '../languages/index.js';
+import { getContentLanguage } from '../languages/index.js';
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY
@@ -10,9 +16,9 @@ const client = new Anthropic({
  * Uses Claude Haiku for fast, cost-effective validation
  */
 async function validateSentences(sentences, languageCode = 'nl') {
-  const lang = getLanguage(languageCode);
+  const lang = getContentLanguage(languageCode);
   const sentencesText = sentences.map((s, i) => `${i + 1}. ${s}`).join('\n');
-  const prompt = lang.claude.validationPrompt(sentencesText);
+  const prompt = lang.prompts.validation(sentencesText);
 
   try {
     const message = await client.messages.create({
@@ -40,12 +46,12 @@ async function validateSentences(sentences, languageCode = 'nl') {
  * Generate a short title for a dictation based on its topics and sentences
  */
 export async function generateTitle(topics, sentences, languageCode = 'nl') {
-  const lang = getLanguage(languageCode);
+  const lang = getContentLanguage(languageCode);
   const topicList = topics.join(', ');
   const sampleSentences = sentences.slice(0, 3).join('\n');
 
-  const prompt = lang.claude.titlePrompt
-    ? lang.claude.titlePrompt(topicList, sampleSentences)
+  const prompt = lang.prompts.title
+    ? lang.prompts.title(topicList, sampleSentences)
     : `Generate a short, creative title (3-6 words) for a dictation about: ${topicList}. Return ONLY the title, nothing else.`;
 
   try {
@@ -63,19 +69,18 @@ export async function generateTitle(topics, sentences, languageCode = 'nl') {
 }
 
 /**
- * Generate sentences for a dictation based on 3 topics
+ * Generate sentences for a dictation based on a list of topics
  * @see https://dictees.nl/alle-dictees/groot-dictee-der-nederlandse-taal/
  */
-export async function generateSentences(topic1, topic2, topic3, count = 8, languageCode = 'nl') {
-  const lang = getLanguage(languageCode);
+export async function generateSentences(topics, count = 8, languageCode = 'nl') {
+  const lang = getContentLanguage(languageCode);
   const maxAttempts = 2;
   let lastError = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const prompt = lang.claude.generatePrompt(topic1, topic2, topic3, count);
+      const prompt = lang.prompts.sentences(topics, count);
 
-      // Generate sentences with Sonnet
       const message = await client.messages.create({
         model: 'claude-opus-4-6',
         max_tokens: 1024,

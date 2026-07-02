@@ -1,6 +1,5 @@
-import { listDictations } from '../services/storage.js';
+import { listDictations, getContentLanguage } from '../core/index.js';
 import { escapeHtml, isAdmin } from '../utils/security.js';
-import { getLanguage } from '../languages/index.js';
 
 export function setupIndexRoutes(app, render) {
   app.get('/', (req, res) => {
@@ -32,7 +31,7 @@ export function setupIndexRoutes(app, render) {
         dictationsHtml = '<div>';
         for (const dictation of dictations) {
           const languageCode = dictation.language || 'nl';
-          const lang = getLanguage(languageCode);
+          const lang = getContentLanguage(languageCode);
 
           const date = new Date(dictation.created).toLocaleDateString(ui.dateLocale, {
             year: 'numeric',

@@ -142,10 +142,11 @@ These were handled in code so the app is serverless-ready:
 - `webapp/app.js` — the Express app, split out from `server.js` (which is now
   just the local/Docker `listen()` entry). `trust proxy` is enabled.
 - `webapp/vercel.json` — routes all requests to the function, bundles the
-  `views/`, `public/` and `languages/` files, and sets `maxDuration`.
-- `webapp/services/storage.js` — dual-backend storage: **Vercel Blob** when
+  `views/`, `public/`, `core/` and `i18n/` files, and sets `maxDuration`.
+- `webapp/core/storage/index.js` — dual-backend storage: **Vercel Blob** when
   `BLOB_READ_WRITE_TOKEN` is set, **filesystem** otherwise. Audio playback URLs
   are stored in each dictation's metadata.
-- `webapp/services/elevenlabs.js` — `generateSpeech()` returns an audio Buffer
-  instead of writing to disk, so the storage layer decides where it lives.
+- `webapp/core/generation/tts/elevenlabs.js` — `generateSpeech()` returns an
+  audio Buffer instead of writing to disk, so the storage layer decides where
+  it lives.
 - `webapp/package.json` — adds the `@vercel/blob` dependency and a Node engine.
