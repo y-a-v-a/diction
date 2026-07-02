@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getDictation, deleteDictation, getAudioUrl } from '../services/storage.js';
+import { getDictation, deleteDictation, getAudioUrl, getContentLanguage, isValidDictationId } from '../core/index.js';
 import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
-import { getLanguage } from '../languages/index.js';
+import { getLocale } from '../i18n/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,7 +26,7 @@ export function setupDictationRoutes(app, render) {
       const { id } = req.params;
       const { warning } = req.query;
 
-      if (!/^[0-9a-f]{8}$/.test(id)) {
+      if (!isValidDictationId(id)) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
@@ -37,7 +37,7 @@ export function setupDictationRoutes(app, render) {
       }
 
       const languageCode = dictation.language || 'nl';
-      const lang = getLanguage(languageCode);
+      const lang = getContentLanguage(languageCode);
       const ui = req.lang.ui;
 
       const date = new Date(dictation.created).toLocaleDateString(ui.dateLocale, {
@@ -114,7 +114,7 @@ export function setupDictationRoutes(app, render) {
     try {
       const { id } = req.params;
 
-      if (!/^[0-9a-f]{8}$/.test(id)) {
+      if (!isValidDictationId(id)) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
@@ -128,8 +128,9 @@ export function setupDictationRoutes(app, render) {
       }
 
       const languageCode = dictation.language || 'nl';
-      const lang = getLanguage(languageCode);
-      const ui = lang.ui;
+      const lang = getContentLanguage(languageCode);
+      // Play mode follows the dictation's own language, not the UI cookie
+      const ui = getLocale(languageCode).ui;
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
 
       // Check PIN cookie
@@ -192,7 +193,7 @@ export function setupDictationRoutes(app, render) {
         return res.status(403).send(req.lang.ui.forbiddenError || 'Forbidden');
       }
 
-      if (!/^[0-9a-f]{8}$/.test(id)) {
+      if (!isValidDictationId(id)) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 
@@ -202,8 +203,8 @@ export function setupDictationRoutes(app, render) {
       }
 
       const languageCode = dictation.language || 'nl';
-      const lang = getLanguage(languageCode);
-      const ui = lang.ui;
+      // Play mode follows the dictation's own language, not the UI cookie
+      const ui = getLocale(languageCode).ui;
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
 
       if (!pin || pin.trim() !== dictation.pin) {
@@ -254,8 +255,7 @@ export function setupDictationRoutes(app, render) {
 
       const { id } = req.params;
 
-      // Validate ID format (8 lowercase hex characters)
-      if (!/^[0-9a-f]{8}$/.test(id)) {
+      if (!isValidDictationId(id)) {
         return res.status(400).send(req.lang.ui.invalidId);
       }
 

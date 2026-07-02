@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { getLanguage, isValidLanguage } from './languages/index.js';
+import { getLocale, isValidLocale } from './i18n/index.js';
 import crypto from 'crypto';
 import { csrfMiddleware, isAdmin } from './utils/security.js';
 import {
@@ -40,10 +40,10 @@ app.use(cookieParser());
 // CSRF middleware — sets _csrf cookie + req.csrfToken
 app.use(csrfMiddleware);
 
-// Language middleware — sets req.lang based on cookie
+// UI language middleware — sets req.lang (a UI locale) based on cookie
 app.use((req, res, next) => {
-  const langCode = req.cookies.lang && isValidLanguage(req.cookies.lang) ? req.cookies.lang : 'nl';
-  req.lang = getLanguage(langCode);
+  const langCode = req.cookies.lang && isValidLocale(req.cookies.lang) ? req.cookies.lang : 'nl';
+  req.lang = getLocale(langCode);
   req.langCode = langCode;
   next();
 });
@@ -51,7 +51,7 @@ app.use((req, res, next) => {
 // Language switch endpoint
 app.get('/lang/:code', (req, res) => {
   const { code } = req.params;
-  if (isValidLanguage(code)) {
+  if (isValidLocale(code)) {
     res.cookie('lang', code, { maxAge: 365 * 24 * 60 * 60 * 1000, sameSite: 'lax' });
   }
   res.redirect(req.get('Referer') || '/');

@@ -1,5 +1,5 @@
 import app from './app.js';
-import { getStorageBackend } from './services/storage.js';
+import { getStorageBackend } from './core/index.js';
 
 const PORT = process.env.PORT || 3000;
 

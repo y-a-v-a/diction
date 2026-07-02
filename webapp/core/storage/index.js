@@ -6,7 +6,9 @@ import crypto from 'crypto';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DICTATIONS_DIR = path.join(__dirname, '..', 'dictations');
+// Kept at webapp/dictations so the express.static mount and the Docker
+// volume location stay unchanged.
+const DICTATIONS_DIR = path.join(__dirname, '..', '..', 'dictations');
 
 /**
  * Storage backend selection.
@@ -37,11 +39,14 @@ async function blob() {
 const BLOB_PREFIX = 'dictations';
 
 /**
- * Validate ID format (defense-in-depth)
+ * Validate ID format (8 lowercase hex characters). Exported so callers can
+ * reject malformed IDs early instead of duplicating the format knowledge.
  */
-function validateId(id) {
+export function isValidDictationId(id) {
   return typeof id === 'string' && /^[0-9a-f]{8}$/.test(id);
 }
+
+const validateId = isValidDictationId;
 
 /**
  * Generate a unique 8-character ID
