@@ -1029,6 +1029,27 @@ audio {
   font-weight: 700;
 }
 
+/* A near miss marked letter by letter: wor<ins>d</ins>t */
+.check-result .w-fix {
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.check-result .w-fix del,
+.check-result .w-fix ins {
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+.check-result .w-fix del {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.check-result .w-fix ins {
+  text-underline-offset: 3px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
 .check-result .check-legend {
   display: block;
   margin-top: 6px;
