@@ -73,6 +73,36 @@ export default {
     revealConfirm: 'Are you sure you want to reveal all text? This cannot be undone.',
     submit: 'Submit',
 
+    // Audio player
+    playerPlay: 'Play',
+    playerPause: 'Pause',
+    playerReplay: 'Replay',
+    playerSpeed: 'Playback speed',
+    playerHeard: 'Times played',
+    playerSeek: 'Seek',
+
+    // Write along
+    writeAlongHeading: 'Write along',
+    writeAlongHint: 'Press play and type what you hear.',
+    writePlaceholder: 'Type what you hear…',
+    checkButton: 'Check',
+    shortcutReplay: 'replay',
+    shortcutCheck: 'check',
+    wordsCorrect: '{n} of {total} words correct',
+    perfect: 'Flawless!',
+    checkLegend: 'Struck through: what you wrote. Underlined in red: what it should be.',
+    sessionScore: 'So far: {n} of {total} words correct',
+    sentenceCount: '{n} sentences',
+    listenPrompt: 'Listen carefully and write it down',
+    keyPlayPause: 'play / pause',
+
+    // Home hero
+    homeEyebrow: 'Dictation, out loud and together',
+    homeDemoBefore: 'The pelican ate a',
+    homeDemoWrong: 'croisant',
+    homeDemoRight: 'croissant',
+    homeDemoAfter: 'on the pier',
+
     // Passphrase
     passphraseHeading: 'Access Code',
     passphraseDescription: 'Enter the access code to create a dictation.',

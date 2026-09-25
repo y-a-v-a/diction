@@ -1,27 +1,42 @@
-<h1>{{title}} {{languageIndicator}}</h1>
+<header class="detail-head">
+  <h1>{{title}} {{languageIndicator}}</h1>
+  <div class="meta-line">
+    <span><strong>{{topicsLabel}}:</strong> {{topics}}</span>
+    <span>{{sentenceCountText}}</span>
+    <span>{{dateLabel}}: {{date}}</span>
+  </div>
 
-<p class="topics-line"><strong>{{topicsLabel}}:</strong> {{topics}}</p>
-<p class="date-text actions-wrapper">{{dateLabel}}: {{date}}</p>
+  {{warning}}
 
-{{warning}}
+  <div class="actions-wrapper">
+    {{playModeLink}}
+    {{showTextButton}}
+    <a href="/dictations" class="cancel-link">{{backHome}}</a>
+  </div>
+</header>
 
-<div class="actions-wrapper">
-  {{playModeLink}}
-  {{showTextButton}}
-  <a href="/dictations" class="cancel-link">{{backHome}}</a>
-</div>
+<section id="practice" {{practiceLabels}}>
+  <div class="practice-intro">
+    <h2>{{writeAlongHeading}}</h2>
+    <p class="shortcut-hint">{{writeAlongHint}} <span class="keys"><kbd>Esc</kbd> {{shortcutReplay}} · <kbd>⌘/Ctrl</kbd>+<kbd>Enter</kbd> {{shortcutCheck}}</span></p>
+  </div>
 
-<div class="audio-container">
-  {{audioPlayers}}
-</div>
+  <div class="audio-container">
+    {{audioPlayers}}
+  </div>
 
-{{deleteForm}}
+  <p class="session-score" id="sessionScore" hidden aria-live="polite"></p>
 
+  {{deleteForm}}
+</section>
+
+<script src="/player.js"></script>
+<script src="/practice.js"></script>
 <script>
   var showTextBtn = document.getElementById('showTextBtn');
   if (showTextBtn) {
-    var showLabel = '{{showText}}';
-    var hideLabel = '{{hideText}}';
+    var showLabel = showTextBtn.dataset.show;
+    var hideLabel = showTextBtn.dataset.hide;
     showTextBtn.addEventListener('click', function() {
       var texts = document.querySelectorAll('.sentence-text');
       var anyHidden = false;
