@@ -10,11 +10,11 @@ Inspired by the [Groot Dictee der Nederlandse Taal](https://dictees.nl/alle-dict
 - 🎙️ Text-to-speech with ElevenLabs
 - 🌐 Multi-language UI (Dutch and American English) with cookie-based language switcher
 - 🎯 AI-generated titles for each dictation
-- ✍️ Write-along practice: custom audio player (real waveform, replay, 0.75× speed, play count) with lined-paper answer fields that are corrected word by word
+- ✍️ Write-along practice: custom audio player (real waveform, replay, 0.75× speed, play count) with lined-paper answer fields, corrected word by word and near misses letter by letter; drafts are kept on your device
 - 🎲 Group play mode — PIN-protected sequential playback optimized for projection on a shared screen
 - 🔒 Passphrase gate and secret token protection for controlled access
 - 🐳 Docker support for easy deployment
-- 🛡️ Built-in security: input validation, XSS prevention, rate limiting
+- 🛡️ Built-in security: input validation, XSS prevention, rate limiting (including PIN guessing), security headers
 
 ## Example
 
@@ -193,7 +193,7 @@ GOOGLE_CLIENT_ID=your-client-id
 GOOGLE_CLIENT_SECRET=your-client-secret
 # Comma-separated allowlist of Google emails granted admin access
 ADMIN_EMAILS=you@example.com
-# Secret used to sign the admin session cookie (HMAC)
+# Secret used to sign the admin session and play-mode PIN cookies (HMAC)
 SESSION_SECRET=a-long-random-string
 ```
 
