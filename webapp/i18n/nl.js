@@ -67,6 +67,7 @@ export default {
     enterPin: 'Voer PIN in',
     pinPlaceholder: '4-6 cijfers',
     pinError: 'Onjuiste PIN. Probeer het opnieuw.',
+    pinRateLimit: 'Te veel pogingen. Wacht een paar minuten en probeer het opnieuw.',
     nextSentence: 'Volgende zin',
     closePage: 'Sluiten',
     revealAll: 'Toon alle tekst',

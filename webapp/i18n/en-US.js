@@ -67,6 +67,7 @@ export default {
     enterPin: 'Enter PIN',
     pinPlaceholder: '4-6 digits',
     pinError: 'Incorrect PIN. Please try again.',
+    pinRateLimit: 'Too many attempts. Please wait a few minutes and try again.',
     nextSentence: 'Next Sentence',
     closePage: 'Close',
     revealAll: 'Reveal All Text',
