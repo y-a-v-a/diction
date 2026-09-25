@@ -15,7 +15,7 @@
   </div>
 </header>
 
-<section id="practice" {{practiceLabels}}>
+<section id="practice" data-dictation="{{dictationId}}" {{practiceLabels}}>
   <div class="practice-intro">
     <h2>{{writeAlongHeading}}</h2>
     <p class="shortcut-hint">{{writeAlongHint}} <span class="keys"><kbd>Esc</kbd> {{shortcutReplay}} · <kbd>⌘/Ctrl</kbd>+<kbd>Enter</kbd> {{shortcutCheck}}</span></p>
@@ -26,6 +26,11 @@
   </div>
 
   <p class="session-score" id="sessionScore" hidden aria-live="polite"></p>
+
+  <div class="practice-tools">
+    <span class="draft-note">{{draftNote}}</span>
+    <button type="button" id="startOver" class="secondary btn-small" data-confirm="{{startOverConfirm}}" hidden>{{startOver}}</button>
+  </div>
 
   {{deleteForm}}
 </section>
