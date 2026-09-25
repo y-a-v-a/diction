@@ -63,7 +63,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Serve static audio files from the local dictations directory.
 // Only relevant for the filesystem storage backend (local/Docker); on Vercel
 // audio is served straight from Blob's public URLs.
-app.use('/dictations', express.static(path.join(__dirname, 'dictations')));
+// redirect: false stops the static handler from 301-ing the /dictations
+// listing page to /dictations/ just because a directory with that name exists.
+app.use('/dictations', express.static(path.join(__dirname, 'dictations'), { redirect: false }));
 
 /**
  * Template rendering function
