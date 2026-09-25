@@ -167,6 +167,9 @@ body {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
+  /* On the container rather than its last child: pages that end in a
+     <script> would otherwise give the padding to the script */
+  padding-bottom: var(--gutter);
 }
 
 @media (max-width: 960px) {
@@ -183,9 +186,6 @@ body {
   padding-right: var(--gutter);
 }
 
-.container > *:not(nav):last-child {
-  padding-bottom: var(--gutter);
-}
 
 /* ===== Navigation ===== */
 nav {
@@ -1069,6 +1069,19 @@ audio {
 }
 
 .session-score[hidden] { display: none; }
+
+.practice-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.practice-tools [hidden] { display: none; }
 
 .delete-form {
   margin-top: 32px;

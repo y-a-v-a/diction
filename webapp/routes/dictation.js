@@ -150,6 +150,9 @@ export function setupDictationRoutes(app, render) {
         writeAlongHint: escapeHtml(ui.writeAlongHint),
         shortcutReplay: escapeHtml(ui.shortcutReplay),
         shortcutCheck: escapeHtml(ui.shortcutCheck),
+        draftNote: escapeHtml(ui.draftNote),
+        startOver: escapeHtml(ui.startOver),
+        startOverConfirm: escapeHtml(ui.startOverConfirm),
       });
 
       res.send(html);
