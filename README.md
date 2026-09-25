@@ -104,7 +104,8 @@ Play mode turns a dictation into a communal activity — perfect for family gath
 
 ### Notes
 
-- The PIN is stored per-dictation and remembered in a cookie for 24 hours, so you won't need to re-enter it if you refresh
+- The PIN is stored per-dictation and remembered for 24 hours (the cookie holds a signed token, not the PIN itself), so you won't need to re-enter it if you refresh
+- After 10 wrong PINs within 15 minutes, a client has to wait before trying again
 - Dictations created without a PIN work exactly as before — no play mode link is shown
 - The play view is a standalone page (no nav bar) designed for large-screen projection
 
@@ -222,7 +223,7 @@ This application includes:
 - Admin-only delete access via Google social login (allowlisted emails, HMAC-signed session cookie)
 - Input validation and sanitization
 - XSS prevention (HTML escaping)
-- Rate limiting
+- Rate limiting (creation, deletion and wrong play-mode PINs)
 - CSRF protection via form tokens
 
 ## License

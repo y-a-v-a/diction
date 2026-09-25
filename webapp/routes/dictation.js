@@ -1,5 +1,13 @@
 import { getDictation, deleteDictation, getAudioUrl, getContentLanguage, isValidDictationId } from '../core/index.js';
-import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
+import {
+  escapeHtml,
+  deleteRateLimiter,
+  pinRateLimiter,
+  validateCsrfToken,
+  isAdmin,
+  safeEqual,
+  playPinToken,
+} from '../utils/security.js';
 import { getLocale } from '../i18n/index.js';
 import { renderTemplate } from '../utils/templates.js';
 
@@ -20,6 +28,22 @@ function playerLabelAttrs(ui) {
   return Object.entries(labels)
     .map(([key, value]) => `data-l-${key}="${escapeHtml(value)}"`)
     .join(' ');
+}
+
+/**
+ * The PIN entry page shown in front of play mode
+ */
+function renderPinPage(req, dictation, ui, error = '') {
+  return renderTemplate('play-pin.html', {
+    title: dictation.title ? escapeHtml(dictation.title) : dictation.id,
+    dictationId: dictation.id,
+    langCode: dictation.language || 'nl',
+    csrfInput: `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`,
+    enterPin: ui.enterPin,
+    pinPlaceholder: ui.pinPlaceholder,
+    submit: ui.submit,
+    error: error ? `<div class="error">${escapeHtml(error)}</div>` : '',
+  });
 }
 
 export function setupDictationRoutes(app, render) {
@@ -160,19 +184,8 @@ export function setupDictationRoutes(app, render) {
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
 
       // Check PIN cookie
-      const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
-      const cookieName = `play_pin_${id}`;
-      if (req.cookies[cookieName] !== dictation.pin) {
-        return res.send(renderTemplate('play-pin.html', {
-          title: displayTitle,
-          dictationId: id,
-          langCode: languageCode,
-          csrfInput: csrfInput,
-          enterPin: ui.enterPin,
-          pinPlaceholder: ui.pinPlaceholder,
-          submit: ui.submit,
-          error: '',
-        }));
+      if (!safeEqual(req.cookies[`play_pin_${id}`], playPinToken(id, dictation.pin))) {
+        return res.send(renderPinPage(req, dictation, ui));
       }
 
       // Build sentence cards
@@ -218,7 +231,8 @@ export function setupDictationRoutes(app, render) {
   app.post('/dictation/:id/play', async (req, res) => {
     try {
       const { id } = req.params;
-      const { pin } = req.body;
+      // Anything but a plain string (e.g. pin[]=1) is simply a wrong PIN
+      const pin = typeof req.body.pin === 'string' ? req.body.pin.trim() : '';
 
       if (!validateCsrfToken(req)) {
         return res.status(403).send(req.lang.ui.forbiddenError || 'Forbidden');
@@ -233,27 +247,22 @@ export function setupDictationRoutes(app, render) {
         return res.redirect(`/dictation/${id}`);
       }
 
-      const languageCode = dictation.language || 'nl';
       // Play mode follows the dictation's own language, not the UI cookie
-      const ui = getLocale(languageCode).ui;
-      const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
+      const ui = getLocale(dictation.language || 'nl').ui;
 
-      if (!pin || pin.trim() !== dictation.pin) {
-        const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
-        return res.send(renderTemplate('play-pin.html', {
-          title: displayTitle,
-          dictationId: id,
-          langCode: languageCode,
-          csrfInput: csrfInput,
-          enterPin: ui.enterPin,
-          pinPlaceholder: ui.pinPlaceholder,
-          submit: ui.submit,
-          error: `<div class="error">${escapeHtml(ui.pinError)}</div>`,
-        }));
+      // Only wrong PINs count towards the limit, per client and dictation
+      const limitKey = `${req.ip || req.connection.remoteAddress}:${id}`;
+      if (pinRateLimiter.isLimited(limitKey)) {
+        return res.status(429).send(renderPinPage(req, dictation, ui, ui.pinRateLimit));
       }
 
-      // Set PIN cookie and redirect to play mode
-      res.cookie(`play_pin_${id}`, pin.trim(), {
+      if (!safeEqual(pin, dictation.pin)) {
+        pinRateLimiter.hit(limitKey);
+        return res.status(401).send(renderPinPage(req, dictation, ui, ui.pinError));
+      }
+
+      // Remember the PIN for a day, as proof rather than the PIN itself
+      res.cookie(`play_pin_${id}`, playPinToken(id, dictation.pin), {
         httpOnly: true,
         maxAge: 86400000, // 24 hours
         sameSite: 'lax',
