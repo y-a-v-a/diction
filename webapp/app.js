@@ -2,11 +2,11 @@ import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { getLocale, isValidLocale } from './i18n/index.js';
 import crypto from 'crypto';
 import { csrfMiddleware, isAdmin } from './utils/security.js';
+import { renderWithLayout } from './utils/templates.js';
 import {
   getAuthUrl,
   getCallbackUrl,
@@ -77,20 +77,13 @@ app.use('/dictations', (req, res, next) => {
 });
 
 /**
- * Template rendering function
- * Replaces {{placeholders}} in content and layout.
- * Layout-level placeholders (nav, lang) are injected automatically from req.lang.
+ * Render a view inside layout.html.
+ * Layout-level placeholders (nav, lang, theme) are filled automatically from
+ * req.lang; `data` adds page-specific values and may override them.
  */
 function render(req, templateName, data = {}) {
-  const layoutPath = path.join(__dirname, 'views', 'layout.html');
-  const contentPath = path.join(__dirname, 'views', templateName);
-
-  let layout = fs.readFileSync(layoutPath, 'utf-8');
-  let content = fs.readFileSync(contentPath, 'utf-8');
-
-  // Merge layout-level strings from the UI language
   const ui = req.lang.ui;
-  const layoutData = {
+  return renderWithLayout(templateName, {
     langCode: req.langCode,
     navHome: ui.navHome,
     navDictations: ui.navDictations,
@@ -103,22 +96,7 @@ function render(req, templateName, data = {}) {
     footerDescription: ui.footerDescription,
     footerCopyright: ui.footerCopyright,
     ...data,
-  };
-
-  // Replace placeholders in content
-  for (const [key, value] of Object.entries(layoutData)) {
-    const regex = new RegExp(`{{${key}}}`, 'g');
-    content = content.replace(regex, String(value));
-  }
-
-  // Insert content into layout, then replace layout-level placeholders
-  layout = layout.replace('{{content}}', content);
-  for (const [key, value] of Object.entries(layoutData)) {
-    const regex = new RegExp(`{{${key}}}`, 'g');
-    layout = layout.replace(regex, String(value));
-  }
-
-  return layout;
+  });
 }
 
 // Admin login page — shows the "Sign in with Google" button

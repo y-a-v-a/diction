@@ -6,22 +6,16 @@
  * arrives (teacher/admin/classmate roles), it replaces or extends this gate
  * without touching the core.
  */
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import { escapeHtml } from './security.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { renderTemplate } from './templates.js';
 
 /**
  * Render the standalone passphrase entry page
  */
 export function renderPassphrasePage(req, error = '') {
   const ui = req.lang.ui;
-  let html = fs.readFileSync(path.join(__dirname, '../views/passphrase.html'), 'utf-8');
-  const data = {
+  return renderTemplate('passphrase.html', {
     langCode: req.langCode,
     csrfInput: `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`,
     passphraseHeading: ui.passphraseHeading,
@@ -30,11 +24,7 @@ export function renderPassphrasePage(req, error = '') {
     submit: ui.submit,
     backHome: ui.backHome,
     error,
-  };
-  for (const [key, value] of Object.entries(data)) {
-    html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
-  }
-  return html;
+  });
 }
 
 /**
@@ -80,15 +70,10 @@ export function requireCreateAccess(req, res, next) {
   // 4. Fall back to 403
   console.warn(`Unauthorized access attempt to /create from ${req.ip}`);
   const ui = req.lang.ui;
-  let forbiddenPage = fs.readFileSync(path.join(__dirname, '../views/403.html'), 'utf-8');
-  const data = {
+  return res.status(403).send(renderTemplate('403.html', {
     langCode: req.langCode,
     forbiddenTitle: ui.forbiddenTitle,
     forbiddenMessage: ui.forbiddenMessage,
     forbiddenBack: ui.forbiddenBack,
-  };
-  for (const [key, value] of Object.entries(data)) {
-    forbiddenPage = forbiddenPage.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
-  }
-  return res.status(403).send(forbiddenPage);
+  }));
 }

@@ -1,25 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { getDictation, deleteDictation, getAudioUrl, getContentLanguage, isValidDictationId } from '../core/index.js';
 import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
 import { getLocale } from '../i18n/index.js';
+import { renderTemplate } from '../utils/templates.js';
 
 const PLAY_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.53.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/**
- * Render a standalone template (bypasses layout.html)
- */
-function renderTemplate(templateName, data = {}) {
-  let html = fs.readFileSync(path.join(__dirname, '../views', templateName), 'utf-8');
-  for (const [key, value] of Object.entries(data)) {
-    html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
-  }
-  return html;
-}
 
 /**
  * data-l-* attributes read by public/player.js for its button labels
