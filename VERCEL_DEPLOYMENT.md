@@ -47,7 +47,7 @@ Project → **Settings → Environment Variables**. Add the following for the
 | `ANTHROPIC_API_KEY` | <https://console.anthropic.com/> | Used to generate the dictation sentences and titles. |
 | `ELEVENLABS_API_KEY` | <https://elevenlabs.io/> | Text-to-speech. |
 | `ELEVENLABS_VOICE_ID` | ElevenLabs voice library | Default (Dutch) voice. |
-| `SESSION_SECRET` | generate (see below) | Signs the admin session cookie. |
+| `SESSION_SECRET` | generate (see below) | Signs the admin session and play-mode PIN cookies. |
 
 ### Recommended / optional
 
