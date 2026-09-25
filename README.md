@@ -225,6 +225,7 @@ This application includes:
 - XSS prevention (HTML escaping)
 - Rate limiting (creation, deletion and wrong play-mode PINs)
 - CSRF protection via form tokens
+- Security headers: a Content-Security-Policy (same-origin scripts, Google Fonts, audio from this app or Vercel Blob, no framing), `nosniff` and a strict referrer policy
 
 ## License
 

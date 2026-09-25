@@ -7,6 +7,7 @@ import { getLocale, isValidLocale } from './i18n/index.js';
 import crypto from 'crypto';
 import { csrfMiddleware, isAdmin } from './utils/security.js';
 import { renderWithLayout } from './utils/templates.js';
+import { securityHeaders, sameOriginReferrer } from './utils/securityHeaders.js';
 import {
   getAuthUrl,
   getCallbackUrl,
@@ -31,6 +32,9 @@ const app = express();
 // Behind Vercel's (or any) reverse proxy, trust the X-Forwarded-* headers so
 // req.ip, req.protocol and secure-cookie handling reflect the real client.
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+app.use(securityHeaders);
 
 // Middleware
 app.use(express.json());
@@ -48,13 +52,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Language switch endpoint
+// Language switch endpoint; returns to the page it was clicked on, but
+// never to another site
 app.get('/lang/:code', (req, res) => {
   const { code } = req.params;
   if (isValidLocale(code)) {
     res.cookie('lang', code, { maxAge: 365 * 24 * 60 * 60 * 1000, sameSite: 'lax' });
   }
-  res.redirect(req.get('Referer') || '/');
+  res.redirect(sameOriginReferrer(req));
 });
 
 // Serve static files from public directory
