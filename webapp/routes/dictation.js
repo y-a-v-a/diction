@@ -5,6 +5,8 @@ import { getDictation, deleteDictation, getAudioUrl, getContentLanguage, isValid
 import { escapeHtml, deleteRateLimiter, validateCsrfToken, isAdmin } from '../utils/security.js';
 import { getLocale } from '../i18n/index.js';
 
+const PLAY_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.53.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -17,6 +19,23 @@ function renderTemplate(templateName, data = {}) {
     html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
   }
   return html;
+}
+
+/**
+ * data-l-* attributes read by public/player.js for its button labels
+ */
+function playerLabelAttrs(ui) {
+  const labels = {
+    play: ui.playerPlay,
+    pause: ui.playerPause,
+    replay: ui.playerReplay,
+    speed: ui.playerSpeed,
+    heard: ui.playerHeard,
+    seek: ui.playerSeek,
+  };
+  return Object.entries(labels)
+    .map(([key, value]) => `data-l-${key}="${escapeHtml(value)}"`)
+    .join(' ');
 }
 
 export function setupDictationRoutes(app, render) {
@@ -51,7 +70,7 @@ export function setupDictationRoutes(app, render) {
       let warningHtml = '';
       if (warning === 'audio-incomplete') {
         warningHtml = `
-          <div style="background-color: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+          <div class="notice">
             <strong>${escapeHtml(ui.audioWarningLabel)}</strong> ${escapeHtml(ui.audioWarning)}
           </div>
         `;
@@ -59,23 +78,42 @@ export function setupDictationRoutes(app, render) {
 
       let audioPlayersHtml = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
+        const n = i + 1;
         audioPlayersHtml += `
-          <div class="sentence-item">
-            <div class="sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
-            <audio controls src="${escapeHtml(getAudioUrl(dictation, i))}"></audio>
+          <article class="sentence-item">
+            <div class="sentence-head">
+              <div class="sentence-number">${escapeHtml(ui.sentence)} ${n}</div>
+              <span class="sentence-score" hidden aria-live="polite"></span>
+            </div>
+            <audio controls data-player preload="metadata" src="${escapeHtml(getAudioUrl(dictation, i))}"></audio>
+            <div class="write-area">
+              <label for="write-${n}" class="visually-hidden">${escapeHtml(ui.sentence)} ${n}</label>
+              <textarea id="write-${n}" rows="2" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" lang="${escapeHtml(languageCode)}" placeholder="${escapeHtml(ui.writePlaceholder)}"></textarea>
+            </div>
+            <div class="write-actions">
+              <button type="button" class="check-btn secondary btn-small">${escapeHtml(ui.checkButton)}</button>
+            </div>
+            <div class="check-result" hidden></div>
             <div class="sentence-text" hidden>${escapeHtml(dictation.sentences[i])}</div>
-          </div>
+          </article>
         `;
       }
 
-      const showTextButton = `<button id="showTextBtn" class="secondary">${escapeHtml(ui.showText)}</button>`;
+      const showTextButton = `<button id="showTextBtn" type="button" class="secondary" data-show="${escapeHtml(ui.showText)}" data-hide="${escapeHtml(ui.hideText)}">${escapeHtml(ui.showText)}</button>`;
 
       const playModeLink = dictation.pin
-        ? `<a href="/dictation/${id}/play" class="btn">${escapeHtml(ui.playMode)}</a>`
+        ? `<a href="/dictation/${id}/play" class="btn">${PLAY_ICON}${escapeHtml(ui.playMode)}</a>`
         : '';
 
       const languageIndicator = `<span class="language-badge">${escapeHtml(lang.displayName)}</span>`;
-      const escapedTopics = dictation.topics.map(t => escapeHtml(t)).join(', ');
+      const escapedTopics = dictation.topics.map(t => `<span class="topic-chip">${escapeHtml(t)}</span>`).join(' ');
+      const practiceLabels = [
+        playerLabelAttrs(ui),
+        `data-l-words="${escapeHtml(ui.wordsCorrect)}"`,
+        `data-l-perfect="${escapeHtml(ui.perfect)}"`,
+        `data-l-legend="${escapeHtml(ui.checkLegend)}"`,
+        `data-l-session="${escapeHtml(ui.sessionScore)}"`,
+      ].join(' ');
       const displayTitle = dictation.title ? escapeHtml(dictation.title) : id;
       const csrfInput = `<input type="hidden" name="_csrf" value="${escapeHtml(req.csrfToken)}">`;
 
@@ -98,8 +136,12 @@ export function setupDictationRoutes(app, render) {
             <button type="submit" class="delete">${escapeHtml(ui.deleteDictation)}</button>
           </form>` : '',
         backHome: ui.backToOverview,
-        showText: escapeHtml(ui.showText),
-        hideText: escapeHtml(ui.hideText),
+        sentenceCountText: escapeHtml(ui.sentenceCount.replace('{n}', dictation.sentences.length)),
+        practiceLabels,
+        writeAlongHeading: escapeHtml(ui.writeAlongHeading),
+        writeAlongHint: escapeHtml(ui.writeAlongHint),
+        shortcutReplay: escapeHtml(ui.shortcutReplay),
+        shortcutCheck: escapeHtml(ui.shortcutCheck),
       });
 
       res.send(html);
@@ -153,13 +195,13 @@ export function setupDictationRoutes(app, render) {
       const languageIndicator = `<span class="language-badge">${escapeHtml(lang.displayName)}</span>`;
       let sentenceCards = '';
       for (let i = 0; i < dictation.sentences.length; i++) {
-        const hiddenClass = i === 0 ? '' : ' hidden';
+        const stateClass = i === 0 ? ' is-current' : ' hidden';
         sentenceCards += `
-          <div class="play-sentence-card${hiddenClass}">
-            <div class="play-sentence-number">${escapeHtml(ui.sentence)} ${i + 1}</div>
-            <audio controls src="${escapeHtml(getAudioUrl(dictation, i))}"></audio>
+          <section class="play-sentence-card${stateClass}" aria-label="${escapeHtml(ui.sentence)} ${i + 1}">
+            <div class="play-sentence-number"><span>${escapeHtml(ui.sentence)}</span> <b>${i + 1}</b></div>
+            <audio controls data-player preload="metadata" src="${escapeHtml(getAudioUrl(dictation, i))}"></audio>
             <div class="play-sentence-text">${escapeHtml(dictation.sentences[i])}</div>
-          </div>
+          </section>
         `;
       }
 
@@ -176,6 +218,11 @@ export function setupDictationRoutes(app, render) {
         closePage: ui.closePage,
         revealAll: ui.revealAll,
         revealConfirm: escapeHtml(ui.revealConfirm),
+        playerLabels: playerLabelAttrs(ui),
+        listenPrompt: escapeHtml(ui.listenPrompt),
+        keyPlay: escapeHtml(ui.keyPlayPause),
+        keyReplay: escapeHtml(ui.playerReplay),
+        keyNext: escapeHtml(ui.nextSentence),
       }));
     } catch (error) {
       console.error('Error loading play mode:', error);

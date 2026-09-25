@@ -1,21 +1,35 @@
-<h1>{{homeHeading}}</h1>
-
-<div class="home-columns">
-  <div class="home-left">
-    <p class="description">
-      {{homeDescription}}
-    </p>
+<section class="hero">
+  <div>
+    <span class="eyebrow">{{homeEyebrow}}</span>
+    <h1>{{homeHeading}}</h1>
+    <p class="description">{{homeDescription}}</p>
     <div class="btn-wrapper">
-      <a href="/dictations" class="btn">{{homeViewDictations}}</a>
+      <a href="/dictations" class="btn btn-lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.53.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
+        {{homeViewDictations}}
+      </a>
     </div>
   </div>
-  <div class="home-right">
-    <h2>{{homeHowItWorks}}</h2>
-    <ol class="feature-list">
-      <li>{{homeStep1}}</li>
-      <li>{{homeStep2}}</li>
-      <li>{{homeStep3}}</li>
-      <li>{{homeStep4}}</li>
-    </ol>
+
+  <div class="hero-visual" aria-hidden="true">
+    <div class="demo-card">
+      <div class="demo-player">
+        <span class="demo-play"><svg viewBox="0 0 24 24"><rect x="5.5" y="4" width="4.5" height="16" rx="1.2"/><rect x="14" y="4" width="4.5" height="16" rx="1.2"/></svg></span>
+        <div class="demo-wave">{{demoWave}}</div>
+      </div>
+      <div class="write-area">
+        <div class="demo-paper textarea-look">{{homeDemoBefore}} <del>{{homeDemoWrong}}</del><ins>{{homeDemoRight}}</ins> {{homeDemoAfter}}<span class="demo-caret"></span></div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
+
+<section class="home-steps">
+  <h2>{{homeHowItWorks}}</h2>
+  <ol class="steps">
+    <li>{{homeStep1}}</li>
+    <li>{{homeStep2}}</li>
+    <li>{{homeStep3}}</li>
+    <li>{{homeStep4}}</li>
+  </ol>
+</section>

@@ -73,6 +73,36 @@ export default {
     revealConfirm: 'Weet je zeker dat je alle tekst wilt onthullen? Dit kan niet ongedaan worden.',
     submit: 'Bevestigen',
 
+    // Audio player
+    playerPlay: 'Afspelen',
+    playerPause: 'Pauzeren',
+    playerReplay: 'Opnieuw',
+    playerSpeed: 'Afspeelsnelheid',
+    playerHeard: 'Aantal keer beluisterd',
+    playerSeek: 'Spoelen',
+
+    // Write along
+    writeAlongHeading: 'Schrijf mee',
+    writeAlongHint: 'Druk op afspelen en typ wat je hoort.',
+    writePlaceholder: 'Typ wat je hoort…',
+    checkButton: 'Nakijken',
+    shortcutReplay: 'opnieuw',
+    shortcutCheck: 'nakijken',
+    wordsCorrect: '{n} van {total} woorden goed',
+    perfect: 'Foutloos!',
+    checkLegend: 'Doorgestreept: wat jij schreef. Rood onderstreept: wat het moet zijn.',
+    sessionScore: 'Tot nu toe: {n} van {total} woorden goed',
+    sentenceCount: '{n} zinnen',
+    listenPrompt: 'Luister goed en schrijf het op',
+    keyPlayPause: 'afspelen / pauze',
+
+    // Home hero
+    homeEyebrow: 'Dictee, hardop en samen',
+    homeDemoBefore: 'De pinguïn at een',
+    homeDemoWrong: 'croisantje',
+    homeDemoRight: 'croissantje',
+    homeDemoAfter: 'op het perron',
+
     // Passphrase
     passphraseHeading: 'Toegangscode',
     passphraseDescription: 'Voer de toegangscode in om een dictee te maken.',
